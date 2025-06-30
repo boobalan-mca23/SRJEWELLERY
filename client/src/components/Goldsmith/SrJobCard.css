@@ -1,0 +1,30 @@
+.goldSmith {
+  margin: 16px;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fefefe, #fbfbfb);
+  width: 100%;
+  max-width: 350px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.goldSmith:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.goldsmithhead {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px dashed #a87c00;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  text-transform: capitalize;
+}
+.addbtn{
+    background: blue;
+    color:white;
+    padding: 10px;
+}
