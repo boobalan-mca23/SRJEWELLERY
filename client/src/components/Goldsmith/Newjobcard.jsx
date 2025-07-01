@@ -4,27 +4,37 @@ import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import "./NewJobCard.css";
 
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
-const NewJobCard = ({name}) => {
+const NewJobCard = ({ open, onclose, edit, name }) => {
   
   const today = new Date().toLocaleDateString("en-IN");
-
-  const [description, setDescription] = useState("");
+ // const [description, setDescription] = useState("");
   const [goldRows, setGoldRows] = useState([
-    { weight: "", touch: "", purity: "" },
+    { weight: "", touch: 91.7, },
   ]);
   const [itemRows, setItemRows] = useState([{ weight: "", name: "" }]);
   const [deductionRows, setDeductionRows] = useState([
     { type: "Stone", customType: "", weight: "" },
   ]);
+  const[received,setReceived]=useState([{ weight: 0, touch: 0 ,purity:0}])
+  
 
   const fixedOpeningBalance = 10.0;
 
   const [netWeight, setNetWeight] = useState("0.000");
-  const [touch, setTouch] = useState("");
-  const [percentageSymbol, setPercentageSymbol] = useState("Touch");
+  const [goldSmithWastage,setGoldSmithWastage]=useState(18.5)
+  const [wastage,setWastage]=useState(0)
+  const [finalTotal,setFinalTotal]=useState(0)
+  // const [touch, setTouch] = useState("");
+  // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
 
   const [itemTouch, setItemTouch] = useState("");
   const [itemPurity, setItemPurity] = useState("0.000");
@@ -41,6 +51,16 @@ const NewJobCard = ({name}) => {
     );
     setGoldRows(copy);
   };
+  const handleRecivedChange = (i, field, val) => {
+    const copy = [...received];
+    copy[i][field] = val;
+     copy[i].purity = calculatePurity(
+      parseFloat(copy[i].weight),
+      parseFloat(copy[i].touch)
+    );
+    
+    setReceived(copy);
+  };
 
   const handleItemRowChange = (i, field, val) => {
     const updated = [...itemRows];
@@ -54,12 +74,16 @@ const NewJobCard = ({name}) => {
     setDeductionRows(updated);
   };
 
-  const totalPurity = goldRows.reduce(
+  const totalGoldWeight = goldRows.reduce(
+    (sum, row) => sum + parseFloat(row.weight || 0),
+    0
+  );
+  const totalReceivedWeight = received.reduce(
     (sum, row) => sum + parseFloat(row.purity || 0),
     0
   );
 
-  const totalBalance = parseFloat(fixedOpeningBalance) + totalPurity;
+  const totalBalance = parseFloat(fixedOpeningBalance) + totalGoldWeight;
 
   const totalItemWeight = itemRows.reduce(
     (sum, item) => sum + parseFloat(item.weight || 0),
@@ -78,41 +102,34 @@ const NewJobCard = ({name}) => {
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
     setNetWeight(format(calculatedNetWeight));
+    setWastage(format(calculatedNetWeight*goldSmithWastage/100))
+    setFinalTotal(calculatedNetWeight+(calculatedNetWeight*goldSmithWastage)/100)
   }, [itemRows, deductionRows]);
 
-  const getFinalPurityWithAdjustment = () => {
-    const base = parseFloat(netWeight);
-    const value = parseFloat(touch);
+  
 
-    if (isNaN(base) || isNaN(value)) return "0.000";
-
-    let finalValue = base;
-
-    if (percentageSymbol === "Touch") {
-      finalValue = (base * value) / 100;
-    } else if (percentageSymbol === "%") {
-      finalValue = base + (base * value) / 100;
-    } else if (percentageSymbol === "+") {
-      finalValue = base + value;
-    }
-
-    return format(finalValue);
-  };
-
-  const finalPurityForBalance = getFinalPurityWithAdjustment();
 
   const ownerGivesBalance =
-    parseFloat(finalPurityForBalance) > parseFloat(totalBalance);
+   ( parseFloat(totalBalance) - parseFloat(finalTotal))>0;
 
   const balanceDifference = Math.abs(
-    parseFloat(finalPurityForBalance) - parseFloat(totalBalance)
+   parseFloat(totalBalance) - parseFloat(finalTotal)
   );
 
-  const symbolOptions = ["Touch", "%", "+"];
+  // const symbolOptions = ["Touch", "%", "+"];
   const itemOptions = ["Ring", "Chain", "Bangle"];
   const stoneOptions = ["Stone", "Enamel", "Beads", "Others"];
 
   return (
+      <Dialog open={open} onClose={onclose} maxWidth={false} PaperProps={{ className: "jobcard-dialog" }}>
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {edit ? "Update Job Card" : "Add New Job Card"}
+        <IconButton onClick={onclose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent>
     <div className="container">
       <div className="header">
         <div className="header-item">
@@ -123,7 +140,7 @@ const NewJobCard = ({name}) => {
         </div>
       </div>
 
-      <div className="section">
+      {/* <div className="section">
         <label htmlFor="description" className="label">
           Description
         </label>
@@ -135,7 +152,7 @@ const NewJobCard = ({name}) => {
           className="textarea"
           placeholder="Enter job description..."
         />
-      </div>
+      </div> */}
 
       <div className="section">
         <h3 className="section-title">Given Gold</h3>
@@ -156,27 +173,27 @@ const NewJobCard = ({name}) => {
               onChange={(e) => handleGoldRowChange(i, "touch", e.target.value)}
               className="input"
             />
-            <span className="operator">=</span>
+            {/* <span className="operator">=</span>
             <input
               type="text"
               readOnly
               placeholder="Purity"
               value={format(row.purity)}
               className="input-read-only"
-            />
+            /> */}
           </div>
         ))}
         <button
           onClick={() =>
-            setGoldRows([...goldRows, { weight: "", touch: "", purity: "" }])
+            setGoldRows([...goldRows, { weight: "", touch: 91.7}])
           }
           className="circle-button"
         >
           +
         </button>
-        <div className="total-purity-container">
-          <span className="total-purity-label">Total Purity:</span>
-          <span className="total-purity-value">{format(totalPurity)}</span>
+        <div className="total-gold-container">
+          <span className="total-gold-label">Total:</span>
+          <span className="total-gold-value">{format(totalGoldWeight)}</span>
         </div>
       </div>
 
@@ -188,8 +205,8 @@ const NewJobCard = ({name}) => {
             <span className="balance-value">{format(fixedOpeningBalance)}</span>
           </div>
           <div className="balance-display-row">
-            <span className="balance-label">Total Purity:</span>
-            <span className="balance-value">{format(totalPurity)}</span>
+            <span className="balance-label">Total:</span>
+            <span className="balance-value">{format(totalGoldWeight)}</span>
           </div>
           <div>----------</div>
           <div className="balance-display-row">
@@ -230,13 +247,13 @@ const NewJobCard = ({name}) => {
         >
           +
         </button>
-        <div className="total-purity-container">
-          <span className="total-purity-label">Total Item Weight:</span>
-          <span className="total-purity-value">{format(totalItemWeight)}</span>
+        <div className="total-gold-container">
+          <span className="total-gold-label">Total Item Weight:</span>
+          <span className="total-gold-value">{format(totalItemWeight)}</span>
         </div>
 
         <div className="deduction-section">
-          <h4>Deductions </h4>
+          <h4>Stone Section </h4>
           {deductionRows.map((deduction, i) => (
             <div key={i} className="deduction-row">
               <select
@@ -299,17 +316,19 @@ const NewJobCard = ({name}) => {
             {netWeight}
           </span>
         </div>
-
+        <div>
+           <strong>Wastage Section</strong>
+        </div>
         <div className="input-group-fluid" style={{ marginTop: "10px" }}>
-          <div
+           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
+              gap: "12px",
               flexWrap: "wrap",
             }}
           >
-            <select style={{width:"6rem"}}
+            {/* <select style={{width:"6rem"}}
               value={percentageSymbol}
               onChange={(e) => setPercentageSymbol(e.target.value)}
               className="select-small"
@@ -319,22 +338,87 @@ const NewJobCard = ({name}) => {
                   {symbol}
                 </option>
               ))}
-            </select>
+            </select> */}
 
             <input
+              readOnly
               type="number"
-              placeholder="Enter Value"
-              value={touch}
-              onChange={(e) => setTouch(e.target.value)}
-              className="input"
+              value={netWeight}
+              className="inputwastage"
+              
             />
-
-            <span className="operator">=</span>
-            <span className="net-weight-value" style={{ color: "red" }}>
-              {finalPurityForBalance}
-            </span>
+            <span className="operator">x</span>
+             <input
+              readOnly
+              type="number"
+              value={goldSmithWastage}
+              className="inputwastage"
+             
+            
+            />
+             <span className="operator">=</span>
+           <input
+              readOnly
+              type="number"
+              value={wastage}
+              className="inputwastage"
+           
+            
+            />
+           <div className="calculationBox">
+               <span><strong>Calculation:</strong></span> <br></br><br></br>
+               <span>netWeight * wastage / 100 = total</span>
+           </div>
           </div>
         </div>
+        <div className="finalTotalContainer">
+          
+          <span className="finalTotal"><strong>Total</strong> = {netWeight} + {wastage}</span><br></br><br></br>
+          <span className="finalTotal"> = <strong> {format(finalTotal)}</strong></span>
+        </div>
+
+         <div className="section">
+        <h3 className="section-title">Received Section</h3>
+           {received.map((row, i) => (
+           <div key={i} className="row">
+            <input
+              type="number"
+              placeholder="Weight"
+              value={row.weight}
+              onChange={(e) => handleRecivedChange(i, "weight", e.target.value)}
+              className="input"
+            />
+            <span className="operator">x</span>
+            <input
+              type="number"
+              placeholder="Touch"
+              value={row.touch}
+              onChange={(e) => handleRecivedChange(i, "touch", e.target.value)}
+              className="input"
+            />
+            <span className="operator">=</span>
+            <input
+              type="text"
+              readOnly
+              placeholder="Purity"
+              value={format(row.purity)}
+              className="input-read-only"
+            />
+          </div>
+        ))}
+        <button
+          onClick={() =>
+            setReceived([...received, { weight: 0, touch: 0, purity:0}])
+          }
+          className="circle-button"
+        >
+          +
+        </button>
+        <div className="total-purity-container">
+          <span className="total-purity-label">Total:</span>
+          <span className="total-purity-value">{format(totalReceivedWeight)}</span>
+        </div>
+      </div>
       </div>
 
       <div
@@ -348,23 +432,28 @@ const NewJobCard = ({name}) => {
       {parseFloat(netWeight) !== 0 && (
         <div className="final-balance-section">
           {ownerGivesBalance ? (
-            <p className="balance-text-owner">
-              Owner should give balance:
-              <span className="balance-amount">
-                {format(balanceDifference)}
-              </span>
-            </p>
-          ) : (
-            <p className="balance-text-goldsmith">
+           <p className="balance-text-goldsmith">
               Goldsmith should give balance:
               <span className="balance-amount">
                 {format(balanceDifference)}
               </span>
             </p>
+          ) : (
+             <p className="balance-text-owner">
+              Owner should give balance:
+              <span className="balance-amount">
+                {format(balanceDifference)}
+              </span>
+            </p>
+            
           )}
         </div>
       )}
     </div>
+      
+    </DialogContent>
+      </Dialog>
+    
   );
 };
 

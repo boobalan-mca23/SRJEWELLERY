@@ -68,6 +68,7 @@ model Goldsmith {
   name      String
   phone     String?
   address   String?
+  wastage   Float?
   createdAt DateTime @default(now())
   jobCards  JobCard[]  
 }

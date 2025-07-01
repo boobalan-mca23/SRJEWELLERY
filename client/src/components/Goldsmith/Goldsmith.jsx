@@ -38,6 +38,7 @@ const Goldsmith = () => {
     name: "",
     phone: "",
     address: "",
+    wastage:""
   });
 
   useEffect(() => {
@@ -59,6 +60,7 @@ const Goldsmith = () => {
       name: goldsmith.name,
       phone: goldsmith.phone,
       address: goldsmith.address,
+      wastage:goldsmith.wastage
     });
     setOpenEditDialog(true);
   };
@@ -179,6 +181,9 @@ const Goldsmith = () => {
                 <strong>Address</strong>
               </TableCell>
               <TableCell align="center">
+                <strong>GoldSmith Wastage</strong>
+              </TableCell>
+              <TableCell align="center">
                 <strong>Actions</strong>
               </TableCell>
             </TableRow>
@@ -190,6 +195,7 @@ const Goldsmith = () => {
                   <TableCell align="center">{goldsmith.name}</TableCell>
                   <TableCell align="center">{goldsmith.phone}</TableCell>
                   <TableCell align="center">{goldsmith.address}</TableCell>
+                   <TableCell align="center">{goldsmith.wastage}</TableCell>
                   <TableCell align="center">
                     <Tooltip title="View Jobcard">
                       <Link
@@ -269,6 +275,15 @@ const Goldsmith = () => {
             margin="normal"
             onChange={(e) =>
               setFormData({ ...formData, address: e.target.value })
+            }
+          />
+           <TextField
+            label="Wastage"
+            value={formData.wastage}
+            fullWidth
+            margin="normal"
+            onChange={(e) =>
+              setFormData({ ...formData, wastage: e.target.value })
             }
           />
         </DialogContent>
