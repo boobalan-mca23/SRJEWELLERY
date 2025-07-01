@@ -18,6 +18,7 @@ function Mastergoldsmith() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [goldsmithName, setgoldsmithName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [wastage, setWastage] = useState("");
   const [address, setAddress] = useState("");
   const [goldsmith, setGoldsmith] = useState([]);
 
@@ -38,6 +39,7 @@ function Mastergoldsmith() {
         name: goldsmithName,
         phonenumber: phoneNumber || null,
         address: address || null,
+        wastage:wastage || null
       };
 
       try {
@@ -105,6 +107,17 @@ function Mastergoldsmith() {
             rows={4}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
+            autoComplete="off"
+          />
+
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Goldsmith Wastage"
+            type="text"
+            fullWidth
+            value={wastage}
+            onChange={(e) => setWastage(e.target.value)}
             autoComplete="off"
           />
         </DialogContent>

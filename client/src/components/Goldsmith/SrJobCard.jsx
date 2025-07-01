@@ -1,7 +1,8 @@
 import { useState } from "react"
 import './SrJobCard.css'
 import { FaEye } from "react-icons/fa";
-import JobCardPopup from "../JobCardPopup/JobCardPopup";
+// import JobCardPopup from "../JobCardPopup/JobCardPopup";
+import NewJobCard from "./Newjobcard";
 const SrJobCard=()=>{
 
     const [jobCard,setJobCard]=useState([
@@ -86,9 +87,10 @@ const SrJobCard=()=>{
                                             <td>{item.itemwtTotal}</td>
                                             <td>{item.stoneweight}</td>
                                             <td>{item.wastage}</td>
-                                            <td><button onClick={()=>{
+                                            <td>
+                                          <button onClick={()=>{
                                                 setopen(true)
-                                                setEdit(true)}} ><FaEye/></button></td>
+                                                setEdit(true)}} ><FaEye style={{width:"20px",height:"20px"}}/></button></td>
                                         </tr>
                                     ))
                                   }
@@ -98,12 +100,12 @@ const SrJobCard=()=>{
                  
               </div>
              {open && 
-              <JobCardPopup
+              <NewJobCard
                 name={jobCard[0].goldSmith.name}
                 open={open}
                 onclose={()=>setopen(false)}
                 edit={edit}
-              ></JobCardPopup>}
+              ></NewJobCard>}
             </>
             
             

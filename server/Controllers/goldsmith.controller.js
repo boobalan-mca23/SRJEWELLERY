@@ -2,7 +2,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createGoldsmith = async (req, res) => {
-  const { name, phonenumber, address } = req.body;
+  const { name, phonenumber, address, wastage} = req.body;
+  console.log(req.body)
 
   if (!name) {
     return res.status(400).json({ message: "Goldsmith name is required." });
@@ -14,6 +15,7 @@ exports.createGoldsmith = async (req, res) => {
         name,
         phone: phonenumber || null,
         address: address || null,
+        wastage:parseFloat(wastage)||null
       },
     });
     res.status(201).json(newGoldsmith);
