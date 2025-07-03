@@ -15,8 +15,16 @@ exports.createGoldsmith = async (req, res) => {
         name,
         phone: phonenumber || null,
         address: address || null,
-        wastage:parseFloat(wastage)||null
+        wastage:parseFloat(wastage)||0,
+        goldSmithBalance:{
+          create:{
+           balance :0
+          }
+        }
       },
+      include:{
+        goldSmithBalance:true
+      }
     });
     res.status(201).json(newGoldsmith);
   } catch (error) {
@@ -49,14 +57,16 @@ exports.getGoldsmithById = async (req, res) => {
 
 exports.updateGoldsmith = async (req, res) => {
   const { id } = req.params;
-  const { name, phonenumber, address } = req.body;
+  const { name, phone, address ,wastage} = req.body;
+  console.log('req body update',req.body)
   try {
     const updatedGoldsmith = await prisma.goldsmith.update({
       where: { id: parseInt(id) },
       data: {
         name,
-        phonenumber,
+        phone,
         address,
+        wastage:parseFloat(wastage)
       },
     });
     res.status(200).json(updatedGoldsmith);

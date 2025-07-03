@@ -409,4 +409,8 @@
   padding: 24px;
   border-radius: 12px;
  }
-
+.deleteIcon{
+  font-size: 25px;
+  color: red;
+  cursor: pointer;
+}
