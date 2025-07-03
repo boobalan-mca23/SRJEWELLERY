@@ -282,6 +282,7 @@ const Goldsmith = () => {
             value={formData.wastage}
             fullWidth
             margin="normal"
+            type="number"
             onChange={(e) =>
               setFormData({ ...formData, wastage: e.target.value })
             }

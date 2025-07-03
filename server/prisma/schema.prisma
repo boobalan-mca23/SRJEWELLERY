@@ -71,18 +71,49 @@ model Goldsmith {
   wastage   Float?
   createdAt DateTime @default(now())
   jobCards  JobCard[]  
+  goldSmithBalance GoldSmithBalance[]
 }
 
-model JobCard {
-  id          Int       @id @default(autoincrement())
-  date        DateTime
-  description String?
+model GoldSmithBalance {
+  id          Int      @id @default(autoincrement())
   goldsmithId Int
+  balance     Float?
   goldsmith   Goldsmith @relation(fields: [goldsmithId], references: [id])
-  items       Item[]
+  createdAt DateTime @default(now())
+}
+model JobCard {
+  id           Int       @id @default(autoincrement())
+  goldsmithId  Int
+  goldsmith    Goldsmith @relation(fields: [goldsmithId], references: [id])
+  items        Item[]
+  givenGold    GivenGold[]
+  deliveryItem DeliveryItem[]
+  additionalWeight AdditionalWeight[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 } 
+model GivenGold{
+  id           Int    @id @default(autoincrement())
+  jobcardId    Int
+  itemName     String?
+  weight       Int
+  touch        Float
+  total        Float
+  totalBalance Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  jobCard      JobCard @relation(fields: [jobcardId], references: [id])
+}
+model DeliveryItem{
+  id           Int @id @default(autoincrement())
+  jobcardId    Int
+  weight       Int
+  itemName     String?
+  total        Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  jobCard      JobCard @relation(fields: [jobcardId], references: [id])
+}
 
 model Item {
   id                  Int               @id @default(autoincrement())
@@ -97,15 +128,17 @@ model Item {
   finalWeight         Float?
   wastage             Float?
   purity              Float?
-  additionalWeights   AdditionalWeight[]
+  
 }
 model AdditionalWeight {
-  id     Int    @id @default(autoincrement())
-  name   String
-  weight Float
-  itemId Int
-  operators String
-  item   Item   @relation(fields: [itemId], references: [id])
+  id           Int    @id @default(autoincrement())
+  jobcardId    Int
+  ItemName     String?
+  weight       Float
+  total        Int
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  jobCard      JobCard @relation(fields: [jobcardId], references: [id])
 }
 
 

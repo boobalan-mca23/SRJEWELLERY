@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
+import { MdDeleteForever } from "react-icons/md";
 import "./NewJobCard.css";
+import { goldRowValidation,receiveRowValidation } from "./JobcardValidation";
 
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -10,29 +12,27 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+
 const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
-const NewJobCard = ({ open, onclose, edit, name }) => {
+const NewJobCard = ({ 
+  open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,
+ masterItems,handleSaveJobCard}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
-  const [goldRows, setGoldRows] = useState([
-    { weight: "", touch: 91.7, },
-  ]);
+  
   const [itemRows, setItemRows] = useState([{ weight: "", name: "" }]);
   const [deductionRows, setDeductionRows] = useState([
     { type: "Stone", customType: "", weight: "" },
   ]);
-  const[received,setReceived]=useState([{ weight: 0, touch: 0 ,purity:0}])
-  
-
-  const fixedOpeningBalance = 10.0;
-
-  const [netWeight, setNetWeight] = useState("0.000");
-  const [goldSmithWastage,setGoldSmithWastage]=useState(18.5)
-  const [wastage,setWastage]=useState(0)
-  const [finalTotal,setFinalTotal]=useState(0)
+  const[received,setReceived]=useState([])
+  const[formErrors,setFormErrors]=useState([])
+  const[receivedErrors,setReceivedErrors]=useState([])
+  const[netWeight, setNetWeight] = useState("0.000");
+  const[wastage,setWastage]=useState(0)
+  const[finalTotal,setFinalTotal]=useState(0)
   // const [touch, setTouch] = useState("");
   // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
 
@@ -45,19 +45,19 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
   const handleGoldRowChange = (i, field, val) => {
     const copy = [...goldRows];
     copy[i][field] = val;
-    copy[i].purity = calculatePurity(
-      parseFloat(copy[i].weight),
-      parseFloat(copy[i].touch)
-    );
+    // copy[i].purity = calculatePurity(
+    //   parseFloat(copy[i].weight),
+    //   parseFloat(copy[i].touch)
+    // );
     setGoldRows(copy);
   };
   const handleRecivedChange = (i, field, val) => {
     const copy = [...received];
     copy[i][field] = val;
-     copy[i].purity = calculatePurity(
-      parseFloat(copy[i].weight),
-      parseFloat(copy[i].touch)
-    );
+    //  copy[i].purity = calculatePurity(
+    //   parseFloat(copy[i].weight),
+    //   parseFloat(copy[i].touch)
+    // );
     
     setReceived(copy);
   };
@@ -79,11 +79,11 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
     0
   );
   const totalReceivedWeight = received.reduce(
-    (sum, row) => sum + parseFloat(row.purity || 0),
+    (sum, row) => sum + parseFloat(row.weight || 0),
     0
   );
 
-  const totalBalance = parseFloat(fixedOpeningBalance) + totalGoldWeight;
+  const totalBalance = parseFloat(balance) + totalGoldWeight;
 
   const totalItemWeight = itemRows.reduce(
     (sum, item) => sum + parseFloat(item.weight || 0),
@@ -117,8 +117,26 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
   );
 
   // const symbolOptions = ["Touch", "%", "+"];
-  const itemOptions = ["Ring", "Chain", "Bangle"];
+ 
   const stoneOptions = ["Stone", "Enamel", "Beads", "Others"];
+  
+  const SaveJobCard=()=>{
+     // form validation
+      let goldIsTrue=goldRowValidation(goldRows,setFormErrors)
+      let receivedIsTrue=receiveRowValidation(received,setReceivedErrors)
+     if(goldIsTrue){
+       handleSaveJobCard(totalGoldWeight,totalBalance)
+    }
+  }
+
+ const handleRemoveReceived=(removeIndex)=>{
+       const receivedItems=received.filter((_,index)=>index!=removeIndex)
+       console.log('index',removeIndex)
+       console.log('receivedItems',receivedItems)
+       setReceived(receivedItems)
+      
+ }
+
 
   return (
       <Dialog open={open} onClose={onclose} maxWidth={false} PaperProps={{ className: "jobcard-dialog" }}>
@@ -158,21 +176,44 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
         <h3 className="section-title">Given Gold</h3>
         {goldRows.map((row, i) => (
           <div key={i} className="row">
-            <input
+            <div>
+              <select
+              value={row.itemName}
+              
+              onChange={(e) => handleGoldRowChange(i, "itemName", e.target.value)}
+              className="select"
+            >
+              <option value="">Select Item</option>
+              { masterItems.map((option,index) => (
+                <option key={index} value={option.itemName}>
+                  {option.itemName}
+                </option>
+              ))}
+            </select> <br></br>
+           {formErrors[i]?.itemName&& (<span style={{color:"red",fontSize:"16px"}}>{formErrors[i]?.itemName}</span>)}
+            </div>
+            <div>
+              <input
               type="number"
               placeholder="Weight"
               value={row.weight}
               onChange={(e) => handleGoldRowChange(i, "weight", e.target.value)}
               className="input"
-            />
+            /> <br></br>
+            {formErrors[i]?.weight&& (<span style={{color:"red",fontSize:"16px"}}>{formErrors[i].weight}</span>)}
+            </div>
+             
             <span className="operator">x</span>
-            <input
+            <div>
+                 <input
               type="number"
               placeholder="Touch"
               value={row.touch}
               onChange={(e) => handleGoldRowChange(i, "touch", e.target.value)}
               className="input"
-            />
+            /><br></br>
+             {formErrors[i]?.touch&& (<span style={{color:"red",fontSize:"16px"}}>{formErrors[i].touch}</span>)}
+            </div>
             {/* <span className="operator">=</span>
             <input
               type="text"
@@ -185,7 +226,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
         ))}
         <button
           onClick={() =>
-            setGoldRows([...goldRows, { weight: "", touch: 91.7}])
+            setGoldRows([...goldRows, { itemName:"",weight: "", touch: 91.7}])
           }
           className="circle-button"
         >
@@ -202,7 +243,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
         <div className="balance-block">
           <div className="balance-display-row">
             <span className="balance-label">Opening Balance:</span>
-            <span className="balance-value">{format(fixedOpeningBalance)}</span>
+            <span className="balance-value">{format(balance)}</span>
           </div>
           <div className="balance-display-row">
             <span className="balance-label">Total:</span>
@@ -226,24 +267,28 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
               value={item.weight}
               onChange={(e) => handleItemRowChange(i, "weight", e.target.value)}
               className="input"
+              disabled={!edit}
             />
             <select
               value={item.name}
               onChange={(e) => handleItemRowChange(i, "name", e.target.value)}
               className="select"
+              disabled={!edit}
             >
               <option value="">Select Item</option>
-              {itemOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+              { masterItems.map((option,index) => (
+                <option key={index} value={option.itemName}>
+                  {option.itemName}
                 </option>
               ))}
+             
             </select>
           </div>
         ))}
         <button
           onClick={() => setItemRows([...itemRows, { weight: "", name: "" }])}
           className="circle-button"
+          disabled={!edit}
         >
           +
         </button>
@@ -262,6 +307,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
                   handleDeductionChange(i, "type", e.target.value)
                 }
                 className="deduction-select"
+                disabled={!edit}
               >
                 {stoneOptions.map((option) => (
                   <option key={option} value={option}>
@@ -271,6 +317,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
               </select>
               {deduction.type === "Others" && (
                 <input
+                  disabled={!edit}
                   type="text"
                   placeholder="Specify type"
                   value={deduction.customType}
@@ -281,6 +328,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
                 />
               )}
               <input
+                disabled={!edit}
                 type="number"
                 value={deduction.weight}
                 onChange={(e) =>
@@ -298,6 +346,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
                 { type: "Stone", customType: "", weight: "" },
               ])
             }
+            disabled={!edit}
             className="circle-button"
           >
             +
@@ -381,34 +430,42 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
         <h3 className="section-title">Received Section</h3>
            {received.map((row, i) => (
            <div key={i} className="row">
-            <input
+            <div>
+              <input
               type="number"
               placeholder="Weight"
               value={row.weight}
               onChange={(e) => handleRecivedChange(i, "weight", e.target.value)}
               className="input"
-            />
+            /><br></br>
+            {receivedErrors[i]?.weight && (<span style={{color:"red",fontSize:"16px"}}>{receivedErrors[i].weight}</span>)}
+            </div>
             <span className="operator">x</span>
-            <input
+             <div>
+               <input
               type="number"
               placeholder="Touch"
               value={row.touch}
               onChange={(e) => handleRecivedChange(i, "touch", e.target.value)}
               className="input"
             />
-            <span className="operator">=</span>
+             {receivedErrors[i]?.touch && (<span style={{color:"red",fontSize:"16px"}}>{receivedErrors[i].touch}</span>)}
+             </div>
+           <MdDeleteForever className="deleteIcon" onClick={()=>{handleRemoveReceived(i)}}/>
+            {/* <span className="operator">=</span>
             <input
               type="text"
               readOnly
               placeholder="Purity"
               value={format(row.purity)}
               className="input-read-only"
-            />
+            /> */}
           </div>
         ))}
         <button
+         
           onClick={() =>
-            setReceived([...received, { weight: 0, touch: 0, purity:0}])
+            setReceived([...received, { weight: 0, touch: 0}])
           }
           className="circle-button"
         >
@@ -424,7 +481,7 @@ const NewJobCard = ({ open, onclose, edit, name }) => {
       <div
         style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
       >
-        <Button variant="contained" color="success">
+        <Button variant="contained" color="success" onClick={()=>SaveJobCard()}>
           SAVE
         </Button>
       </div>

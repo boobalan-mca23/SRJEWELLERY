@@ -27,6 +27,7 @@ function Mastergoldsmith() {
     setgoldsmithName("");
     setPhoneNumber("");
     setAddress("");
+    setWastage("")
   };
 
   const closeModal = () => {
@@ -114,11 +115,12 @@ function Mastergoldsmith() {
             autoFocus
             margin="dense"
             label="Goldsmith Wastage"
-            type="text"
+            type="number"
             fullWidth
             value={wastage}
             onChange={(e) => setWastage(e.target.value)}
             autoComplete="off"
+            
           />
         </DialogContent>
         <DialogActions>
