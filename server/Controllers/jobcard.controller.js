@@ -325,7 +325,7 @@ const prisma = new PrismaClient();
 
 //createJobCard
 const createJobCard = async (req, res) => {
-  const { goldsmithId,goldRows,goldTotal,goldTotalBalance} = req.body;
+  const { goldsmithId,goldRows,total} = req.body;
   console.log('reqbody',req.body,goldsmithId)
 
   try {
@@ -347,10 +347,17 @@ const createJobCard = async (req, res) => {
      
       itemName: item.itemName || null,
       weight: parseFloat(item.weight),
-      touch: parseFloat(item.touch),
-      total: parseFloat(goldTotal),
-      totalBalance: parseFloat(goldTotalBalance),
+      touch: parseFloat(item.touch)||null,
+      
     }));
+
+    const jobCardTotal={
+       "givenWt" :parseInt(total?.givenWt)||0,
+       "itemWt"  :parseInt(total?.itemWt)||0, 
+       "stoneWt" :parseInt(total?.stoneWt)||0,
+       "wastage" :parseInt(total?.wastage)||0,
+       "balance" :parseInt(total?.balance)||0
+    }
     
 
     // Create JobCard with nested GivenGold
@@ -360,6 +367,9 @@ const createJobCard = async (req, res) => {
         givenGold: {
           create: givenGoldArr,
         },
+        jobCardTotal:{
+          create:jobCardTotal
+        }
       },
     });
 
@@ -372,13 +382,17 @@ const createJobCard = async (req, res) => {
         givenGold: true,
         deliveryItem: true,
         additionalWeight: true,
+        jobCardTotal:true
       },
      
     });
+    let jobCardLength=await prisma.jobCard.findMany()
+
 
     return res.status(200).json({
       message: "JobCard created successfully",
       jobCards: allJobCards,
+      jobCardLength:jobCardLength.length+1
     });
   } catch (err) {
     console.error("Create JobCard Error:", err);
@@ -392,7 +406,7 @@ const createJobCard = async (req, res) => {
 
 const updateJobCard = async (req, res) => {
   const {goldSmithId,jobCardId}=req.params
-  const {goldRows =[],itemRow=[],deductionRows=[],goldTotal,goldTotalBalance,itemTotal,deductionTotal} = req.body;
+  const {goldRows =[],itemRow=[],deductionRows=[],total} = req.body;
   
 
   try {
@@ -405,51 +419,60 @@ const updateJobCard = async (req, res) => {
       return res.status(404).json({ error: "Goldsmith not found" });
     }
 
-    if (goldRow.length < 1 || itemRow.length<1 || deductionRows.length<1) {
-      return res.status(400).json({ error: "Given gold data is required" });
+    if (goldRows.length < 1) {
+      return res.status(400).json({ error: "Jobcard information is required" });
     }
-    
+    if(!total){
+      return res.status(400).json({ error: "Total information is required" });
+    }
+    // update total values
+    await prisma.JobcardTotal.update({
+        where:{
+          id:total?.id
+        },
+        data:{
+          givenWt:total?.givenWt||0,
+          itemWt: total?.itemWt||0,
+          stoneWt:total?.stoneWt||0,
+          wastage:total?.wastage||0,
+          balance:total?.balance||0
+        }
+    })
     for(const gold of goldRows){
       if(gold?.id){ //if id is there update or create
            await prisma.givenGold.update({
               where:{
                id:gold.id,
-            
-          },
+            },
           data:{
             itemName:gold.itemName|| null,
             weight: parseFloat(gold.weight),
             touch: parseFloat(gold.touch),
-            total: parseFloat(goldTotal),
-            totalBalance: parseFloat(goldTotalBalance),
-          }
+           }
         })
       }else{
         await prisma.givenGold.create({
-             data:{
+         data:{
             jobcardId:parseInt(jobCardId),
             itemName:gold.itemName|| null,
             weight: parseFloat(gold.weight),
             touch: parseFloat(gold.touch),
-            total: parseFloat(goldTotal),
-            totalBalance: parseFloat(goldTotalBalance),
-          }
+           }
         })
       }
         
     }
-    
-    for(const item of itemRow){
+      if(itemRow.length>=1 && deductionRows.length>=1){
+        for(const item of itemRow){
       if(item?.id){ //if id is there update or create
            await prisma.deliveryItem.update({
               where:{
                id:item.id,
-            
-          },
+           },
           data:{
             itemName:item.itemName|| null,
             weight: parseFloat(item.weight),
-            total: parseFloat(itemTotal),
+           
           }
         })
       }else{
@@ -458,7 +481,7 @@ const updateJobCard = async (req, res) => {
             jobcardId:parseInt(jobCardId),
             itemName:item.itemName|| null,
             weight: parseFloat(item.weight),   
-            total: parseFloat(itemTotal),
+            
         
           }
         })
@@ -476,7 +499,7 @@ const updateJobCard = async (req, res) => {
             type:item.type|| null,
             customType:item.customType||null,
             weight: parseFloat(item.weight),
-            total: parseFloat(deductionTotal),
+           
           }
         })
       }else{
@@ -486,12 +509,15 @@ const updateJobCard = async (req, res) => {
             type:item.type|| null,
             customType:item.customType||null,
             weight: parseFloat(item.weight),   
-            total: parseFloat(deductionTotal),
+            
            }
         })
       }
         
     }
+    }
+      
+      
     
 
     //  Fetch and return all JobCards for this goldsmith
@@ -503,13 +529,15 @@ const updateJobCard = async (req, res) => {
         givenGold: true,
         deliveryItem: true,
         additionalWeight: true,
+        jobCardTotal:true
       },
      
     });
-
+    let jobCardLength=await prisma.jobCard.findMany()
     return res.status(200).json({
       message: "JobCard Updated successfully",
       jobCards: allJobCards,
+      jobCardLength:jobCardLength.length+1
     });
   } catch (err) {
     console.error("Create JobCard Error:", err);
@@ -543,9 +571,11 @@ const getAllJobCardByGoldsmithId = async (req, res) => {
         givenGold: true,
         deliveryItem: true,
         additionalWeight: true,
+        jobCardTotal:true
       },
      
     });
+    let jobCardLength=await prisma.jobCard.findMany()
 
     return res.status(200).json({
       goldsmith: {
@@ -557,6 +587,7 @@ const getAllJobCardByGoldsmithId = async (req, res) => {
         balance: goldsmithInfo.goldSmithBalance, // can be an array
       },
       jobCards: allJobCards,
+      jobCardLength:jobCardLength.length+1
     });
   } catch (err) {
     console.error("Error fetching job card info:", err);

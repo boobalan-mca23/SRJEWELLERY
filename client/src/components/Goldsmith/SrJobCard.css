@@ -36,5 +36,10 @@
 }
 .jobcardTable{
   width:100%;
-  margin: 10px auto;
+  margin: 30px auto;
+}
+
+.eyeIcon{
+  font-size:x-large;
+  cursor: pointer;
 }
