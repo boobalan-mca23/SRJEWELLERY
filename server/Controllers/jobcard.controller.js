@@ -392,7 +392,7 @@ const createJobCard = async (req, res) => {
 
 const updateJobCard = async (req, res) => {
   const {goldSmithId,jobCardId}=req.params
-  const {goldRows =[],goldTotal,goldTotalBalance,itemRow=[],deductionRows=[] } = req.body;
+  const {goldRows =[],itemRow=[],deductionRows=[],goldTotal,goldTotalBalance,itemTotal,deductionTotal} = req.body;
   
 
   try {
@@ -449,7 +449,7 @@ const updateJobCard = async (req, res) => {
           data:{
             itemName:item.itemName|| null,
             weight: parseFloat(item.weight),
-            total: parseFloat(item.total),
+            total: parseFloat(itemTotal),
           }
         })
       }else{
@@ -458,7 +458,7 @@ const updateJobCard = async (req, res) => {
             jobcardId:parseInt(jobCardId),
             itemName:item.itemName|| null,
             weight: parseFloat(item.weight),   
-            total: parseFloat(item.total),
+            total: parseFloat(itemTotal),
         
           }
         })
@@ -473,18 +473,20 @@ const updateJobCard = async (req, res) => {
              
           },
           data:{
-            ItemName:item.itemName|| null,
+            type:item.type|| null,
+            customType:item.customType||null,
             weight: parseFloat(item.weight),
-            total: parseFloat(item.total),
+            total: parseFloat(deductionTotal),
           }
         })
       }else{
         await prisma.additionalWeight.create({
             data:{
             jobcardId:parseInt(jobCardId),
-            ItemName:item.itemName|| null,
+            type:item.type|| null,
+            customType:item.customType||null,
             weight: parseFloat(item.weight),   
-            total: parseFloat(item.total),
+            total: parseFloat(deductionTotal),
            }
         })
       }

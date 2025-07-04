@@ -133,7 +133,8 @@ model Item {
 model AdditionalWeight {
   id           Int    @id @default(autoincrement())
   jobcardId    Int
-  ItemName     String?
+  type         String?
+  customeType  String?
   weight       Float
   total        Int
   createdAt    DateTime  @default(now())
