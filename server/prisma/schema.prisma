@@ -82,13 +82,14 @@ model GoldSmithBalance {
   createdAt DateTime @default(now())
 }
 model JobCard {
-  id           Int       @id @default(autoincrement())
-  goldsmithId  Int
-  goldsmith    Goldsmith @relation(fields: [goldsmithId], references: [id])
-  items        Item[]
-  givenGold    GivenGold[]
-  deliveryItem DeliveryItem[]
+  id               Int @id @default(autoincrement())
+  goldsmithId      Int
+  goldsmith        Goldsmith @relation(fields: [goldsmithId], references: [id])
+  items            Item[]
+  givenGold        GivenGold[]
+  deliveryItem     DeliveryItem[]
   additionalWeight AdditionalWeight[]
+  jobCardTotal     JobcardTotal[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 } 
@@ -97,9 +98,7 @@ model GivenGold{
   jobcardId    Int
   itemName     String?
   weight       Int
-  touch        Float
-  total        Float
-  totalBalance Float
+  touch        Float?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
@@ -109,7 +108,6 @@ model DeliveryItem{
   jobcardId    Int
   weight       Int
   itemName     String?
-  total        Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
@@ -134,12 +132,21 @@ model AdditionalWeight {
   id           Int    @id @default(autoincrement())
   jobcardId    Int
   type         String?
-  customeType  String?
+  customType  String?
   weight       Float
-  total        Int
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
+}
+model JobcardTotal{
+  id         Int @id @default(autoincrement())
+  givenWt    Int?
+  itemWt     Int? 
+  stoneWt    Int?
+  wastage    Int?
+  balance    Int?
+  jobcardId  Int
+  jobCard    JobCard @relation(fields: [jobcardId], references: [id])
 }
 
 

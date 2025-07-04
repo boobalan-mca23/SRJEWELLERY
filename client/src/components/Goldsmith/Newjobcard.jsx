@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { MdDeleteForever } from "react-icons/md";
 import "./NewJobCard.css";
-import { goldRowValidation,receiveRowValidation } from "./JobcardValidation";
+import { goldRowValidation,receiveRowValidation,itemValidation,deductionValidation} from "./JobcardValidation";
 
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -16,15 +16,16 @@ import CloseIcon from "@mui/icons-material/Close";
 const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
-const NewJobCard = ({ 
-  open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
- masterItems,handleSaveJobCard}) => {
+const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
+ masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,goldSmith,jobCardLength,setGoldSmith}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
   const[received,setReceived]=useState([])
   const[formErrors,setFormErrors]=useState([])
   const[receivedErrors,setReceivedErrors]=useState([])
+  const[itemErrors,setItemErrors]=useState([])
+  const[deductionErrors,setDeductionErrors]=useState([])
   const[netWeight, setNetWeight] = useState("0.000");
   const[wastage,setWastage]=useState(0)
   const[finalTotal,setFinalTotal]=useState(0)
@@ -117,10 +118,27 @@ const NewJobCard = ({
   const SaveJobCard=()=>{
      // form validation
       let goldIsTrue=goldRowValidation(goldRows,setFormErrors)
+      let itemIsTrue=""
+      let deductionIsTrue=""
+      if(edit){
+         itemIsTrue=itemValidation(itemRows,setItemErrors)
+         deductionIsTrue=deductionValidation(deductionRows,setDeductionErrors)
+      }
       let receivedIsTrue=receiveRowValidation(received,setReceivedErrors)
-     if(goldIsTrue){
-       handleSaveJobCard(totalGoldWeight,totalBalance)
-    }
+     if(edit){ 
+
+       if(goldIsTrue&&itemIsTrue&&deductionIsTrue){
+        
+          handleUpdateJobCard(totalGoldWeight,totalBalance,totalItemWeight,totalDeductionWeight)
+          
+        }
+        
+     }else{
+       if(goldIsTrue){
+          handleSaveJobCard(totalGoldWeight,totalBalance)
+        }
+     }
+     
   }
 
  const handleRemoveReceived=(removeIndex)=>{
@@ -144,6 +162,9 @@ const NewJobCard = ({
       <DialogContent>
     <div className="container">
       <div className="header">
+        <div className="header-item">
+          <span className="header-label">id:</span> {edit?jobCardId:jobCardLength}
+        </div>
         <div className="header-item">
           <span className="header-label">Name:</span> {name}
         </div>
@@ -184,7 +205,7 @@ const NewJobCard = ({
                 </option>
               ))}
             </select> <br></br>
-           {formErrors[i]?.itemName&& (<span style={{color:"red",fontSize:"16px"}}>{formErrors[i]?.itemName}</span>)}
+           {formErrors[i]?.itemName&& (<span className="error">{formErrors[i]?.itemName}</span>)}
             </div>
             <div>
               <input
@@ -194,7 +215,7 @@ const NewJobCard = ({
               onChange={(e) => handleGoldRowChange(i, "weight", e.target.value)}
               className="input"
             /> <br></br>
-            {formErrors[i]?.weight&& (<span style={{color:"red",fontSize:"16px"}}>{formErrors[i].weight}</span>)}
+            {formErrors[i]?.weight&& (<span className="error">{formErrors[i].weight}</span>)}
             </div>
              
             <span className="operator">x</span>
@@ -206,7 +227,7 @@ const NewJobCard = ({
               onChange={(e) => handleGoldRowChange(i, "touch", e.target.value)}
               className="input"
             /><br></br>
-             {formErrors[i]?.touch&& (<span style={{color:"red",fontSize:"16px"}}>{formErrors[i].touch}</span>)}
+             {formErrors[i]?.touch&& (<span className="error">{formErrors[i].touch}</span>)}
             </div>
             {/* <span className="operator">=</span>
             <input
@@ -255,15 +276,19 @@ const NewJobCard = ({
         <h3 className="section-title">Item Delivery</h3>
         {itemRows.map((item, i) => (
           <div key={i} className="row">
-            <input
+           <div>
+             <input
               type="number"
               placeholder="Item Weight"
               value={item.weight}
               onChange={(e) => handleItemRowChange(i, "weight", e.target.value)}
               className="input"
               disabled={!edit}
-            />
-            <select
+            /><br></br>
+            {itemErrors[i]?.weight&& (<span className="error">{itemErrors[i]?.weight}</span>)}
+           </div>
+           <div>
+              <select
               value={item.itemName}
               onChange={(e) => handleItemRowChange(i, "itemName", e.target.value)}
               className="select"
@@ -276,7 +301,9 @@ const NewJobCard = ({
                 </option>
               ))}
              
-            </select>
+            </select><br></br>
+            {itemErrors[i]?.itemName&&(<span className="error">{itemErrors[i]?.itemName}</span>)}
+           </div>
           </div>
         ))}
         <button
@@ -295,7 +322,8 @@ const NewJobCard = ({
           <h4>Stone Section </h4>
           {deductionRows.map((deduction, i) => (
             <div key={i} className="deduction-row">
-              <select
+              <div>
+                <select
                 value={deduction.type}
                 onChange={(e) =>
                   handleDeductionChange(i, "type", e.target.value)
@@ -308,9 +336,12 @@ const NewJobCard = ({
                     {option}
                   </option>
                 ))}
-              </select>
-              {deduction.type === "Others" && (
-                <input
+              </select><br></br>
+                {deductionErrors[i]?.type && (<span className="error">{deductionErrors[i]?.type}</span>)}
+              </div>
+              <div>
+                   {deduction.type === "Others" && (
+                 <input
                   disabled={!edit}
                   type="text"
                   placeholder="Specify type"
@@ -320,8 +351,13 @@ const NewJobCard = ({
                   }
                   className="deduction-input"
                 />
+                
               )}
-              <input
+               <br></br>
+               {deductionErrors[i]?.customType && (<span className="error">{deductionErrors[i]?.customType}</span>)}
+              </div>
+             <div>
+               <input
                 disabled={!edit}
                 type="number"
                 value={deduction.weight}
@@ -330,7 +366,9 @@ const NewJobCard = ({
                 }
                 className="deduction-input"
                 placeholder="Weight"
-              />
+              /><br></br>
+              {deductionErrors[i]?.weight&&(<span className="error">{deductionErrors[i]?.weight}</span>)}
+             </div>
             </div>
           ))}
           <button
@@ -392,10 +430,20 @@ const NewJobCard = ({
             />
             <span className="operator">x</span>
              <input
-              readOnly
+            
               type="number"
               value={goldSmithWastage}
               className="inputwastage"
+              onChange={(e) => {
+              setGoldSmith(prev => ({
+                 ...prev,
+                 goldSmithInfo: {
+                 ...prev.goldSmithInfo,
+                wastage: e.target.value
+                }
+              }));
+              }}
+
               />
              <span className="operator">=</span>
            <input

@@ -5,7 +5,8 @@ import axios from "axios";
 import { BACKEND_SERVER_URL } from "../../Config/Config";
 import NewJobCard from "./Newjobcard";
 import { useParams,useNavigate } from "react-router-dom";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const SrJobCard=()=>{
   const navigate=useNavigate()
     const { id, goldsmithname } = useParams();
@@ -25,6 +26,7 @@ const SrJobCard=()=>{
     )
     const [jobCards,setJobCard]=useState([])
     const [jobCardId,setJobCardId]=useState(null)
+    const [jobCardLength,setJobCardLength]=useState(null)
     const [goldRows, setGoldRows] = useState([{ itemName:"",weight: "", touch: 91.7, }]);
     const [itemRows, setItemRows] = useState([{ weight: "", itemName: "" }]);
     const [deductionRows, setDeductionRows] = useState([{ type: "Stone", customType: "", weight: "" }]);
@@ -43,6 +45,41 @@ const SrJobCard=()=>{
             setEdit(true)
 
     }
+    const handleUpdateJobCard=async(total,totalBalance,totalItemWeight,totalDeductionWeight)=>{
+      console.log('update')
+          
+        const payload={
+        'goldRows':goldRows,
+        'itemRow':itemRows,
+        'deductionRows':deductionRows,
+        'goldTotal':total,
+        'goldTotalBalance':totalBalance,
+        'itemTotal':totalItemWeight,
+        'deductionTotal':totalDeductionWeight
+       }
+       console.log('payload',payload)
+       
+      try {
+            const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
+                    headers: {
+                     'Content-Type': 'application/json',
+                   },
+             });
+             if(response.status===400){
+                alert(response.data.message)
+             }
+               console.log('Response:', response.data.jobCards); // success response
+              setJobCard( response.data.jobCards)
+              setJobCardLength(response.data.jobCardLength) 
+              setopen(false)
+              setEdit(false)
+              toast.success(response.data.message)
+
+       } catch (err) {
+                 console.error('POST Error:', err.response?.data || err.message);
+                alert(err.response?.data?.error || 'An error occurred while creating the job card'); 
+             }
+       }
     const handleSaveJobCard=async(total,totalBalance)=>{
         
         const payload={
@@ -60,9 +97,13 @@ const SrJobCard=()=>{
              });
                console.log('Response:', response.data.jobCards); // success response
                setJobCard( response.data.jobCards)
+               setJobCardLength(response.data.jobCardLength) 
+               setopen(false)
+               toast.success(response.data.message)
        } catch (err) {
                  console.error('POST Error:', err.response?.data || err.message);
-                alert(err.response?.data?.error || 'An error occurred while creating the job card'); 
+                  toast.error(err.response?.data?.error || 'An error occurred while creating the job card');
+                
              }
         }
     
@@ -82,9 +123,11 @@ const SrJobCard=()=>{
                         balance:goldSmithRes?.balance[0]?.balance
                      }}
                 setGoldSmith(newGoldSmith) 
-                setJobCard(res.data.jobCards)       
+                setJobCard(res.data.jobCards) 
+                setJobCardLength(res.data.jobCardLength)      
             }catch(err){
                alert(err.message)
+                toast.error("Something went wrong.");
              }
         }
         const fetchMasterItem=async()=>{
@@ -100,6 +143,14 @@ const SrJobCard=()=>{
             
             <>
               <div>
+                <ToastContainer
+                        position="top-right"
+                        autoClose={1000}
+                        hideProgressBar={true}
+                        closeOnClick
+                        pauseOnHover={false}
+                        draggable={false}
+                    />
                   <div className="goldSmith">
                       <div>
                          <h3 className="goldsmithhead">Gold Smith Information</h3>
@@ -114,8 +165,8 @@ const SrJobCard=()=>{
                   </div>
                    <div className="jobcardTable">
                           {jobCards.length>=1?(
-                        <table>
-                              <thead>
+                        <table >
+                              <thead className="jobCardHead">
                                   <tr>
                                   <th>S.no</th>
                                   <th>Givenwt</th>
@@ -204,7 +255,7 @@ const SrJobCard=()=>{
                                          </tbody>
                                         </table>):<span>No Stone weight </span>}
                                        </td>
-                                       <td><FaEye style={{fontSize2:"17px",cursor:"pointer"}} onClick={()=>handleFilterJobCard(item.id,index)}/></td>
+                                       <td><FaEye className="eyeIcon" onClick={()=>handleFilterJobCard(item.id,index)}/></td>
                                         
                                     </tr>
                                   ))}
@@ -217,6 +268,8 @@ const SrJobCard=()=>{
               <NewJobCard
                 name={goldSmith?.goldSmithInfo?.name}
                 goldSmithWastage={goldSmith?.goldSmithInfo.wastage}
+                goldSmith={goldSmith}
+                setGoldSmith={setGoldSmith}
                 balance={goldSmith?.goldSmithInfo.balance}
                 goldRows={goldRows}
                 setGoldRows={setGoldRows}
@@ -226,6 +279,9 @@ const SrJobCard=()=>{
                 setDeductionRows={setDeductionRows}
                 masterItems={masterItems}
                 handleSaveJobCard={handleSaveJobCard}
+                handleUpdateJobCard={handleUpdateJobCard}
+                jobCardLength={jobCardLength}
+                jobCardId={jobCardId}
                 open={open}
                 onclose={()=>setopen(false)}
                 edit={edit}

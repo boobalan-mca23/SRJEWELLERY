@@ -15,6 +15,41 @@ const  goldRowValidation=(goldRows,setFormErrors)=>{
   // Return true if no errors found
   return errors.every(err => Object.keys(err).length === 0);
 }
+const itemValidation=(itemRows,setItemErrors)=>{
+
+  const errors = itemRows.map((row) => {
+    const rowErrors = {};
+    if (!row.itemName) rowErrors.itemName = "Item Name is required";
+    if (!row.weight) rowErrors.weight = "Weight is required";
+    if(row.weight<0) rowErrors.weight= "Weight is negative value"
+    return rowErrors;
+  });
+
+  setItemErrors(errors);
+
+  // Return true if no errors found
+  return errors.every(err => Object.keys(err).length === 0);
+}
+
+const deductionValidation=(deductionRows,setDeductionErrors)=>{
+  const errors = deductionRows.map((row) => {
+    const rowErrors = {};
+    if (!row.type) rowErrors.itemName = "type is required";
+
+     if (row.type === "Others" && !row.customType) {
+      rowErrors.customType = "Custom type is required";
+    }
+    
+    if(!row.weight)  rowErrors.weight="Weight is required"
+    if(row.weight<0) rowErrors.weight="Weight is negative value"
+    return rowErrors;
+  });
+
+  setDeductionErrors(errors);
+
+  // Return true if no errors found
+  return errors.every(err => Object.keys(err).length === 0);
+}
 const receiveRowValidation=(received,setReceivedErrors)=>{
     const errors = received.map((row) => {
     const rowErrors = {};
@@ -30,4 +65,4 @@ const receiveRowValidation=(received,setReceivedErrors)=>{
   // Return true if no errors found
   return errors.every(err => Object.keys(err).length === 0);
 }
-export {goldRowValidation,receiveRowValidation};
+export {goldRowValidation,receiveRowValidation,itemValidation,deductionValidation};
