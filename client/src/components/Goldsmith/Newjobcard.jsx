@@ -17,16 +17,11 @@ const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
 const NewJobCard = ({ 
-  open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,
+  open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
  masterItems,handleSaveJobCard}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
-  
-  const [itemRows, setItemRows] = useState([{ weight: "", name: "" }]);
-  const [deductionRows, setDeductionRows] = useState([
-    { type: "Stone", customType: "", weight: "" },
-  ]);
   const[received,setReceived]=useState([])
   const[formErrors,setFormErrors]=useState([])
   const[receivedErrors,setReceivedErrors]=useState([])
@@ -35,7 +30,6 @@ const NewJobCard = ({
   const[finalTotal,setFinalTotal]=useState(0)
   // const [touch, setTouch] = useState("");
   // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
-
   const [itemTouch, setItemTouch] = useState("");
   const [itemPurity, setItemPurity] = useState("0.000");
 
@@ -270,8 +264,8 @@ const NewJobCard = ({
               disabled={!edit}
             />
             <select
-              value={item.name}
-              onChange={(e) => handleItemRowChange(i, "name", e.target.value)}
+              value={item.itemName}
+              onChange={(e) => handleItemRowChange(i, "itemName", e.target.value)}
               className="select"
               disabled={!edit}
             >
@@ -402,9 +396,7 @@ const NewJobCard = ({
               type="number"
               value={goldSmithWastage}
               className="inputwastage"
-             
-            
-            />
+              />
              <span className="operator">=</span>
            <input
               readOnly

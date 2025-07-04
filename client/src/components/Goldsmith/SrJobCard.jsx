@@ -4,8 +4,10 @@ import { FaEye } from "react-icons/fa";
 import axios from "axios";
 import { BACKEND_SERVER_URL } from "../../Config/Config";
 import NewJobCard from "./Newjobcard";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
+
 const SrJobCard=()=>{
+  const navigate=useNavigate()
     const { id, goldsmithname } = useParams();
     const [masterItems,setMasterItems]=useState([])
     const [goldSmith,setGoldSmith]=useState(
@@ -22,12 +24,25 @@ const SrJobCard=()=>{
        
     )
     const [jobCards,setJobCard]=useState([])
-    const [jobCardId,setJobCardId]=useState(0)
+    const [jobCardId,setJobCardId]=useState(null)
     const [goldRows, setGoldRows] = useState([{ itemName:"",weight: "", touch: 91.7, }]);
+    const [itemRows, setItemRows] = useState([{ weight: "", itemName: "" }]);
+    const [deductionRows, setDeductionRows] = useState([{ type: "Stone", customType: "", weight: "" }]);
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
+    
+    const handleFilterJobCard=(id,jobCardindex)=>{
+             setJobCardId(id)
+             const tempJobCard=[...jobCards]
+             const filteredJobcard=tempJobCard.filter((_,index)=>index===jobCardindex)
+             console.log('filter',filteredJobcard)
+            setGoldRows(filteredJobcard[0].givenGold)
+            setItemRows(filteredJobcard[0].deliveryItem)
+            setDeductionRows(filteredJobcard[0].additionalWeight)
+            setopen(true)
+            setEdit(true)
 
-
+    }
     const handleSaveJobCard=async(total,totalBalance)=>{
         
         const payload={
@@ -43,7 +58,8 @@ const SrJobCard=()=>{
                      'Content-Type': 'application/json',
                    },
              });
-               console.log('Response:', response.data); // success response
+               console.log('Response:', response.data.jobCards); // success response
+               setJobCard( response.data.jobCards)
        } catch (err) {
                  console.error('POST Error:', err.response?.data || err.message);
                 alert(err.response?.data?.error || 'An error occurred while creating the job card'); 
@@ -113,7 +129,8 @@ const SrJobCard=()=>{
                                     <tr key={index}>
                                         <td>{index+1}</td>
                                         <td> 
-                                        <table>
+                                        {jobCards[index]?.givenGold.length>=1 ? (
+                                          <table>
                                             <thead>
                                                 <tr>
                                                 <th>S.no</th>
@@ -124,8 +141,8 @@ const SrJobCard=()=>{
                                          </thead>
                                          <tbody>
                                             {
-                                               jobCards[index]?.givenGold.map((item,index)=>(
-                                                <tr key={index}>
+                                               jobCards[index]?.givenGold.map((item,indexGold)=>(
+                                                <tr key={indexGold}>
                                                      <td>{index+1}</td>
                                                     <td>{item?.itemName}</td>
                                                     <td>{item?.weight}</td>
@@ -135,8 +152,59 @@ const SrJobCard=()=>{
 
                                             }
                                          </tbody>
-                                        </table>
+                                        </table>):<span>No Given Gold</span>}
                                        </td>
+                                        <td> 
+                                        {jobCards[index]?.deliveryItem.length>=1 ? (
+                                          <table>
+                                            <thead>
+                                                <tr>
+                                                <th>S.no</th>
+                                                <th>itemName</th>
+                                                <th>weight</th>
+                                               
+                                               </tr>
+                                         </thead>
+                                         <tbody>
+                                            {jobCards[index]?.deliveryItem.map((item,indexItem)=>(
+                                                <tr key={indexItem}>
+                                                    <td>{index+1}</td>
+                                                    <td>{item?.itemName}</td>
+                                                    <td>{item?.weight}</td>
+                                                    
+                                                </tr>
+                                               ))
+
+                                            }
+                                         </tbody>
+                                        </table>):<span>No delivery Item</span>}
+                                       </td>
+                                        <td> 
+                                        {jobCards[index]?.additionalWeight.length>=1 ? (
+                                          <table>
+                                            <thead>
+                                                <tr>
+                                                <th>S.no</th>
+                                                <th>itemName</th>
+                                                <th>weight</th>
+                                                
+                                               </tr>
+                                         </thead>
+                                         <tbody>
+                                            {
+                                               jobCards[index]?.additionalWeight.map((item,indexadditional)=>(
+                                                <tr key={indexadditional}>
+                                                     <td>{index+1}</td>
+                                                    <td>{item?.type}</td>
+                                                    <td>{item?.weight}</td>
+                                                    </tr>
+                                               ))
+
+                                            }
+                                         </tbody>
+                                        </table>):<span>No Stone weight </span>}
+                                       </td>
+                                       <td><FaEye style={{fontSize2:"17px",cursor:"pointer"}} onClick={()=>handleFilterJobCard(item.id,index)}/></td>
                                         
                                     </tr>
                                   ))}
@@ -152,6 +220,10 @@ const SrJobCard=()=>{
                 balance={goldSmith?.goldSmithInfo.balance}
                 goldRows={goldRows}
                 setGoldRows={setGoldRows}
+                itemRows={itemRows}
+                setItemRows={setItemRows}
+                deductionRows={deductionRows}
+                setDeductionRows={setDeductionRows}
                 masterItems={masterItems}
                 handleSaveJobCard={handleSaveJobCard}
                 open={open}
