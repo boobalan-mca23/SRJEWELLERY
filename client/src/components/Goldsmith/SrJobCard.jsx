@@ -45,19 +45,23 @@ const SrJobCard=()=>{
             setEdit(true)
 
     }
-    const handleUpdateJobCard=async(total,totalBalance,totalItemWeight,totalDeductionWeight)=>{
+    const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
       console.log('update')
           
         const payload={
         'goldRows':goldRows,
         'itemRow':itemRows,
         'deductionRows':deductionRows,
-        'goldTotal':total,
-        'goldTotalBalance':totalBalance,
-        'itemTotal':totalItemWeight,
-        'deductionTotal':totalDeductionWeight
+        'total':{
+          'id':jobCards[0]?.jobCardTotal[0]?.id,
+          'givenWt':totalGoldWt,
+          'itemWt':totalItemWt,
+          'stoneWt':totalDeductionWt,
+          'wastage':totalWastage,
+          'balance':totalBalance
+        }
        }
-       console.log('payload',payload)
+       console.log('payload update',payload)
        
       try {
             const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
@@ -80,13 +84,18 @@ const SrJobCard=()=>{
                 alert(err.response?.data?.error || 'An error occurred while creating the job card'); 
              }
        }
-    const handleSaveJobCard=async(total,totalBalance)=>{
-        
-        const payload={
+    const handleSaveJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
+         const payload={
         'goldsmithId': goldSmith.goldSmithInfo.id,   
         'goldRows':goldRows,
-        'goldTotal':total,
-        'goldTotalBalance':totalBalance
+        'total':{
+           'givenWt':totalGoldWt,
+           'itemWt':totalItemWt,
+           'stoneWt':totalDeductionWt,
+           'wastage':totalWastage,
+           'balance':totalBalance
+        }
+        
        }
        console.log('payload',payload)
       try {

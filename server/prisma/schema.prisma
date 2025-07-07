@@ -81,15 +81,17 @@ model GoldSmithBalance {
   goldsmith   Goldsmith @relation(fields: [goldsmithId], references: [id])
   createdAt DateTime @default(now())
 }
+
 model JobCard {
-  id               Int @id @default(autoincrement())
-  goldsmithId      Int
-  goldsmith        Goldsmith @relation(fields: [goldsmithId], references: [id])
-  items            Item[]
-  givenGold        GivenGold[]
-  deliveryItem     DeliveryItem[]
-  additionalWeight AdditionalWeight[]
-  jobCardTotal     JobcardTotal[]
+  id                 Int @id @default(autoincrement())
+  goldsmithId        Int
+  goldsmith          Goldsmith @relation(fields: [goldsmithId], references: [id])
+  items              Item[]
+  givenGold          GivenGold[]
+  deliveryItem       DeliveryItem[]
+  additionalWeight   AdditionalWeight[]
+  jobCardTotal       JobcardTotal[]
+  goldSmithReceived  GoldSmithReceived[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 } 
@@ -99,8 +101,8 @@ model GivenGold{
   itemName     String?
   weight       Int
   touch        Float?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
 }
 model DeliveryItem{
@@ -111,6 +113,16 @@ model DeliveryItem{
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
+}
+
+model GoldSmithReceived{
+   id          Int      @id @default(autoincrement())
+   gold        Float?
+   touch       Float?
+   total       Float?
+   jobcardId   Int
+   jobCard     JobCard @relation(fields: [jobcardId], references: [id])
+
 }
 
 model Item {
@@ -140,11 +152,11 @@ model AdditionalWeight {
 }
 model JobcardTotal{
   id         Int @id @default(autoincrement())
-  givenWt    Int?
-  itemWt     Int? 
-  stoneWt    Int?
-  wastage    Int?
-  balance    Int?
+  givenWt    Float?
+  itemWt     Float? 
+  stoneWt    Float?
+  wastage    Float?
+  balance    Float?
   jobcardId  Int
   jobCard    JobCard @relation(fields: [jobcardId], references: [id])
 }
