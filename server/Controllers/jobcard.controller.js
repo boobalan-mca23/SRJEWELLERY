@@ -324,6 +324,7 @@ const prisma = new PrismaClient();
 
 
 //createJobCard
+ 
 const createJobCard = async (req, res) => {
   const { goldsmithId,goldRows,total} = req.body;
   console.log('reqbody',req.body,goldsmithId)
@@ -352,11 +353,11 @@ const createJobCard = async (req, res) => {
     }));
 
     const jobCardTotal={
-       "givenWt" :parseInt(total?.givenWt)||0,
-       "itemWt"  :parseInt(total?.itemWt)||0, 
-       "stoneWt" :parseInt(total?.stoneWt)||0,
-       "wastage" :parseInt(total?.wastage)||0,
-       "balance" :parseInt(total?.balance)||0
+       "givenWt" :parseFloat(total?.givenWt)||0,
+       "itemWt"  :parseFloat(total?.itemWt)||0, 
+       "stoneWt" :parseFloat(total?.stoneWt)||0,
+       "wastage" :parseFloat(total?.wastage)||0,
+       "balance" :parseFloat(total?.balance)||0
     }
     
 
@@ -407,7 +408,7 @@ const createJobCard = async (req, res) => {
 const updateJobCard = async (req, res) => {
   const {goldSmithId,jobCardId}=req.params
   const {goldRows =[],itemRow=[],deductionRows=[],total} = req.body;
-  
+  console.log('update id',req.body)
 
   try {
     //  Validate Goldsmith
@@ -426,16 +427,16 @@ const updateJobCard = async (req, res) => {
       return res.status(400).json({ error: "Total information is required" });
     }
     // update total values
-    await prisma.JobcardTotal.update({
+    await prisma.jobcardTotal.update({
         where:{
           id:total?.id
         },
         data:{
-          givenWt:total?.givenWt||0,
-          itemWt: total?.itemWt||0,
-          stoneWt:total?.stoneWt||0,
-          wastage:total?.wastage||0,
-          balance:total?.balance||0
+          givenWt:parseFloat(total?.givenWt)||0,
+          itemWt: parseFloat(total?.itemWt)||0,
+          stoneWt:parseFloat(total?.stoneWt)||0,
+          wastage:parseFloat(total?.wastage)||0,
+          balance:parseFloat(total?.balance)||0
         }
     })
     for(const gold of goldRows){
@@ -481,9 +482,7 @@ const updateJobCard = async (req, res) => {
             jobcardId:parseInt(jobCardId),
             itemName:item.itemName|| null,
             weight: parseFloat(item.weight),   
-            
-        
-          }
+           }
         })
       }
         

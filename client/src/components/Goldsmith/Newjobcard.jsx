@@ -29,6 +29,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   const[netWeight, setNetWeight] = useState("0.000");
   const[wastage,setWastage]=useState(0)
   const[finalTotal,setFinalTotal]=useState(0)
+  const [balanceDifference,setBalanceDifference]=useState(0)
   // const [touch, setTouch] = useState("");
   // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
   const [itemTouch, setItemTouch] = useState("");
@@ -45,6 +46,9 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     //   parseFloat(copy[i].touch)
     // );
     setGoldRows(copy);
+     // check validation
+    goldRowValidation(goldRows,setFormErrors)
+    
   };
   const handleRecivedChange = (i, field, val) => {
     const copy = [...received];
@@ -61,12 +65,30 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     const updated = [...itemRows];
     updated[i][field] = val;
     setItemRows(updated);
+     // check validation
+    itemValidation(itemRows,setItemErrors)
+         
   };
 
   const handleDeductionChange = (i, field, val) => {
     const updated = [...deductionRows];
     updated[i][field] = val;
     setDeductionRows(updated);
+    // check validation
+    deductionValidation(deductionRows,setDeductionErrors)
+  };
+  const handleGoldSmithChange = (e) => {
+   setGoldSmith(prev => ({
+                 ...prev,
+                 goldSmithInfo: {
+                 ...prev.goldSmithInfo,
+                wastage: e.target.value
+                }
+          }))
+      setWastage(netWeight * parseFloat(e.target.value) / 100)
+      let calculatedFinalTotal = parseFloat(netWeight) + (netWeight * parseFloat(e.target.value) / 100);
+      setFinalTotal(format(calculatedFinalTotal))
+
   };
 
   const totalGoldWeight = goldRows.reduce(
@@ -89,11 +111,39 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     (sum, deduction) => sum + parseFloat(deduction.weight || 0),
     0
   );
+  const ownerGivesBalance =
+   ( parseFloat(totalBalance) - parseFloat(finalTotal))>=0;
 
+  
+  const stoneOptions = ["Stone", "Enamel", "Beads", "Others"];
+
+
+  const handleRemoveReceived=(removeIndex)=>{
+       const isTrue=window.confirm("Are you sure you want to remove this received row?")
+       if(isTrue){
+       const receivedItems=received.filter((_,index)=>index!=removeIndex)
+       console.log('index',removeIndex)
+       console.log('receivedItems',receivedItems)
+       setReceived(receivedItems)
+       }
+      
+      
+ }
   useEffect(() => {
     setItemPurity(calculatePurity(totalItemWeight, parseFloat(itemTouch)));
   }, [totalItemWeight, itemTouch]);
 
+  useEffect(()=>{
+    const difference = Math.abs(
+   parseFloat(totalBalance) - parseFloat(finalTotal)
+  );
+   if(received.length>=1){
+     setBalanceDifference(difference-totalReceivedWeight)
+   }else{
+     setBalanceDifference(difference)
+   }
+  
+  },[goldRows,itemRows,deductionRows,received,wastage])
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
     setNetWeight(format(calculatedNetWeight));
@@ -104,16 +154,11 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   
 
 
-  const ownerGivesBalance =
-   ( parseFloat(totalBalance) - parseFloat(finalTotal))>0;
-
-  const balanceDifference = Math.abs(
-   parseFloat(totalBalance) - parseFloat(finalTotal)
-  );
+  
 
   // const symbolOptions = ["Touch", "%", "+"];
  
-  const stoneOptions = ["Stone", "Enamel", "Beads", "Others"];
+  
   
   const SaveJobCard=()=>{
      // form validation
@@ -128,26 +173,19 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
      if(edit){ 
 
        if(goldIsTrue&&itemIsTrue&&deductionIsTrue){
-        
-          handleUpdateJobCard(totalGoldWeight,totalBalance,totalItemWeight,totalDeductionWeight)
+          handleUpdateJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,wastage,balanceDifference)
           
         }
         
      }else{
        if(goldIsTrue){
-          handleSaveJobCard(totalGoldWeight,totalBalance)
+          handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,wastage,balanceDifference)
         }
      }
      
   }
 
- const handleRemoveReceived=(removeIndex)=>{
-       const receivedItems=received.filter((_,index)=>index!=removeIndex)
-       console.log('index',removeIndex)
-       console.log('receivedItems',receivedItems)
-       setReceived(receivedItems)
-      
- }
+ 
 
 
   return (
@@ -408,8 +446,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
               gap: "12px",
               flexWrap: "wrap",
             }}
-          >
-            {/* <select style={{width:"6rem"}}
+          > {/* <select style={{width:"6rem"}}
               value={percentageSymbol}
               onChange={(e) => setPercentageSymbol(e.target.value)}
               className="select-small"
@@ -434,15 +471,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
               type="number"
               value={goldSmithWastage}
               className="inputwastage"
-              onChange={(e) => {
-              setGoldSmith(prev => ({
-                 ...prev,
-                 goldSmithInfo: {
-                 ...prev.goldSmithInfo,
-                wastage: e.target.value
-                }
-              }));
-              }}
+              onChange={(e) => {handleGoldSmithChange(e)}}
 
               />
              <span className="operator">=</span>
@@ -454,15 +483,12 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
            
             
             />
-           <div className="calculationBox">
-               <span><strong>Calculation:</strong></span> <br></br><br></br>
-               <span>netWeight * wastage / 100 = total</span>
-           </div>
+          
           </div>
         </div>
         <div className="finalTotalContainer">
           
-          <span className="finalTotal"><strong>Total</strong> = {netWeight} + {wastage}</span><br></br><br></br>
+          <span className="finalTotal"><strong>Total</strong> = {netWeight} + {parseFloat(wastage).toFixed(3)}</span><br></br><br></br>
           <span className="finalTotal"> = <strong> {format(finalTotal)}</strong></span>
         </div>
 
@@ -505,7 +531,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
         <button
          
           onClick={() =>
-            setReceived([...received, { weight: 0, touch: 0}])
+            setReceived([...received, { weight: 0, touch: 91.7}])
           }
           className="circle-button"
         >
@@ -526,7 +552,6 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
         </Button>
       </div>
 
-      {parseFloat(netWeight) !== 0 && (
         <div className="final-balance-section">
           {ownerGivesBalance ? (
            <p className="balance-text-goldsmith">
@@ -545,7 +570,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
             
           )}
         </div>
-      )}
+      
     </div>
       
     </DialogContent>

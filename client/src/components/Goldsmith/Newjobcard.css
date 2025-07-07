@@ -1,8 +1,8 @@
 
 .container {
     max-width: 700px;
-    margin: 20px auto;
-    padding: 25px;
+    margin: 10px auto;
+    padding: 10px;
     font-family: 'Roboto', sans-serif;
     background-color: #ffffff;
     border-radius: 12px;
@@ -14,8 +14,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
     border-bottom: 1px solid #f0f0f0;
   }
   
@@ -31,7 +31,7 @@
   }
   
   .section {
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     /* padding: 20px; */
     background-color: #fefefe;
     border-radius: 8px;
@@ -95,15 +95,8 @@
     box-sizing: border-box;
     min-width:12px;
     transition: border-color 0.3s ease;
-    width: 80px;
+    width:100%;
   }
-  .calculationBox{
-    padding: 10px;
-    border: 3px groove rgb(37, 122, 190);
-    box-shadow: 2px 2px rgb(176, 176, 202);
-    border-radius: 8px;
-  }
-  
   .input:focus {
     border-color: #3498db;
     outline: none;
@@ -273,7 +266,7 @@
   }
   
   .deduction-section {
-    margin-top: 20px;
+    margin-top: 10px;
     border-top: 1px solid #eee;
     padding-top: 15px;
   }
