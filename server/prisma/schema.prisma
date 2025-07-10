@@ -117,11 +117,10 @@ model DeliveryItem{
 
 model GoldSmithReceived{
    id          Int      @id @default(autoincrement())
-   gold        Float?
+   weight      Float?
    touch       Float?
-   total       Float?
-   jobcardId   Int
-   jobCard     JobCard @relation(fields: [jobcardId], references: [id])
+   jobCardId   Int
+   jobCard     JobCard @relation(fields: [jobCardId], references: [id])
 
 }
 

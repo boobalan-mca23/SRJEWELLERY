@@ -30,17 +30,19 @@ const SrJobCard=()=>{
     const [goldRows, setGoldRows] = useState([{ itemName:"",weight: "", touch: 91.7, }]);
     const [itemRows, setItemRows] = useState([{ weight: "", itemName: "" }]);
     const [deductionRows, setDeductionRows] = useState([{ type: "Stone", customType: "", weight: "" }]);
+    const[received,setReceived]=useState([])
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
     
     const handleFilterJobCard=(id,jobCardindex)=>{
              setJobCardId(id)
-             const tempJobCard=[...jobCards]
-             const filteredJobcard=tempJobCard.filter((_,index)=>index===jobCardindex)
-             console.log('filter',filteredJobcard)
-            setGoldRows(filteredJobcard[0].givenGold)
-            setItemRows(filteredJobcard[0].deliveryItem)
-            setDeductionRows(filteredJobcard[0].additionalWeight)
+            const tempJobCard=[...jobCards]
+            const filteredJobcard=tempJobCard.filter((_,index)=>index===jobCardindex)
+            console.log('filter',filteredJobcard)
+            setGoldRows(filteredJobcard[0]?.givenGold)
+            setItemRows(filteredJobcard[0]?.deliveryItem)
+            setDeductionRows(filteredJobcard[0]?.additionalWeight)
+            setReceived(filteredJobcard[0].goldSmithReceived)
             setopen(true)
             setEdit(true)
 
@@ -52,6 +54,11 @@ const SrJobCard=()=>{
         'goldRows':goldRows,
         'itemRow':itemRows,
         'deductionRows':deductionRows,
+        'receivedAmount':received,
+        'goldSmithBalance':{
+         'id':goldSmith.goldSmithInfo.id,
+         'balance':totalBalance
+        },
         'total':{
           'id':jobCards[0]?.jobCardTotal[0]?.id,
           'givenWt':totalGoldWt,
@@ -72,22 +79,35 @@ const SrJobCard=()=>{
              if(response.status===400){
                 alert(response.data.message)
              }
-               console.log('Response:', response.data.jobCards); // success response
+              console.log('Response:', response.data.jobCards); // success response
               setJobCard( response.data.jobCards)
               setJobCardLength(response.data.jobCardLength) 
+                    setGoldSmith(prev => ({
+                 ...prev,
+                 goldSmithInfo: {
+                 ...prev.goldSmithInfo,
+                balance: response.data.goldSmithBalance.balance
+                }
+          }))
               setopen(false)
               setEdit(false)
+             
               toast.success(response.data.message)
 
        } catch (err) {
                  console.error('POST Error:', err.response?.data || err.message);
-                alert(err.response?.data?.error || 'An error occurred while creating the job card'); 
+                toast.error(err.message || 'An error occurred while creating the job card'); 
              }
        }
     const handleSaveJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
          const payload={
         'goldsmithId': goldSmith.goldSmithInfo.id,   
         'goldRows':goldRows,
+        'receivedAmount':received,
+        'goldSmithBalance':{
+        'id':goldSmith.goldSmithInfo.id,
+        'balance':totalBalance
+        },
         'total':{
            'givenWt':totalGoldWt,
            'itemWt':totalItemWt,
@@ -104,14 +124,21 @@ const SrJobCard=()=>{
                      'Content-Type': 'application/json',
                    },
              });
-               console.log('Response:', response.data.jobCards); // success response
+               console.log('Response:', response.data.goldSmithBalance); // success response
                setJobCard( response.data.jobCards)
                setJobCardLength(response.data.jobCardLength) 
-               setopen(false)
+               setGoldSmith(prev => ({
+                 ...prev,
+                 goldSmithInfo: {
+                 ...prev.goldSmithInfo,
+                balance: response.data.goldSmithBalance.balance
+                }
+          }))
+                setopen(false)
                toast.success(response.data.message)
        } catch (err) {
                  console.error('POST Error:', err.response?.data || err.message);
-                  toast.error(err.response?.data?.error || 'An error occurred while creating the job card');
+                  toast.error(err.message|| 'An error occurred while creating the job card');
                 
              }
         }
@@ -147,6 +174,13 @@ const SrJobCard=()=>{
        fetchMasterItem()
        
     },[])
+    const handleClosePop=()=>{
+              setopen(false)
+              setGoldRows([])
+              setItemRows([])
+              setDeductionRows([])
+              setReceived([])
+    }
 
      return(
             
@@ -172,112 +206,86 @@ const SrJobCard=()=>{
                                 setEdit(false)}}>Add New JobCard</button>
                       </div>
                   </div>
-                   <div className="jobcardTable">
-                          {jobCards.length>=1?(
-                        <table >
-                              <thead className="jobCardHead">
-                                  <tr>
-                                  <th>S.no</th>
-                                  <th>Givenwt</th>
-                                  <th>Itemwt</th>
-                                  <th>Stonewt</th>
-                                  <th>Action</th>
-                                  </tr>
-                              </thead>
-                              <tbody>
-                                  {jobCards.map((item,index)=>(
-                                    <tr key={index}>
-                                        <td>{index+1}</td>
-                                        <td> 
-                                        {jobCards[index]?.givenGold.length>=1 ? (
-                                          <table>
-                                            <thead>
-                                                <tr>
-                                                <th>S.no</th>
-                                                <th>itemName</th>
-                                                <th>weight</th>
-                                                <th>touch</th>
-                                               </tr>
-                                         </thead>
-                                         <tbody>
-                                            {
-                                               jobCards[index]?.givenGold.map((item,indexGold)=>(
-                                                <tr key={indexGold}>
-                                                     <td>{index+1}</td>
-                                                    <td>{item?.itemName}</td>
-                                                    <td>{item?.weight}</td>
-                                                    <td>{item?.touch}</td>
-                                                </tr>
-                                               ))
+                 <div className="jobcardTable">
+              {jobCards.length >= 1 ? (
+    <table>
+      <thead className="jobCardHead">
+        <tr>
+          <th rowSpan={2}>S.No</th>
+          <th rowSpan={2}>Date</th>
+          <th colSpan={3}>Given Wt</th>
+          <th colSpan={2}>Item Wt</th>
+          <th rowSpan={2}>Stone Wt</th>
+          <th rowSpan={2}>After Wastage</th>
+          <th rowSpan={2}>Balance</th>
+          <th rowSpan={2}>Action</th>
+        </tr>
+        <tr>
+          <th>Name</th>
+          <th>Weight</th>
+          <th>Touch</th>
+          <th>Name</th>
+          <th>Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        {jobCards.map((job, jobIndex) => {
+          const given = job.givenGold;
+          const delivery = job.deliveryItem;
+          const maxRows = Math.max(given.length, delivery.length) || 1;
 
-                                            }
-                                         </tbody>
-                                        </table>):<span>No Given Gold</span>}
-                                       </td>
-                                        <td> 
-                                        {jobCards[index]?.deliveryItem.length>=1 ? (
-                                          <table>
-                                            <thead>
-                                                <tr>
-                                                <th>S.no</th>
-                                                <th>itemName</th>
-                                                <th>weight</th>
-                                               
-                                               </tr>
-                                         </thead>
-                                         <tbody>
-                                            {jobCards[index]?.deliveryItem.map((item,indexItem)=>(
-                                                <tr key={indexItem}>
-                                                    <td>{index+1}</td>
-                                                    <td>{item?.itemName}</td>
-                                                    <td>{item?.weight}</td>
-                                                    
-                                                </tr>
-                                               ))
+          return [...Array(maxRows)].map((_, i) => {
+            const g = given[i];
+            const d = delivery[i];
+            const total = job.jobCardTotal?.[0];
 
-                                            }
-                                         </tbody>
-                                        </table>):<span>No delivery Item</span>}
-                                       </td>
-                                        <td> 
-                                        {jobCards[index]?.additionalWeight.length>=1 ? (
-                                          <table>
-                                            <thead>
-                                                <tr>
-                                                <th>S.no</th>
-                                                <th>itemName</th>
-                                                <th>weight</th>
-                                                
-                                               </tr>
-                                         </thead>
-                                         <tbody>
-                                            {
-                                               jobCards[index]?.additionalWeight.map((item,indexadditional)=>(
-                                                <tr key={indexadditional}>
-                                                     <td>{index+1}</td>
-                                                    <td>{item?.type}</td>
-                                                    <td>{item?.weight}</td>
-                                                    </tr>
-                                               ))
+            return (
+              <tr key={`${job.id}-${i}`}>
+                {i === 0 && (
+                  <>
+                    <td rowSpan={maxRows}>{jobIndex + 1}</td>
+                    <td rowSpan={maxRows}>
+                      {new Date(job.createdAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+                  </>
+                )}
+                <td>{g?.itemName || "-"}</td>
+                <td>{g?.weight || "-"}</td>
+                <td>{g?.touch || "-"}</td>
+                <td>{d?.itemName || "-"}</td>
+                <td>{d?.weight || "-"}</td>
 
-                                            }
-                                         </tbody>
-                                        </table>):<span>No Stone weight </span>}
-                                       </td>
-                                       <td><FaEye className="eyeIcon" onClick={()=>handleFilterJobCard(item.id,index)}/></td>
-                                        
-                                    </tr>
-                                  ))}
-                              </tbody>
-                          </table>):<span>No JobCard For this GoldSmith</span>}
-                  </div> 
+                {i === 0 && (
+                  <>
+                    <td rowSpan={maxRows}>{total?.stoneWt ?? "-"}</td>
+                    <td rowSpan={maxRows}>{total?.wastage ?? "-"}</td>
+                    <td rowSpan={maxRows}>{total?.balance ?? "-"}</td>
+                    <td rowSpan={maxRows}>
+                      <button onClick={()=>handleFilterJobCard(job.id,jobIndex)}><FaEye></FaEye></button>
+                    </td>
+                  </>
+                )}
+              </tr>
+            );
+          });
+        })}
+      </tbody>
+    </table>
+  ) : (
+    <span className="noJobCard">No JobCard For this GoldSmith</span>
+  )}
+</div>
+
                  
               </div>
              {open && 
               <NewJobCard
                 name={goldSmith?.goldSmithInfo?.name}
                 goldSmithWastage={goldSmith?.goldSmithInfo.wastage}
-                goldSmith={goldSmith}
                 setGoldSmith={setGoldSmith}
                 balance={goldSmith?.goldSmithInfo.balance}
                 goldRows={goldRows}
@@ -286,18 +294,18 @@ const SrJobCard=()=>{
                 setItemRows={setItemRows}
                 deductionRows={deductionRows}
                 setDeductionRows={setDeductionRows}
+                received={received}
+                setReceived={setReceived}
                 masterItems={masterItems}
                 handleSaveJobCard={handleSaveJobCard}
                 handleUpdateJobCard={handleUpdateJobCard}
                 jobCardLength={jobCardLength}
                 jobCardId={jobCardId}
                 open={open}
-                onclose={()=>setopen(false)}
+                onclose={()=>handleClosePop()}
                 edit={edit}
               ></NewJobCard>}
-            </>
-            
-            
+            </>      
         )
 }
 export default SrJobCard

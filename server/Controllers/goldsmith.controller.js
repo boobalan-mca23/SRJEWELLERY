@@ -34,7 +34,11 @@ exports.createGoldsmith = async (req, res) => {
 
 exports.getAllGoldsmith = async (req, res) => {
   try {
-    const goldsmith = await prisma.goldsmith.findMany();
+    const goldsmith = await prisma.goldsmith.findMany({
+      include:{
+        goldSmithBalance:true
+      }
+    });
     res.status(200).json(goldsmith);
   } catch (error) {
     res.status(500).json({ message: "Error fetching goldsmith", error });

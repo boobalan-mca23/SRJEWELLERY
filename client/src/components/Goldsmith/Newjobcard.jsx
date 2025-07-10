@@ -17,11 +17,10 @@ const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
 const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
- masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,goldSmith,jobCardLength,setGoldSmith}) => {
+ masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmith}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
-  const[received,setReceived]=useState([])
   const[formErrors,setFormErrors]=useState([])
   const[receivedErrors,setReceivedErrors]=useState([])
   const[itemErrors,setItemErrors]=useState([])
@@ -59,6 +58,9 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     // );
     
     setReceived(copy);
+    //check validation
+    receiveRowValidation(received,setReceivedErrors)
+
   };
 
   const handleItemRowChange = (i, field, val) => {
@@ -100,7 +102,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     0
   );
 
-  const totalBalance = parseFloat(balance) + totalGoldWeight;
+  const totalBalance = balance>=0? totalGoldWeight+parseFloat(balance): totalGoldWeight-parseFloat(balance);
 
   const totalItemWeight = itemRows.reduce(
     (sum, item) => sum + parseFloat(item.weight || 0),
@@ -152,14 +154,8 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   }, [itemRows, deductionRows]);
 
   
-
-
-  
-
   // const symbolOptions = ["Touch", "%", "+"];
  
-  
-  
   const SaveJobCard=()=>{
      // form validation
       let goldIsTrue=goldRowValidation(goldRows,setFormErrors)
@@ -172,14 +168,12 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
       let receivedIsTrue=receiveRowValidation(received,setReceivedErrors)
      if(edit){ 
 
-       if(goldIsTrue&&itemIsTrue&&deductionIsTrue){
-          handleUpdateJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,wastage,balanceDifference)
-          
-        }
-        
+       if(goldIsTrue&&itemIsTrue&&deductionIsTrue&&receivedIsTrue){
+          handleUpdateJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference)
+        }  
      }else{
-       if(goldIsTrue){
-          handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,wastage,balanceDifference)
+       if(goldIsTrue&&receivedIsTrue){
+          handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference)
         }
      }
      
@@ -189,7 +183,8 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
 
 
   return (
-      <Dialog open={open} onClose={onclose} maxWidth={false} PaperProps={{ className: "jobcard-dialog" }}>
+      <Dialog open={open} onClose={onclose} maxWidth={false} 
+      PaperProps={{ className: "jobcard-dialog" }}>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {edit ? "Update Job Card" : "Add New Job Card"}
         <IconButton onClick={onclose}>
@@ -258,7 +253,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
              
             <span className="operator">x</span>
             <div>
-                 <input
+              <input
               type="number"
               placeholder="Touch"
               value={row.touch}
@@ -295,7 +290,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
         <h3 className="section-title">Balance</h3>
         <div className="balance-block">
           <div className="balance-display-row">
-            <span className="balance-label">Opening Balance:</span>
+            <span className="balance-label">{balance>=0 ?"Opening Balance":"ExceesBalance"}:</span>
             <span className="balance-value">{format(balance)}</span>
           </div>
           <div className="balance-display-row">
@@ -467,7 +462,6 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
             />
             <span className="operator">x</span>
              <input
-            
               type="number"
               value={goldSmithWastage}
               className="inputwastage"
@@ -480,8 +474,6 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
               type="number"
               value={wastage}
               className="inputwastage"
-           
-            
             />
           
           </div>
