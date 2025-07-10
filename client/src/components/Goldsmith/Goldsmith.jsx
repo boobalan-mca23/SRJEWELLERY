@@ -17,6 +17,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Autocomplete
+  
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
@@ -27,14 +29,22 @@ import "react-toastify/dist/ReactToastify.css";
 import "./Goldsmith.css";
 import { Link } from "react-router-dom";
 import { BACKEND_SERVER_URL } from "../../Config/Config";
+import NewJobCard from "./Newjobcard";
 
 const Goldsmith = () => {
   const [goldsmith, setGoldsmith] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [jobCardInfo,setJobCardInfo]=useState([])
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedGoldsmith, setSelectedGoldsmith] = useState(null);
-  const [formData, setFormData] = useState({
+  const [goldRows,setGoldRows]=useState([])
+  const [itemRows,setItemRows]=useState([])
+  const [deductionRows,setDeductionRows]=useState([])
+  const [received,setReceived]=useState([])
+  const [open,setOpen]=useState(false)
+  const [edit,setEdit]=useState(false)
+  const [selectedName,setSelectedName]=useState({})
+  const [formData, setFormData] = useState({ 
     name: "",
     phone: "",
     address: "",
@@ -124,9 +134,45 @@ const Goldsmith = () => {
       gs.address && gs.address.toLowerCase().includes(searchTerm.toLowerCase());
     return nameMatch || phoneMatch || addressMatch;
   });
+  const handleNameChange=(value)=>{
+     if(!value) return toast.warn('Select GoldSmith Name',{autoClose:1000})
+   
+      setSelectedName(value)
+      const fetchJobCards=async()=>{
+              try{
+                const res = await fetch(`${BACKEND_SERVER_URL}/api/job-cards/${value.id}`, {
+                 method: "GET",
+                 headers: {
+                 "Content-Type": "application/json"
+                }
+               });
+
+           const data = await res.json(); // <- this is how you get the JSON body
+           console.log('jobCards',data);
+           setJobCardInfo(data?.jobCards||[]) 
+                     
+            }catch(err){
+               alert(err.message)
+                toast.error("Something went wrong.");
+             }
+        }
+        fetchJobCards()
+    
+  }
+  const handleFilterJobCard=(index,id)=>{
+     const { givenGold, deliveryItem, additionalWeight } = jobCardInfo[index];
+      
+       setGoldRows(givenGold);
+       setItemRows(deliveryItem);
+       setDeductionRows(additionalWeight);
+       setEdit(true)
+   
+  } 
+
 
   return (
-    <Container maxWidth="md">
+     <div className="homeContainer">
+      
       <Paper className="customer-details-container" elevation={3} sx={{ p: 3 }}>
         <Typography variant="h5" align="center" gutterBottom>
           Goldsmith Details
@@ -243,6 +289,61 @@ const Goldsmith = () => {
         </Table>
       </Paper>
 
+          <div className="customer-details-container">
+            <Typography variant="h6" gutterBottom>
+                Search Job Card
+              </Typography>
+               <Autocomplete
+               style={{marginTop:"20px"}}
+               disablePortal
+               options={goldsmith.map((g) => g)}  // Pass full goldsmith object
+               getOptionLabel={(option) => option.name} 
+               sx={{ width: 300 }}
+               onChange={(event, value) => handleNameChange(value)}
+               renderInput={(params) => <TextField {...params} label="GoldSmith Name" />}
+            />
+            {
+              jobCardInfo?.length>=1 ? (
+                <>
+                   <table>
+                      <thead>
+                        <tr>
+                          <th>S.No</th>
+                          <th>Job Card Id</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                           {jobCardInfo?.map((val,index)=>(
+                            <tr key={index}>
+                              <td>{index+1}</td>
+                              <td style={{cursor:"pointer"}} onClick={()=>{handleFilterJobCard(index,val.id)}}>{val.id}</td>
+                            </tr>
+                           ))}
+                      </tbody>
+                   </table>
+                </>
+              ):(<><span>No Job Cards</span></>)
+            }
+            
+        </div>
+     
+      {/* {open&&  
+      <NewJobCard
+      name={selectedName.name}
+      goldSmithWastage={selectedName.wastage}
+      setGoldSmith={setGoldsmith}
+      balance={selectedName.goldSmithBalance.balance}
+      goldRows={goldRows}
+      setGoldRows={setGoldRows}
+      itemRows={itemRows}
+      setItemRows={setItemRows}
+      deductionRows={deductionRows}
+      setDeductionRows={setDeductionRows}
+      onclose={()=>{setOpen(false)}}
+      open={open}
+      edit={edit}
+      
+      />} */}
 
       <Dialog
         open={openEditDialog}
@@ -301,7 +402,7 @@ const Goldsmith = () => {
       </Dialog>
 
       <ToastContainer position="top-right" autoClose={3000} />
-    </Container>
+      </div>
   );
 };
 
