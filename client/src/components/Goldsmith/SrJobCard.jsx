@@ -283,6 +283,8 @@ const SrJobCard=()=>{
                  
               </div>
              {open && 
+             <div style={{background:"blue", width:"100vw"}}>
+
               <NewJobCard
                 name={goldSmith?.goldSmithInfo?.name}
                 goldSmithWastage={goldSmith?.goldSmithInfo.wastage}
@@ -304,7 +306,9 @@ const SrJobCard=()=>{
                 open={open}
                 onclose={()=>handleClosePop()}
                 edit={edit}
-              ></NewJobCard>}
+                ></NewJobCard>
+        </div>
+                }
             </>      
         )
 }
