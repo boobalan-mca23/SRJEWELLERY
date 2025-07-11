@@ -366,6 +366,7 @@ const createJobCard = async (req, res) => {
 
    // Job Card Total
     const jobCardTotal={
+       "goldsmithId":parseInt(goldsmithId),
        "givenWt" :parseFloat(total?.givenWt)||0,
        "itemWt"  :parseFloat(total?.itemWt)||0, 
        "stoneWt" :parseFloat(total?.stoneWt)||0,
@@ -597,7 +598,19 @@ const updateJobCard = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
-
+const getPreviousJobCardBal=async(req,res)=>{
+     const{id}=req.params
+     
+     const jobCards = await prisma.jobcardTotal.findMany({
+      where:{
+       goldsmithId:parseInt(id)
+      }
+     });
+     const jobCard=jobCards.at(-1)
+     res.send(jobCard.balance)
+     
+   
+}
 
  // getAllJobCardByGoldsmithId
 const getAllJobCardByGoldsmithId = async (req, res) => {
@@ -652,4 +665,4 @@ const getAllJobCardByGoldsmithId = async (req, res) => {
 
 
 
- module.exports={createJobCard,updateJobCard,getAllJobCardByGoldsmithId}
+ module.exports={createJobCard,updateJobCard,getAllJobCardByGoldsmithId,getPreviousJobCardBal}

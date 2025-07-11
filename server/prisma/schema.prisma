@@ -72,6 +72,7 @@ model Goldsmith {
   createdAt DateTime @default(now())
   jobCards  JobCard[]  
   goldSmithBalance GoldSmithBalance[]
+  jobCardTotal JobcardTotal[]
 }
 
 model GoldSmithBalance {
@@ -79,7 +80,7 @@ model GoldSmithBalance {
   goldsmithId Int
   balance     Float?
   goldsmith   Goldsmith @relation(fields: [goldsmithId], references: [id])
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 }
 
 model JobCard {
@@ -150,13 +151,15 @@ model AdditionalWeight {
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
 }
 model JobcardTotal{
-  id         Int @id @default(autoincrement())
-  givenWt    Float?
-  itemWt     Float? 
-  stoneWt    Float?
-  wastage    Float?
-  balance    Float?
-  jobcardId  Int
+  id          Int @id @default(autoincrement())
+  givenWt     Float?
+  itemWt      Float? 
+  stoneWt     Float?
+  wastage     Float?
+  balance     Float?
+  jobcardId   Int
+  goldsmithId Int
+  goldsmith   Goldsmith @relation(fields: [goldsmithId], references: [id])
   jobCard    JobCard @relation(fields: [jobcardId], references: [id])
 }
 

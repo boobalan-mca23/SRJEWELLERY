@@ -7,5 +7,6 @@ router.put("/:goldSmithId/:jobCardId", jobCardController.updateJobCard);
 // router.get("/job-cards", jobCardController.getAllJobCards);
 // router.patch("/items/:itemId", jobCardController.updateJobCardItem);
 router.get("/:id", jobCardController.getAllJobCardByGoldsmithId);
+router.get("/:id/lastBalance",jobCardController.getPreviousJobCardBal);
 
 module.exports = router;

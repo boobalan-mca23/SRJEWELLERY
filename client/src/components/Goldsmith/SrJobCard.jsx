@@ -25,12 +25,13 @@ const SrJobCard=()=>{
        
     )
     const [jobCards,setJobCard]=useState([])
+    const [openingBal,setOpeningBal]=useState()
     const [jobCardId,setJobCardId]=useState(null)
     const [jobCardLength,setJobCardLength]=useState(null)
     const [goldRows, setGoldRows] = useState([{ itemName:"",weight: "", touch: 91.7, }]);
     const [itemRows, setItemRows] = useState([{ weight: "", itemName: "" }]);
     const [deductionRows, setDeductionRows] = useState([{ type: "Stone", customType: "", weight: "" }]);
-    const[received,setReceived]=useState([])
+    const [received,setReceived]=useState([])
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
     
@@ -43,6 +44,8 @@ const SrJobCard=()=>{
             setItemRows(filteredJobcard[0]?.deliveryItem)
             setDeductionRows(filteredJobcard[0]?.additionalWeight)
             setReceived(filteredJobcard[0].goldSmithReceived)
+            let lastBalance=jobCardindex !=0 ? tempJobCard[jobCardindex-1].jobCardTotal[0].balance: 0
+            setOpeningBal(lastBalance)
             setopen(true)
             setEdit(true)
 
@@ -176,10 +179,23 @@ const SrJobCard=()=>{
     },[])
     const handleClosePop=()=>{
               setopen(false)
-              setGoldRows([])
-              setItemRows([])
-              setDeductionRows([])
+              setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
+              setItemRows([{ weight: "", itemName: "" }])
+              setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
               setReceived([])
+    }
+    const handleOpenJobCard=async()=>{
+        setopen(true) 
+        setEdit(false) 
+        try{
+                   const res=await axios.get(`${BACKEND_SERVER_URL}/api/job-cards/${id}/lastBalance`)
+                   setOpeningBal(res.data)
+                       
+            }catch(err){
+               alert(err.message)
+                toast.error("Something went wrong.");
+             }
+
     }
 
      return(
@@ -201,9 +217,11 @@ const SrJobCard=()=>{
                          <p><strong>Phone Number:</strong> {goldSmith?.goldSmithInfo?.phoneNo}</p>
                          <p><strong>Address:</strong> {goldSmith?.goldSmithInfo?.address}</p>
                       </div>
+                     
                       <div className="addjobcard">
-                            <button className="addbtn" onClick={()=>{setopen(true) 
-                                setEdit(false)}}>Add New JobCard</button>
+                            <button className="addbtn" onClick={()=>{
+                              handleOpenJobCard()
+                              }}>Add New JobCard</button>
                       </div>
                   </div>
                  <div className="jobcardTable">
@@ -289,7 +307,7 @@ const SrJobCard=()=>{
                 name={goldSmith?.goldSmithInfo?.name}
                 goldSmithWastage={goldSmith?.goldSmithInfo.wastage}
                 setGoldSmith={setGoldSmith}
-                balance={goldSmith?.goldSmithInfo.balance}
+                balance={openingBal}
                 goldRows={goldRows}
                 setGoldRows={setGoldRows}
                 itemRows={itemRows}
