@@ -8,4 +8,5 @@ router.get("/:id", goldsmithController.getGoldsmithById);
 router.put("/:id", goldsmithController.updateGoldsmith);
 router.delete("/:id", goldsmithController.deleteGoldsmith);
 
+
 module.exports = router;

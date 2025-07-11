@@ -1,6 +1,6 @@
 
 .container {
-    max-width: 100%;
+    max-width: 700px;
     margin: 10px auto;
     padding: 10px;
     font-family: 'Roboto', sans-serif;
@@ -395,19 +395,13 @@
 .balance-amount {
   font-size: 1.2rem;
 }
-.MuiDialog-paper {
-    width: 800px !important;
-    max-width: 90%;
-    padding: 24px;
-    border-radius: 12px;
-}
-/* .jobcard-dialog {
+.jobcard-dialog {
   width: 60vw !important;
-  max-width: 800px !important;
+  min-width: 800px!important;
   height: 85vh;
   padding: 24px;
   border-radius: 12px;
- } */
+ }
 .deleteIcon{
   font-size: 25px;
   color: red;
