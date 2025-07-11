@@ -183,8 +183,10 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
 
 
   return (
-      <Dialog open={open} onClose={onclose} maxWidth={false} 
-      PaperProps={{ className: "jobcard-dialog" }}>
+      <Dialog open={open} onClose={onclose} maxWidth={800} 
+   
+  
+      >
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {edit ? "Update Job Card" : "Add New Job Card"}
         <IconButton onClick={onclose}>
@@ -192,7 +194,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
         </IconButton>
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent >
     <div className="container">
       <div className="header">
         <div className="header-item">
