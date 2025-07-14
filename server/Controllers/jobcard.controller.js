@@ -601,15 +601,70 @@ const updateJobCard = async (req, res) => {
 const getPreviousJobCardBal=async(req,res)=>{
      const{id}=req.params
      
-     const jobCards = await prisma.jobcardTotal.findMany({
-      where:{
-       goldsmithId:parseInt(id)
-      }
-     });
-     const jobCard=jobCards.at(-1)
-     res.send(jobCard.balance)
+     try{
+        const jobCards = await prisma.jobcardTotal.findMany({
+            where:{
+            goldsmithId:parseInt(id)
+           }
+        });
+       
+        if(jobCards.length>=1){
+           const jobCard=jobCards.at(-1)
+           
+            res.status(200).json({"status":"balance",balance:jobCard.balance})
+        }else{
+          res.status(200).json({"status":"nobalance",balance:0})
+        }
+        
+      }catch(err){
+         console.error("Previous Balance Error:", err);
+         return res.status(500).json({ error: err.message });
+      
+     }
      
    
+}
+
+
+const getJobCardById=async(req,res)=>{
+    const {id}=req.params
+   try{
+    
+      const goldSmithInfo = await prisma.jobCard.findUnique({where:{id:parseInt(id)}}); 
+
+        if (!goldSmithInfo) {
+         return res.status(404).json({ error: "Job Card not found" }); 
+        }
+      
+      
+        const jobCardInfo=await prisma.jobCard.findMany({
+          where:{
+            id:parseInt(id)
+          },
+          include:{
+            goldsmith:true,
+            givenGold:true,
+            deliveryItem:true,
+            additionalWeight:true,
+            goldSmithReceived:true,
+           }
+        })
+        const jobCardTotal= await prisma.jobcardTotal.findMany({
+            where:{
+              id:parseInt(id-1)
+            }
+        })
+        let balance=parseInt(id)===1 ? 0 :jobCardTotal[0].balance
+       return res.status(200).json({"jobcard":jobCardInfo,"jobCardBalance":balance})
+
+      } catch(err){
+      return res.status(500).json({err:"Server Error"})
+   }
+     
+   
+   
+
+
 }
 
  // getAllJobCardByGoldsmithId
@@ -665,4 +720,7 @@ const getAllJobCardByGoldsmithId = async (req, res) => {
 
 
 
- module.exports={createJobCard,updateJobCard,getAllJobCardByGoldsmithId,getPreviousJobCardBal}
+ module.exports={createJobCard,
+  updateJobCard,
+  getAllJobCardByGoldsmithId,
+  getPreviousJobCardBal,getJobCardById}

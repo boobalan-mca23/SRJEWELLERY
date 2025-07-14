@@ -189,10 +189,12 @@ const SrJobCard=()=>{
         setEdit(false) 
         try{
                    const res=await axios.get(`${BACKEND_SERVER_URL}/api/job-cards/${id}/lastBalance`)
-                   setOpeningBal(res.data)
+                  //  setOpeningBal(res.data)
+            res.data.status==="nobalance"? setOpeningBal(res.data.balance):setOpeningBal(res.data.balance)
+
                        
             }catch(err){
-               alert(err.message)
+                alert(err.message)
                 toast.error("Something went wrong.");
              }
 
@@ -301,7 +303,7 @@ const SrJobCard=()=>{
                  
               </div>
              {open && 
-             <div style={{background:"blue", width:"100vw"}}>
+           
 
               <NewJobCard
                 name={goldSmith?.goldSmithInfo?.name}
@@ -325,7 +327,7 @@ const SrJobCard=()=>{
                 onclose={()=>handleClosePop()}
                 edit={edit}
                 ></NewJobCard>
-        </div>
+        
                 }
             </>      
         )
