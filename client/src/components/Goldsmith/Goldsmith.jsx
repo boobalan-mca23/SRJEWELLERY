@@ -29,12 +29,12 @@ import "react-toastify/dist/ReactToastify.css";
 import "./Goldsmith.css";
 import { Link } from "react-router-dom";
 import { BACKEND_SERVER_URL } from "../../Config/Config";
+import axios from "axios";
 import NewJobCard from "./Newjobcard";
 
 const Goldsmith = () => {
   const [goldsmith, setGoldsmith] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [jobCardInfo,setJobCardInfo]=useState([])
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedGoldsmith, setSelectedGoldsmith] = useState(null);
   const [goldRows,setGoldRows]=useState([])
@@ -43,7 +43,11 @@ const Goldsmith = () => {
   const [received,setReceived]=useState([])
   const [open,setOpen]=useState(false)
   const [edit,setEdit]=useState(false)
+  const [jobCardError,setJobCardError]=useState({})
+  const [jobCardId,setJobCardId]=useState(null)
+  const [jobCardTotal,setJobCardTotal]=useState(0)
   const [selectedName,setSelectedName]=useState({})
+  const [masterItems,setMasterItems]=useState([])
   const [formData, setFormData] = useState({ 
     name: "",
     phone: "",
@@ -61,7 +65,14 @@ const Goldsmith = () => {
         console.error("Error fetching goldsmith data:", error);
       }
     };
+    const fetchMasterItem=async()=>{
+               const res=await axios.get(`${BACKEND_SERVER_URL}/api/master-items`)
+               console.log('res',res.data)
+               setMasterItems(res.data)
+      }
+
     fetchGoldsmiths();
+    fetchMasterItem()
   }, []);
 
   const handleEditClick = (goldsmith) => {
@@ -126,6 +137,51 @@ const Goldsmith = () => {
     }
   };
 
+  const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
+      console.log('update')
+          
+      //   const payload={
+      //   'goldRows':goldRows,
+      //   'itemRow':itemRows,
+      //   'deductionRows':deductionRows,
+      //   'receivedAmount':received,
+      //   'goldSmithBalance':{
+      //    'id':goldSmith.goldSmithInfo.id,
+      //    'balance':totalBalance
+      //   },
+      //   'total':{
+      //     'id':jobCards[0]?.jobCardTotal[0]?.id,
+      //     'givenWt':totalGoldWt,
+      //     'itemWt':totalItemWt,
+      //     'stoneWt':totalDeductionWt,
+      //     'wastage':totalWastage,
+      //     'balance':totalBalance
+      //   }
+      //  }
+      //  console.log('payload update',payload)
+       
+      // try {
+      //       const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
+      //               headers: {
+      //                'Content-Type': 'application/json',
+      //              },
+      //        });
+      //        if(response.status===400){
+      //           alert(response.data.message)
+      //        }
+      //         console.log('Response:', response.data.jobCards); // success response
+             
+      //         setOpen(false)
+      //         setEdit(false)
+             
+      //         toast.success(response.data.message)
+
+      //  } catch (err) {
+      //            console.error('POST Error:', err.response?.data || err.message);
+      //           toast.error(err.message || 'An error occurred while creating the job card'); 
+      //        }
+       }
+
   const filteredGoldsmith = goldsmith.filter((gs) => {
     const nameMatch =
       gs.name && gs.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -134,40 +190,45 @@ const Goldsmith = () => {
       gs.address && gs.address.toLowerCase().includes(searchTerm.toLowerCase());
     return nameMatch || phoneMatch || addressMatch;
   });
-  const handleNameChange=(value)=>{
-     if(!value) return toast.warn('Select GoldSmith Name',{autoClose:1000})
+
+  const handleJobCardId=(id)=>{
+    const num=Number(id)
+    if(isNaN(num)){
+      setJobCardError({'err':"Please Enter Vaild Input"})
+    }else{
+      setJobCardError({}) 
+      setJobCardId(num)
+    }
    
-      setSelectedName(value)
-      const fetchJobCards=async()=>{
-              try{
-                const res = await fetch(`${BACKEND_SERVER_URL}/api/job-cards/${value.id}`, {
+  }
+  const handleSearch =()=>{
+    if (!jobCardError.err && !isNaN(jobCardId) && jobCardId!==null) {
+         const fetchJobCardById=async()=>{
+            try{
+               const res= await fetch(`${BACKEND_SERVER_URL}/api/job-cards/${jobCardId}/jobcard`, {
                  method: "GET",
                  headers: {
                  "Content-Type": "application/json"
                 }
-               });
+               })
+               const data=await res.json()
+              
+               setGoldRows(data.jobcard[0].givenGold)
+               setItemRows(data.jobcard[0].deliveryItem)
+               setDeductionRows(data.jobcard[0].additionalWeight)
+               setReceived(data.jobcard[0].goldSmithReceived)
+               setSelectedName(data.jobcard[0].goldsmith)
+               setJobCardTotal(data.jobCardBalance)
+               setOpen(true)
+               setEdit(true)
 
-           const data = await res.json(); // <- this is how you get the JSON body
-           console.log('jobCards',data);
-           setJobCardInfo(data?.jobCards||[]) 
-                     
             }catch(err){
-               alert(err.message)
-                toast.error("Something went wrong.");
-             }
-        }
-        fetchJobCards()
-    
+                toast.error(err.message)
+            }
+         }
+         fetchJobCardById()
+      }
   }
-  const handleFilterJobCard=(index,id)=>{
-     const { givenGold, deliveryItem, additionalWeight } = jobCardInfo[index];
-      
-       setGoldRows(givenGold);
-       setItemRows(deliveryItem);
-       setDeductionRows(additionalWeight);
-       setEdit(true)
-   
-  } 
 
 
   return (
@@ -289,61 +350,56 @@ const Goldsmith = () => {
         </Table>
       </Paper>
 
-          <div className="customer-details-container">
+    <div className="customer-details-container">
             <Typography variant="h6" gutterBottom>
                 Search Job Card
-              </Typography>
-               <Autocomplete
-               style={{marginTop:"20px"}}
-               disablePortal
-               options={goldsmith.map((g) => g)}  // Pass full goldsmith object
-               getOptionLabel={(option) => option.name} 
-               sx={{ width: 300 }}
-               onChange={(event, value) => handleNameChange(value)}
-               renderInput={(params) => <TextField {...params} label="GoldSmith Name" />}
-            />
-            {
-              jobCardInfo?.length>=1 ? (
-                <>
-                   <table>
-                      <thead>
-                        <tr>
-                          <th>S.No</th>
-                          <th>Job Card Id</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                           {jobCardInfo?.map((val,index)=>(
-                            <tr key={index}>
-                              <td>{index+1}</td>
-                              <td style={{cursor:"pointer"}} onClick={()=>{handleFilterJobCard(index,val.id)}}>{val.id}</td>
-                            </tr>
-                           ))}
-                      </tbody>
-                   </table>
-                </>
-              ):(<><span>No Job Cards</span></>)
-            }
-            
-        </div>
+            </Typography>
+        <div className="searchBox">
+          <div className="inputWithError">
+                   <TextField
+                   id="outlined-basic"
+                   label="JobCard Id"
+                   onChange={(e) => handleJobCardId(e.target.value)}
+                   variant="outlined"
+                   autoComplete="off"
+                    />
+                {jobCardError.err && <p className="errorText">{jobCardError.err}</p>}
+           </div>
+
+                  <Button
+                  className="searchBtn"
+                  variant="contained"
+                  onClick={handleSearch}
+                  disabled={!!jobCardError.err}
+                   >
+                  Search
+                  </Button>
+               </div>
+
+    </div>
      
-      {/* {open&&  
+      {open&&  
       <NewJobCard
       name={selectedName.name}
       goldSmithWastage={selectedName.wastage}
       setGoldSmith={setGoldsmith}
-      balance={selectedName.goldSmithBalance.balance}
+      balance={jobCardTotal}
       goldRows={goldRows}
       setGoldRows={setGoldRows}
       itemRows={itemRows}
       setItemRows={setItemRows}
       deductionRows={deductionRows}
       setDeductionRows={setDeductionRows}
+      received={received}
+      setReceived={setReceived}
+      masterItems={masterItems}
+      handleUpdateJobCard={handleUpdateJobCard}
+      jobCardId={jobCardId}
       onclose={()=>{setOpen(false)}}
       open={open}
       edit={edit}
       
-      />} */}
+      />}
 
       <Dialog
         open={openEditDialog}

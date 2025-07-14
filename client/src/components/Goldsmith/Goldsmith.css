@@ -1,6 +1,6 @@
 .homeContainer {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 20px;
   align-items: start;
   padding: 20px;
@@ -35,6 +35,29 @@ th {
 tr:hover {
   background-color: #f9f9f9;
 }
+.searchBox {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 20px;
+  margin: 10px 50px;
+}
+
+.inputWithError {
+  display: flex;
+  flex-direction: column;
+}
+
+.errorText {
+  color: red;
+  margin-top: 5px;
+  font-size: 14px;
+}
+.searchBtn{
+  font-size: 17px !important;
+  padding: 10px !important;
+}
+
 
 @media (max-width: 768px) {
   .homeContainer {
