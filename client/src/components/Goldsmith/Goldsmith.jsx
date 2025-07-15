@@ -48,6 +48,7 @@ const Goldsmith = () => {
   const [jobCardTotal,setJobCardTotal]=useState(0)
   const [selectedName,setSelectedName]=useState({})
   const [masterItems,setMasterItems]=useState([])
+  const [noJobCard,setNoJobCard]=useState({})
   const [formData, setFormData] = useState({ 
     name: "",
     phone: "",
@@ -212,7 +213,11 @@ const Goldsmith = () => {
                 }
                })
                const data=await res.json()
-              
+               if(res.status===404){
+                setOpen(false)
+                setEdit(false)
+                setNoJobCard({err:"No Job Card For This Id"})
+               }else{
                setGoldRows(data.jobcard[0].givenGold)
                setItemRows(data.jobcard[0].deliveryItem)
                setDeductionRows(data.jobcard[0].additionalWeight)
@@ -221,6 +226,9 @@ const Goldsmith = () => {
                setJobCardTotal(data.jobCardBalance)
                setOpen(true)
                setEdit(true)
+               setNoJobCard({})
+               }
+               
 
             }catch(err){
                 toast.error(err.message)
@@ -364,6 +372,7 @@ const Goldsmith = () => {
                    autoComplete="off"
                     />
                 {jobCardError.err && <p className="errorText">{jobCardError.err}</p>}
+                {noJobCard.err && <p className="errorText">{noJobCard.err}</p>}
            </div>
 
                   <Button
