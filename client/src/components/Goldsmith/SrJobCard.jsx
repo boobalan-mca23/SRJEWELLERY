@@ -146,7 +146,7 @@ const SrJobCard=()=>{
               setItemRows([{ weight: "", itemName: "" }])
               setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
               setReceived([])
-                setopen(false)
+              setopen(false)
                toast.success(response.data.message)
        } catch (err) {
                  console.error('POST Error:', err.response?.data || err.message);
