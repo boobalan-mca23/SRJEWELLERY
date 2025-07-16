@@ -41,8 +41,8 @@ const SrJobCard=()=>{
             const filteredJobcard=tempJobCard.filter((_,index)=>index===jobCardindex)
             console.log('filter',filteredJobcard)
             setGoldRows(filteredJobcard[0]?.givenGold)
-            setItemRows(filteredJobcard[0]?.deliveryItem)
-            setDeductionRows(filteredJobcard[0]?.additionalWeight)
+            setItemRows(filteredJobcard[0]?.deliveryItem.length>=1 ?filteredJobcard[0]?.deliveryItem:[{ weight: "", itemName: "" }] )
+            setDeductionRows(filteredJobcard[0]?.additionalWeight.length>=1 ?filteredJobcard[0]?.additionalWeight:[{ type: "Stone", customType: "", weight: "" }])
             setReceived(filteredJobcard[0].goldSmithReceived)
             let lastBalance=jobCardindex !=0 ? tempJobCard[jobCardindex-1].jobCardTotal[0].balance: 0
             setOpeningBal(lastBalance)
@@ -136,7 +136,12 @@ const SrJobCard=()=>{
                  ...prev.goldSmithInfo,
                 balance: response.data.goldSmithBalance.balance
                 }
+                
           }))
+              setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
+              setItemRows([{ weight: "", itemName: "" }])
+              setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
+              setReceived([])
                 setopen(false)
                toast.success(response.data.message)
        } catch (err) {
