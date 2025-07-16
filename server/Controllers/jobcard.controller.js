@@ -540,7 +540,7 @@ const updateJobCard = async (req, res) => {
       }
     })
     // update total values
-    let prevJob=await prisma.jobcardTotal.update({
+   await prisma.jobcardTotal.update({
         where:{
           id:total?.id
         },
@@ -554,23 +554,35 @@ const updateJobCard = async (req, res) => {
         }
     })
     // update next jobCard openBal
-    const nextJob=await prisma.jobcardTotal.findMany({
+    let jobCardLen=await prisma.jobcardTotal.findMany()
+    for(const job of jobCardLen){
+      console.log('what is job',job)
+      if(job.id>total?.id){
+      const prevJob=await prisma.jobcardTotal.findMany({
+        where:{
+          id:job.id-1
+        }
+      }) 
+      const nextJob=await prisma.jobcardTotal.findMany({
       where:{
-        id:total?.id+1
+        id:job.id
       }
     })
     if(nextJob.length>=1){
       
        await prisma.jobcardTotal.update({
        where:{
-        id:total?.id+1
+        id:job.id
        },
        data:{
-         openBal:prevJob.balance,
-         balance:nextJob[0].givenWt+prevJob.balance
+         openBal:prevJob[0].balance,
+         balance:nextJob[0].givenWt+prevJob[0].balance
        }
     })
-    } 
+    }
+      }
+    }
+   
    
     for(const gold of goldRows){
       if(gold?.id){ //if id is there update or create
@@ -652,7 +664,7 @@ const updateJobCard = async (req, res) => {
     // received Amount save
     
   if (receivedAmount.length >= 1) {
-  for (const item of receivedAmount) {
+    for (const item of receivedAmount) {
     const data = {
       jobCardId: parseInt(jobCardId),
       weight: parseFloat(item.weight) || 0,
@@ -669,6 +681,16 @@ const updateJobCard = async (req, res) => {
     }
   }
 }  
+
+    // clear jobcard balance 
+
+       let receiveTotal=0;
+          if(receivedAmount.length>=1){
+            receiveTotal = receivedAmount.reduce((acc,item)=>{
+            return acc+Number(item.weight)||0
+      },0)
+        await clearBalance(goldSmithId,receiveTotal);
+    }
     //  Fetch and return all JobCards for this goldsmith
     const allJobCards = await prisma.jobCard.findMany({
       where: {
@@ -744,6 +766,7 @@ const getJobCardById=async(req,res)=>{
             deliveryItem:true,
             additionalWeight:true,
             goldSmithReceived:true,
+            jobCardTotal:true,
            }
         })
         const jobCardTotal= await prisma.jobcardTotal.findMany({

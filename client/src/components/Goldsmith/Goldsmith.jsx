@@ -45,7 +45,8 @@ const Goldsmith = () => {
   const [edit,setEdit]=useState(false)
   const [jobCardError,setJobCardError]=useState({})
   const [jobCardId,setJobCardId]=useState(null)
-  const [jobCardTotal,setJobCardTotal]=useState(0)
+  const [jobCardTotal,setJobCardTotal]=useState([])
+  const [jobCardBalance,setJobCardBalance]=useState(0)
   const [selectedName,setSelectedName]=useState({})
   const [masterItems,setMasterItems]=useState([])
   const [noJobCard,setNoJobCard]=useState({})
@@ -138,49 +139,50 @@ const Goldsmith = () => {
     }
   };
 
-  const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
+  const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance,openBal)=>{
       console.log('update')
           
-      //   const payload={
-      //   'goldRows':goldRows,
-      //   'itemRow':itemRows,
-      //   'deductionRows':deductionRows,
-      //   'receivedAmount':received,
-      //   'goldSmithBalance':{
-      //    'id':goldSmith.goldSmithInfo.id,
-      //    'balance':totalBalance
-      //   },
-      //   'total':{
-      //     'id':jobCards[0]?.jobCardTotal[0]?.id,
-      //     'givenWt':totalGoldWt,
-      //     'itemWt':totalItemWt,
-      //     'stoneWt':totalDeductionWt,
-      //     'wastage':totalWastage,
-      //     'balance':totalBalance
-      //   }
-      //  }
-      //  console.log('payload update',payload)
+        const payload={
+        'goldRows':goldRows,
+        'itemRow':itemRows,
+        'deductionRows':deductionRows,
+        'receivedAmount':received,
+        'goldSmithBalance':{
+         'id':selectedName.id,
+         'balance':totalBalance
+        },
+        'total':{
+          'id':jobCardTotal[0]?.id,
+          'givenWt':totalGoldWt,
+          'itemWt':totalItemWt,
+          'stoneWt':totalDeductionWt,
+          'wastage':totalWastage,
+          'balance':totalBalance,
+          'openBal':openBal
+        }
+       }
+       console.log('payload update',payload)
        
-      // try {
-      //       const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
-      //               headers: {
-      //                'Content-Type': 'application/json',
-      //              },
-      //        });
-      //        if(response.status===400){
-      //           alert(response.data.message)
-      //        }
-      //         console.log('Response:', response.data.jobCards); // success response
+      try {
+            const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${selectedName.id}/${jobCardId}`, payload, {
+                    headers: {
+                     'Content-Type': 'application/json',
+                   },
+             });
+             if(response.status===400){
+                alert(response.data.message)
+             }
+              console.log('Response:', response.data.jobCards); // success response
              
-      //         setOpen(false)
-      //         setEdit(false)
+              setOpen(false)
+              setEdit(false)
              
-      //         toast.success(response.data.message)
+              toast.success(response.data.message)
 
-      //  } catch (err) {
-      //            console.error('POST Error:', err.response?.data || err.message);
-      //           toast.error(err.message || 'An error occurred while creating the job card'); 
-      //        }
+       } catch (err) {
+                 console.error('POST Error:', err.response?.data || err.message);
+                toast.error(err.message || 'An error occurred while creating the job card'); 
+             }
        }
 
   const filteredGoldsmith = goldsmith.filter((gs) => {
@@ -218,12 +220,14 @@ const Goldsmith = () => {
                 setEdit(false)
                 setNoJobCard({err:"No Job Card For This Id"})
                }else{
+                console.log('data',data)
                setGoldRows(data.jobcard[0].givenGold)
-               setItemRows(data.jobcard[0].deliveryItem)
-               setDeductionRows(data.jobcard[0].additionalWeight)
+               setItemRows(data.jobcard[0].deliveryItem.length>=1?data.jobcard[0].deliveryItem:[{ weight: "", itemName: "" }])
+               setDeductionRows(data.jobcard[0].additionalWeight.length>=1?data.jobcard[0].additionalWeight:[{ type: "Stone", customType: "", weight: "" }])
                setReceived(data.jobcard[0].goldSmithReceived)
                setSelectedName(data.jobcard[0].goldsmith)
-               setJobCardTotal(data.jobCardBalance)
+               setJobCardTotal(data.jobcard[0].jobCardTotal)
+               setJobCardBalance(data.jobCardBalance)
                setOpen(true)
                setEdit(true)
                setNoJobCard({})
@@ -392,7 +396,7 @@ const Goldsmith = () => {
       name={selectedName.name}
       goldSmithWastage={selectedName.wastage}
       setGoldSmith={setGoldsmith}
-      balance={jobCardTotal}
+      balance={jobCardBalance}
       goldRows={goldRows}
       setGoldRows={setGoldRows}
       itemRows={itemRows}
