@@ -166,11 +166,11 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
      if(edit){ 
 
        if(goldIsTrue&&itemIsTrue&&deductionIsTrue&&receivedIsTrue){
-          handleUpdateJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference)
+          handleUpdateJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference,balance)
         }  
      }else{
        if(goldIsTrue&&receivedIsTrue){
-          handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference)
+          handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference,balance)
         }
      }
      
@@ -539,7 +539,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
       <div
         style={{ display: "flex", justifyContent: "center", marginTop: "20px", }}
       >
-        <Button variant="contained" color="success" style={{marginRight:"15px"}}onClick={()=>SaveJobCard()}>
+        <Button variant="contained" color="success" style={{marginRight:"15px"}} onClick={()=>SaveJobCard()}>
           SAVE
         </Button>
          <Button variant="contained" style={{backgroundColor:"blue"}} onClick={()=>window.print()}>

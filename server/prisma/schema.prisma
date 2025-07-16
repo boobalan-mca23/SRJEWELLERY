@@ -156,12 +156,13 @@ model JobcardTotal{
   itemWt      Float? 
   stoneWt     Float?
   wastage     Float?
+  openBal     Float?
   balance     Float?
   isFinished  String?
   jobcardId   Int
   goldsmithId Int
   goldsmith   Goldsmith @relation(fields: [goldsmithId], references: [id])
-  jobCard    JobCard @relation(fields: [jobcardId], references: [id])
+  jobCard     JobCard @relation(fields: [jobcardId], references: [id])
 }
 
 
