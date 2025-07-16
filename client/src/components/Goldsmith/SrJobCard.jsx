@@ -34,23 +34,25 @@ const SrJobCard=()=>{
     const [received,setReceived]=useState([])
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
+    const [jobCardIndex,setJobCardIndex]=useState(0)
     
-    const handleFilterJobCard=(id,jobCardindex)=>{
+    const handleFilterJobCard=(id,jobindex)=>{
              setJobCardId(id)
+             setJobCardIndex(jobindex)
             const tempJobCard=[...jobCards]
-            const filteredJobcard=tempJobCard.filter((_,index)=>index===jobCardindex)
+            const filteredJobcard=tempJobCard.filter((_,index)=>index===jobindex)
             console.log('filter',filteredJobcard)
             setGoldRows(filteredJobcard[0]?.givenGold)
             setItemRows(filteredJobcard[0]?.deliveryItem.length>=1 ?filteredJobcard[0]?.deliveryItem:[{ weight: "", itemName: "" }] )
             setDeductionRows(filteredJobcard[0]?.additionalWeight.length>=1 ?filteredJobcard[0]?.additionalWeight:[{ type: "Stone", customType: "", weight: "" }])
             setReceived(filteredJobcard[0].goldSmithReceived)
-            let lastBalance=jobCardindex !=0 ? tempJobCard[jobCardindex-1].jobCardTotal[0].balance: 0
+            let lastBalance=jobindex !=0 ? tempJobCard[jobindex].jobCardTotal[0].openBal: 0
             setOpeningBal(lastBalance)
             setopen(true)
             setEdit(true)
 
     }
-    const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
+    const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance,openBal)=>{
       console.log('update')
           
         const payload={
@@ -63,12 +65,13 @@ const SrJobCard=()=>{
          'balance':totalBalance
         },
         'total':{
-          'id':jobCards[0]?.jobCardTotal[0]?.id,
+          'id':jobCards[jobCardIndex]?.jobCardTotal[0]?.id,
           'givenWt':totalGoldWt,
           'itemWt':totalItemWt,
           'stoneWt':totalDeductionWt,
           'wastage':totalWastage,
-          'balance':totalBalance
+          'balance':totalBalance,
+          'openBal':openBal
         }
        }
        console.log('payload update',payload)
@@ -102,7 +105,7 @@ const SrJobCard=()=>{
                 toast.error(err.message || 'An error occurred while creating the job card'); 
              }
        }
-    const handleSaveJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance)=>{
+    const handleSaveJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance,openBal)=>{
          const payload={
         'goldsmithId': goldSmith.goldSmithInfo.id,   
         'goldRows':goldRows,
@@ -116,7 +119,8 @@ const SrJobCard=()=>{
            'itemWt':totalItemWt,
            'stoneWt':totalDeductionWt,
            'wastage':totalWastage,
-           'balance':totalBalance
+           'balance':totalBalance,
+           'openBal':openBal
         }
         
        }
@@ -286,9 +290,9 @@ const SrJobCard=()=>{
 
                 {i === 0 && (
                   <>
-                    <td rowSpan={maxRows}>{total?.stoneWt ?? "-"}</td>
-                    <td rowSpan={maxRows}>{total?.wastage ?? "-"}</td>
-                    <td rowSpan={maxRows}>{total?.balance ?? "-"}</td>
+                    <td rowSpan={maxRows}>{(total?.stoneWt).toFixed(3) ?? "-"}</td>
+                    <td rowSpan={maxRows}>{(total?.wastage).toFixed(3) ?? "-"}</td>
+                    <td rowSpan={maxRows}>{(total?.balance).toFixed(3) ?? "-"}</td>
                     <td rowSpan={maxRows}>
                       <button onClick={()=>handleFilterJobCard(job.id,jobIndex)}><FaEye></FaEye></button>
                     </td>
