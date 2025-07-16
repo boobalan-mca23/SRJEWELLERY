@@ -139,13 +139,10 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     const difference = Math.abs(
    parseFloat(totalBalance) - parseFloat(finalTotal)
   );
-   if(received.length>=1){
-     setBalanceDifference(difference-totalReceivedWeight)
-   }else{
-     setBalanceDifference(difference)
-   }
+   setBalanceDifference(difference)
+   
   
-  },[goldRows,itemRows,deductionRows,received,wastage])
+  },[goldRows,itemRows,deductionRows,wastage])
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
     setNetWeight(format(calculatedNetWeight));
@@ -503,7 +500,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
             </div>
             <span className="operator">x</span>
              <div>
-               <input
+               <input 
               type="number"
               placeholder="Touch"
               value={row.touch}
@@ -540,10 +537,13 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
       </div>
 
       <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
+        style={{ display: "flex", justifyContent: "center", marginTop: "20px", }}
       >
-        <Button variant="contained" color="success" onClick={()=>SaveJobCard()}>
+        <Button variant="contained" color="success" style={{marginRight:"15px"}}onClick={()=>SaveJobCard()}>
           SAVE
+        </Button>
+         <Button variant="contained" style={{backgroundColor:"blue"}} onClick={()=>window.print()}>
+          PRINT
         </Button>
       </div>
 
