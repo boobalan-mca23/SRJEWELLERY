@@ -40,13 +40,14 @@
 }
 
 .eyeIcon{
-  font-size:x-large;
+  font-size:large;
   cursor: pointer;
 }
 .noJobCard {
   display: block; /* or inline-block with text-align center in parent */
   text-align: center;
   font-size: large;
+  font-weight: bold;
   letter-spacing: 2px; /* fixed: should be "px", not just "2" */
   color: red;
   margin-top: 20px;

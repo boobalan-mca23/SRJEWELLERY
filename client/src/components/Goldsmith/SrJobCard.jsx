@@ -43,8 +43,8 @@ const SrJobCard=()=>{
             const filteredJobcard=tempJobCard.filter((_,index)=>index===jobindex)
             console.log('filter',filteredJobcard)
             setGoldRows(filteredJobcard[0]?.givenGold)
-            setItemRows(filteredJobcard[0]?.deliveryItem.length>=1 ?filteredJobcard[0]?.deliveryItem:[{ weight: "", itemName: "" }] )
-            setDeductionRows(filteredJobcard[0]?.additionalWeight.length>=1 ?filteredJobcard[0]?.additionalWeight:[{ type: "Stone", customType: "", weight: "" }])
+            setItemRows(filteredJobcard[0]?.deliveryItem)
+            setDeductionRows(filteredJobcard[0]?.additionalWeight)
             setReceived(filteredJobcard[0].goldSmithReceived)
             let lastBalance=jobindex !=0 ? tempJobCard[jobindex].jobCardTotal[0].openBal: 0
             setOpeningBal(lastBalance)
@@ -97,7 +97,9 @@ const SrJobCard=()=>{
           }))
               setopen(false)
               setEdit(false)
-             
+              setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
+              setItemRows([{ weight: "", itemName: "" }])
+              setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
               toast.success(response.data.message)
 
        } catch (err) {
@@ -172,6 +174,7 @@ const SrJobCard=()=>{
                      }}
                 setGoldSmith(newGoldSmith) 
                 setJobCard(res.data.jobCards) 
+                console.log('res',res.data.jobCards)
                 setJobCardLength(res.data.jobCardLength)      
             }catch(err){
                alert(err.message)
@@ -242,7 +245,8 @@ const SrJobCard=()=>{
         <tr>
           <th rowSpan={2}>S.No</th>
           <th rowSpan={2}>Date</th>
-          <th colSpan={3}>Given Wt</th>
+          <th rowSpan={2}>JobCard Id</th>
+          <th colSpan={4}>Given Wt</th>
           <th colSpan={2}>Item Wt</th>
           <th rowSpan={2}>Stone Wt</th>
           <th rowSpan={2}>After Wastage</th>
@@ -250,6 +254,7 @@ const SrJobCard=()=>{
           <th rowSpan={2}>Action</th>
         </tr>
         <tr>
+          <th>Item Date</th>
           <th>Name</th>
           <th>Weight</th>
           <th>Touch</th>
@@ -280,8 +285,15 @@ const SrJobCard=()=>{
                         year: "numeric",
                       })}
                     </td>
+                    <td rowSpan={maxRows}>{job.id}</td>
                   </>
                 )}
+               
+                <td>{g?.createdAt? new Date(g?.createdAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }):"-"}</td>
                 <td>{g?.itemName || "-"}</td>
                 <td>{g?.weight || "-"}</td>
                 <td>{g?.touch || "-"}</td>
@@ -294,7 +306,7 @@ const SrJobCard=()=>{
                     <td rowSpan={maxRows}>{(total?.wastage).toFixed(3) ?? "-"}</td>
                     <td rowSpan={maxRows}>{(total?.balance).toFixed(3) ?? "-"}</td>
                     <td rowSpan={maxRows}>
-                      <button onClick={()=>handleFilterJobCard(job.id,jobIndex)}><FaEye></FaEye></button>
+                      <button onClick={()=>handleFilterJobCard(job.id,jobIndex)}><FaEye className="eyeIcon"></FaEye></button>
                     </td>
                   </>
                 )}
@@ -309,8 +321,7 @@ const SrJobCard=()=>{
   )}
 </div>
 
-                 
-              </div>
+                 </div>
              {open && 
            
 
