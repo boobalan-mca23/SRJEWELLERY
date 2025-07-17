@@ -1,12 +1,19 @@
 const  goldRowValidation=(goldRows,setFormErrors)=>{
    
+  
    const errors = goldRows.map((row) => {
     const rowErrors = {};
     if (!row.itemName) rowErrors.itemName = "Item Name is required";
     if (!row.weight) rowErrors.weight = "Weight is required";
     if(row.weight<0) rowErrors.weight= "Weight is negative value"
+    if (!/^\d*\.?\d*$/.test(row.weight)) {
+      rowErrors.weight= "Please Enter valid weight"
+  }
     if (row.touch<0)rowErrors.touch= "touch is negative value"
     if (!row.touch) rowErrors.touch = "Touch is required";
+    if (!/^\d*\.?\d*$/.test(row.touch)) {
+      rowErrors.weight= "Please Enter valid touch"
+    }
     return rowErrors;
   });
 
@@ -21,7 +28,11 @@ const itemValidation=(itemRows,setItemErrors)=>{
     const rowErrors = {};
     if (!row.itemName) rowErrors.itemName = "Item Name is required";
     if (!row.weight) rowErrors.weight = "Weight is required";
-    if(row.weight<0) rowErrors.weight= "Weight is negative value"
+    if (row.weight<0) rowErrors.weight= "Weight is negative value"
+    
+    if (!/^\d*\.?\d*$/.test(row.weight)) {
+      rowErrors.weight= "Please Enter valid weight"
+  }
     return rowErrors;
   });
 
@@ -42,6 +53,9 @@ const deductionValidation=(deductionRows,setDeductionErrors)=>{
     
     if(!row.weight)  rowErrors.weight="Weight is required"
     if(row.weight<0) rowErrors.weight="Weight is negative value"
+    if (!/^\d*\.?\d*$/.test(row.weight)) {
+      rowErrors.weight= "Please Enter valid weight"
+    }
     return rowErrors;
   });
 
@@ -55,8 +69,14 @@ const receiveRowValidation=(received,setReceivedErrors)=>{
     const rowErrors = {};
     if (!row.weight) rowErrors.weight = "Weight is required";
     if (row.weight<0) rowErrors.weight= "Weight is negative value"
+    if (!/^\d*\.?\d*$/.test(row.weight)) {
+      rowErrors.weight= "Please Enter valid weight"
+  }
     if (row.touch<0)rowErrors.touch= "touch is negative value"
     if (!row.touch) rowErrors.touch = "Touch is required";
+    if (!/^\d*\.?\d*$/.test(row.touch)) {
+      rowErrors.touch= "Please Enter valid touch"
+    }
     return rowErrors;
   });
 
@@ -65,4 +85,16 @@ const receiveRowValidation=(received,setReceivedErrors)=>{
   // Return true if no errors found
   return errors.every(err => Object.keys(err).length === 0);
 }
-export {goldRowValidation,receiveRowValidation,itemValidation,deductionValidation};
+const wastageValidation = (val, setWastageErrors) => {
+  const rowErrors = {};
+
+  if (!val) {
+    rowErrors.wastage = "Wastage is required";
+  } else if (!/^\d*\.?\d*$/.test(val)) {
+    rowErrors.wastage = "Please enter correct wastage";
+  }
+
+  setWastageErrors(rowErrors);
+};
+
+export {goldRowValidation,receiveRowValidation,itemValidation,deductionValidation,wastageValidation};

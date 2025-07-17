@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { MdDeleteForever } from "react-icons/md";
 import "./NewJobCard.css";
-import { goldRowValidation,receiveRowValidation,itemValidation,deductionValidation} from "./JobcardValidation";
+import { goldRowValidation,receiveRowValidation,itemValidation,deductionValidation,wastageValidation} from "./JobcardValidation";
 
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -12,6 +12,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { toast } from "react-toastify";
 
 const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
@@ -25,6 +26,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   const[receivedErrors,setReceivedErrors]=useState([])
   const[itemErrors,setItemErrors]=useState([])
   const[deductionErrors,setDeductionErrors]=useState([])
+  const[wastageErrors,setWastageErrors]=useState({})
   const[netWeight, setNetWeight] = useState("0.000");
   const[wastage,setWastage]=useState(0)
   const[finalTotal,setFinalTotal]=useState(0)
@@ -80,6 +82,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     deductionValidation(deductionRows,setDeductionErrors)
   };
   const handleGoldSmithChange = (e) => {
+
    setGoldSmith(prev => ({
                  ...prev,
                  goldSmithInfo: {
@@ -87,9 +90,17 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
                 wastage: e.target.value
                 }
           }))
-      setWastage(netWeight * parseFloat(e.target.value) / 100)
-      let calculatedFinalTotal = parseFloat(netWeight) + (netWeight * parseFloat(e.target.value) / 100);
-      setFinalTotal(format(calculatedFinalTotal))
+       if (!isNaN(e.target.value) && e.target.value !== "") {
+              wastageValidation(e.target.value, setWastageErrors);
+              setWastage(netWeight * parseFloat(e.target.value) / 100);
+              let calculatedFinalTotal = parseFloat(netWeight) + (netWeight * parseFloat(e.target.value) / 100);
+              setFinalTotal(format(calculatedFinalTotal));
+          }else{
+            wastageValidation(e.target.value, setWastageErrors);
+
+          }
+         
+     
 
   };
 
@@ -165,12 +176,16 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
       let receivedIsTrue=receiveRowValidation(received,setReceivedErrors)
      if(edit){ 
 
-       if(goldIsTrue&&itemIsTrue&&deductionIsTrue&&receivedIsTrue){
+       if((goldIsTrue&&itemIsTrue&&deductionIsTrue&&receivedIsTrue)&&(!wastageErrors.wastage)){
           handleUpdateJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference,balance)
-        }  
+        }else{
+           toast.warn("Give Correct Information")
+        }
      }else{
-       if(goldIsTrue&&receivedIsTrue){
-          handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference,balance)
+       if((goldIsTrue&&receivedIsTrue)&&(!wastageErrors.wastage)){
+         handleSaveJobCard(totalGoldWeight,totalItemWeight,totalDeductionWeight,finalTotal,balanceDifference,balance)
+        }else{
+          toast.warn("Give Correct Information")
         }
      }
      
@@ -242,7 +257,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
             </div>
             <div>
               <input
-              type="number"
+              type="text"
               placeholder="Weight"
               value={row.weight}
               onChange={(e) => handleGoldRowChange(i, "weight", e.target.value)}
@@ -254,7 +269,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
             <span className="operator">x</span>
             <div>
               <input
-              type="number"
+              type="text"
               placeholder="Touch"
               value={row.touch}
               onChange={(e) => handleGoldRowChange(i, "touch", e.target.value)}
@@ -311,7 +326,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
           <div key={i} className="row">
            <div>
              <input
-              type="number"
+              type="text"
               placeholder="Item Weight"
               value={item.weight}
               onChange={(e) => handleItemRowChange(i, "weight", e.target.value)}
@@ -392,7 +407,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
              <div>
                <input
                 disabled={!edit}
-                type="number"
+                type="text"
                 value={deduction.weight}
                 onChange={(e) =>
                   handleDeductionChange(i, "weight", e.target.value)
@@ -461,13 +476,18 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
               
             />
             <span className="operator">x</span>
-             <input
-              type="number"
+             <div>
+                  <input
+              type="text"
               value={goldSmithWastage}
               className="inputwastage"
               onChange={(e) => {handleGoldSmithChange(e)}}
 
-              />
+              /> <br></br>
+
+               {wastageErrors?.wastage && (<span className="error">{wastageErrors?.wastage}</span>)}
+             </div>
+             
              <span className="operator">=</span>
            <input
               readOnly

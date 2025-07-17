@@ -334,51 +334,53 @@ const prisma = new PrismaClient();
         }
     })
     if (jobCardTotal.length >= 1) {
-      for (let item of jobCardTotal) {
-           if (item.givenWt >= 0.0001 || item.itemWt >= 0.0001 || item.stoneWt >= 0.0001) {
-               if (receivedAmount === 0) {
-                  break; 
-                }
-                    if (receivedAmount >= item.balance) { // if received Amount is greaterthan job card
-                      let receiveBal = receivedAmount - item.balance;
-                       await prisma.jobcardTotal.update({
-                        where: {
-                           id: item.id
-                          },
-                       data: {
-                          balance: 0,
-                          isFinished: "true"
+         // Helper function to update jobcard
+        const updateJobCard = (id, data) => prisma.jobcardTotal.update({ where: { id }, data });
+        // Helper function to update next jobs' balances
+
+            const updateNextJobs = async (jobCardTotal) => {
+            for (let i = 1; i < jobCardTotal.length; i++) {
+                const prev = jobCardTotal[i - 1];
+                const current = jobCardTotal[i];
+
+                  await prisma.jobcardTotal.update({
+                    where: { id: current.id },
+                         data: {
+                          openBal:parseFloat(prev.balance),
+                          balance:parseFloat(current.givenWt + prev.balance)
                      }
-                 });
+                   });
+                 }
+               };
 
-                 receivedAmount = receiveBal; 
-               } else { // if received Amount is lessthan job card
-               let jobCardBal = item.balance - receivedAmount;
+      for (let item of jobCardTotal) {
+         if ((item.givenWt >= 0.0001 || item.itemWt >= 0.0001 || item.stoneWt >= 0.0001) && receivedAmount > 0) {
 
-                 await prisma.jobcardTotal.update({
-                    where: {
-                    id: item.id
-                   },
-               data: {
-                 balance: jobCardBal,
-                 isFinished: "false"
-             }
-          });
+                 if (receivedAmount >= item.balance) {
+                       // Full settlement
+                     await updateJobCard(item.id, { balance: 0, isFinished: "true" });
+                     receivedAmount -= item.balance;
+                } else {
+             // Partial settlement
+                await updateJobCard(item.id, { balance: parseFloat((item.balance - receivedAmount).toFixed(3)), isFinished: "false" });
+                receivedAmount = 0;
+                await updateNextJobs(jobCardTotal);
+                break;
+            }
+             await updateNextJobs(jobCardTotal); // update chain after every change
+            }
+          }
 
-        receivedAmount = 0; // After partial deduction, no more amount left
-        break; 
-      }
-    }
-  }
-  if(receivedAmount>=0.0001){  // maybe we have extra balance we store to last jobcard
-      if(jobCards.length>=1){
-           const jobCard=jobCardTotal.at(-1)
-        await prisma.jobcardTotal.update({
+   
+        if(receivedAmount>0){  // maybe we have extra balance we store to last jobcard
+            if(jobCards.length>=1){
+               const jobCard=jobCardTotal.at(-1)
+            await prisma.jobcardTotal.update({
             where:{
              id:jobCard.id
           },
            data:{
-            balance:-receivedAmount
+            balance:(-receivedAmount).toFixed(3)
           }
        })
       }
@@ -469,7 +471,7 @@ const createJobCard = async (req, res) => {
             receiveTotal = receivedAmount.reduce((acc,item)=>{
             return acc+Number(item.weight)||0
       },0)
-        await clearBalance(goldsmithId,receiveTotal);
+        await clearBalance(goldsmithId,parseFloat(receiveTotal));
     }
     
        
@@ -689,7 +691,7 @@ const updateJobCard = async (req, res) => {
             receiveTotal = receivedAmount.reduce((acc,item)=>{
             return acc+Number(item.weight)||0
       },0)
-        await clearBalance(goldSmithId,receiveTotal);
+        await clearBalance(goldSmithId,parseFloat(receiveTotal).toFixed(3));
     }
     //  Fetch and return all JobCards for this goldsmith
     const allJobCards = await prisma.jobCard.findMany({
@@ -717,6 +719,10 @@ const updateJobCard = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+
+
+
+
 const getPreviousJobCardBal=async(req,res)=>{
      const{id}=req.params
      
@@ -743,6 +749,9 @@ const getPreviousJobCardBal=async(req,res)=>{
      
    
 }
+
+
+
 
 
 const getJobCardById=async(req,res)=>{
