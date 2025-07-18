@@ -35,17 +35,37 @@ const SrJobCard=()=>{
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
     const [jobCardIndex,setJobCardIndex]=useState(0)
-    
+    const[jobCardTotal,setJobCardTotal]=useState({})
+
+    const handleTotalCalculation = (jobcard) => {
+      console.log('total',jobcard)
+
+      const totalObj = jobcard.reduce(
+    (acc, job) => {
+      acc.givenWt += job.jobCardTotal[0].givenWt;
+      acc.itemWt += job.jobCardTotal[0].itemWt;
+      acc.stoneWt += job.jobCardTotal[0].stoneWt;
+      acc.wastage += job.jobCardTotal[0].wastage;
+      return acc;
+    },
+    { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0 } // Initial accumulator
+  );
+
+     console.log('total',totalObj)
+     setJobCardTotal(totalObj);
+};
+
     const handleFilterJobCard=(id,jobindex)=>{
              setJobCardId(id)
              setJobCardIndex(jobindex)
             const tempJobCard=[...jobCards]
             const filteredJobcard=tempJobCard.filter((_,index)=>index===jobindex)
             console.log('filter',filteredJobcard)
-            setGoldRows(filteredJobcard[0]?.givenGold)
-            setItemRows(filteredJobcard[0]?.deliveryItem)
-            setDeductionRows(filteredJobcard[0]?.additionalWeight)
-            setReceived(filteredJobcard[0].goldSmithReceived)
+            setGoldRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.givenGold || [])));
+            setItemRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.deliveryItem || [])));
+            setDeductionRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.additionalWeight || [])));
+            setReceived(JSON.parse(JSON.stringify(filteredJobcard[0]?.goldSmithReceived || [])));
+
             let lastBalance=jobindex !=0 ? tempJobCard[jobindex].jobCardTotal[0].openBal: 0
             setOpeningBal(lastBalance)
             setopen(true)
@@ -87,6 +107,7 @@ const SrJobCard=()=>{
              }
               console.log('Response:', response.data.jobCards); // success response
               setJobCard( response.data.jobCards)
+              handleTotalCalculation(response.data.jobCards)
               setJobCardLength(response.data.jobCardLength) 
                     setGoldSmith(prev => ({
                  ...prev,
@@ -135,6 +156,7 @@ const SrJobCard=()=>{
              });
                console.log('Response:', response.data.goldSmithBalance); // success response
                setJobCard( response.data.jobCards)
+               handleTotalCalculation(response.data.jobCards)
                setJobCardLength(response.data.jobCardLength) 
                setGoldSmith(prev => ({
                  ...prev,
@@ -174,6 +196,7 @@ const SrJobCard=()=>{
                      }}
                 setGoldSmith(newGoldSmith) 
                 setJobCard(res.data.jobCards) 
+                handleTotalCalculation(res.data.jobCards)
                 console.log('res',res.data.jobCards)
                 setJobCardLength(res.data.jobCardLength)      
             }catch(err){
@@ -311,9 +334,20 @@ const SrJobCard=()=>{
                   </>
                 )}
               </tr>
+            
             );
           });
         })}
+         <tr>
+          <td colSpan={5}></td>
+          <td><strong>Total Given Weight:</strong> {jobCardTotal.givenWt}</td>
+          <td colSpan={2}></td>
+          <td><strong>Total Item Weight:</strong> {(jobCardTotal.itemWt).toFixed(3)}</td>
+          <td><strong>Total Stone Weight:</strong> {(jobCardTotal.stoneWt).toFixed(3)}</td>
+          <td><strong>Total Wastage:</strong> {(jobCardTotal.wastage).toFixed(3)}</td>
+          <td colSpan={2}></td>
+         
+        </tr>
       </tbody>
     </table>
   ) : (

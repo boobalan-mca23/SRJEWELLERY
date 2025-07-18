@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import logo from '../../Assets/srlogo.png'
+import { margin } from "@mui/system";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -59,11 +61,14 @@ const Navbar = () => {
   return (
     <div style={navContainer}>
       <div style={navLeft}>
+         
+ 
         <div style={logoContainer}>
+          <img src={logo} alt="logoImg" style={logoImg} ></img>
           <span style={logoText}>SR JWELLERY</span>
         </div>
 
-        {["Master","Goldsmith"].map(
+        {["Master","Goldsmith","JobCardReport"].map(
           (label) => {
             const path = `/${label.replace(/\s+/g, "").toLowerCase()}`;
             return (
@@ -81,7 +86,7 @@ const Navbar = () => {
           }
         )}
 
-        <div
+        {/* <div
           ref={reportsRef}
           style={{
             ...navLink,
@@ -142,7 +147,7 @@ const Navbar = () => {
               ))}
             </div>
           )}
-        </div>
+        </div> */}
       </div>
 
       <div style={navRight}>
@@ -180,11 +185,16 @@ const navContainer = {
   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
  
 };
-
+const logoImg={
+  width:"50px",
+  height:"50px",
+  marginRight:"12px"
+}
 const logoContainer = {
-  marginRight: "32px",
+  marginRight: "20px",
   display: "flex",
   alignItems: "center",
+  justifyContent:"space-around"
 };
 
 const logoText = {
