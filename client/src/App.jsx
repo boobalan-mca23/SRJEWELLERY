@@ -15,7 +15,7 @@ import Jobcard from "./components/Goldsmith/Jobcard";
 import AddCustomer from "./components/Billing/Addcustomer";
 import CustomerReport from "./components/Report/customer.report";
 import Overallreport from "./components/Report/overallreport";
-import Jobcardreport from "./components/Report/jobcardreport";
+// import Jobcardreport from "./components/Report/jobcardreport";
 import GoldsmithDetails from "./components/Goldsmith/GoldsmithDetails";
 import Jobcarddd from "./components/Goldsmith/Jobcarddd";
 import JobcardddReport from "./components/Report/jobcardddReport";
@@ -25,6 +25,7 @@ import Customerorders from "./components/Customer/Customerorders";
 import Orderreport from "./components/Report/orderreport";
 import Newjobcard from "./components/Goldsmith/Newjobcard";
 import SrJobCard from "./components/Goldsmith/SrJobCard";
+import JobCardReport from "./components/Report/SrJobCardReport";
 
 function App() {
   return (
@@ -88,14 +89,14 @@ function App() {
             </PageWithNavbar>
           }
         ></Route>
-        <Route
+        {/* <Route
           path="/jobcardreport"
           element={
             <PageWithNavbar>
               <Jobcardreport />
             </PageWithNavbar>
           }
-        />
+        /> */}
         <Route
           path="/receiptreport"
           element={
@@ -153,6 +154,14 @@ function App() {
           }
         /> */}
         <Route
+          path="/jobCardReport"
+          element={
+            <PageWithNavbar>
+              <JobCardReport />
+            </PageWithNavbar>
+          }
+        />
+        <Route
           path="/goldsmithdetails/:id/:name"
           element={
             <PageWithNavbar>
@@ -160,6 +169,7 @@ function App() {
             </PageWithNavbar>
           }
         />
+         
         <Route
           path="/jobcarddd"
           element={
