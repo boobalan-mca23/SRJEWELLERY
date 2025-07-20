@@ -328,7 +328,7 @@ const prisma = new PrismaClient();
  const clearBalance=async(goldSmithId,receivedTotal)=>{
      let receivedAmount=receivedTotal;
      console.log('receive',receivedTotal)
-    const jobCardTotal=await prisma.jobcardTotal.findMany({
+     let jobCardTotal=await prisma.jobcardTotal.findMany({
       where:{
         goldsmithId:parseInt(goldSmithId),
         isFinished:"false" 
@@ -336,15 +336,33 @@ const prisma = new PrismaClient();
     })
     if (jobCardTotal.length >= 1) {
          // Helper function to update jobcard
-        const updateJobCard = (id, data) => prisma.jobcardTotal.update({ where: { id }, data });
+        const updateJobCard = async (id, data) =>{
+           console.log('id and data',id,data)
+          await prisma.jobcardTotal.update({ 
+            where: { id:id },
+            data:{
+              balance:data.balance,
+              isFinished:data.isFinished
+            }
+          })
+           jobCardTotal=await prisma.jobcardTotal.findMany({ // again we need to fetch updated data
+               where:{
+                goldsmithId:parseInt(goldSmithId),
+                isFinished:"false" 
+        }
+    })
+        }
         // Helper function to update next jobs' balances
 
-            const updateNextJobs = async (jobCardTotal) => {
-            for (let i = 1; i < jobCardTotal.length; i++) {
-                const prev = jobCardTotal[i - 1];
-                 console.log('prevJob',prev)
+            const updateNextJobs = async () => {
+               
+             console.log('updatedJobcards',jobCardTotal)
+            for (let i = 0; i < jobCardTotal.length; i++) {
                 const current = jobCardTotal[i];
-
+                const prev = await prisma.jobcardTotal.findUnique({where:{id:jobCardTotal[i].id-1}})
+                 console.log('prevJob',prev)
+               
+                console.log('currGiven and prevBal',current.givenWt , prev.balance)
                   await prisma.jobcardTotal.update({
                     where: { id: current.id },
                          data: {
@@ -352,10 +370,11 @@ const prisma = new PrismaClient();
                           balance:parseFloat(current.givenWt + prev.balance)-current.wastage
                      }
                    });
-                   console('nextJob',current)
+                   
                  }
                  
                };
+           
 
       for (let item of jobCardTotal) {
          if ((item.givenWt >= 0.001 || item.itemWt >= 0.001) && receivedAmount > 0) {
@@ -364,37 +383,27 @@ const prisma = new PrismaClient();
                        // Full settlement
                        console.log('BeforerecevieAmt',receivedAmount)
                      await updateJobCard(item.id, { balance: 0, isFinished: "true" });
-                     receivedAmount -= item.balance;
+                     receivedAmount = (receivedAmount - item.balance).toFixed(3);
                      console.log('AfterrecevieAmt',receivedAmount)
-                     await updateNextJobs(jobCardTotal);
+                     await updateNextJobs();
                 } else {
              // Partial settlement
                 await updateJobCard(item.id, { balance: parseFloat((item.balance - receivedAmount).toFixed(3)), isFinished: "false" });
                 receivedAmount = 0;
-                await updateNextJobs(jobCardTotal);
+                await updateNextJobs();
                 break;
             }
-             await updateNextJobs(jobCardTotal); // update chain after every change
+             
             }
           }
 
    
         if(receivedAmount>0){  // maybe we have extra balance we store to last jobcard
-            if(jobCardTotal.length>=1){
-               const jobCard=jobCardTotal.at(-1)
-            await prisma.jobcardTotal.update({
-            where:{
-             id:jobCard.id
-          },
-           data:{
-            balance:(-receivedAmount).toFixed(3)
-          }
-       })
+            let lastJobCard=await prisma.jobcardTotal.findMany()
+            let last=lastJobCard.at(-1)
+            await prisma.jobcardTotal.update({where:{id:last.id},data:{balance:(-receivedAmount)}})
+          }}
       }
-  }
-}
-
- }
 const createJobCard = async (req, res) => {
   const { goldsmithId,goldRows,total,receivedAmount,goldSmithBalance} = req.body;
 
@@ -650,6 +659,7 @@ const updateJobCard = async (req, res) => {
         }
       }
     })
+    console.log('if next job??',jobCardLen)
     for(const job of jobCardLen){
       console.log('what is job',job)
       

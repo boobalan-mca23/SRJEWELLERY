@@ -86,12 +86,12 @@ const SrJobCard=()=>{
         },
         'total':{
           'id':jobCards[jobCardIndex]?.jobCardTotal[0]?.id,
-          'givenWt':totalGoldWt,
-          'itemWt':totalItemWt,
-          'stoneWt':totalDeductionWt,
-          'wastage':totalWastage,
-          'balance':totalBalance,
-          'openBal':openBal
+           'givenWt':parseFloat(totalGoldWt).toFixed(3),
+           'itemWt':parseFloat(totalItemWt).toFixed(3),
+           'stoneWt':parseFloat(totalDeductionWt).toFixed(3),
+           'wastage':parseFloat(totalWastage).toFixed(3),
+           'balance':parseFloat(totalBalance).toFixed(3),
+           'openBal':parseFloat(openBal).toFixed(3)
         }
        }
        console.log('payload update',payload)
@@ -138,12 +138,12 @@ const SrJobCard=()=>{
         'balance':totalBalance
         },
         'total':{
-           'givenWt':totalGoldWt,
-           'itemWt':totalItemWt,
-           'stoneWt':totalDeductionWt,
-           'wastage':totalWastage,
-           'balance':totalBalance,
-           'openBal':openBal
+           'givenWt':parseFloat(totalGoldWt).toFixed(3),
+           'itemWt':parseFloat(totalItemWt).toFixed(3),
+           'stoneWt':parseFloat(totalDeductionWt).toFixed(3),
+           'wastage':parseFloat(totalWastage).toFixed(3),
+           'balance':parseFloat(totalBalance).toFixed(3),
+           'openBal':parseFloat(openBal).toFixed(3)
         }
         
        }
