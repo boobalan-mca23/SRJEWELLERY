@@ -63,7 +63,7 @@ const Master = () => {
       <div style={navContainer}>
         <div style={navLeft}>
           <button onClick={handleBack} style={backButton}>
-            <FiArrowLeft size={20} />
+           Home
           </button>
           
           <button
@@ -128,6 +128,7 @@ const navLeft = {
 };
 
 const backButton = {
+  fontSize:"20px",
   backgroundColor: "transparent",
   border: "none",
   color: "white",

@@ -269,7 +269,7 @@ const SrJobCard=()=>{
           <th rowSpan={2}>S.No</th>
           <th rowSpan={2}>Date</th>
           <th rowSpan={2}>JobCard Id</th>
-          <th colSpan={4}>Given Wt</th>
+          <th colSpan={5}>Given Wt</th>
           <th colSpan={2}>Item Wt</th>
           <th rowSpan={2}>Stone Wt</th>
           <th rowSpan={2}>After Wastage</th>
@@ -280,6 +280,7 @@ const SrJobCard=()=>{
           <th>Item Date</th>
           <th>Name</th>
           <th>Weight</th>
+          <th>GivenTotal</th>
           <th>Touch</th>
           <th>Name</th>
           <th>Weight</th>
@@ -319,6 +320,7 @@ const SrJobCard=()=>{
                       }):"-"}</td>
                 <td>{g?.itemName || "-"}</td>
                 <td>{g?.weight || "-"}</td>
+                 {i === 0 && <td rowSpan={maxRows}>{total?.givenWt || "-"}</td>}
                 <td>{g?.touch || "-"}</td>
                 <td>{d?.itemName || "-"}</td>
                 <td>{d?.weight || "-"}</td>

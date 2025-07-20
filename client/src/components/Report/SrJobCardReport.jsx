@@ -15,7 +15,25 @@ const JobCardReport=()=>{
     const [jobCard,setJobCard]=useState([])
     const [goldSmith,setGoldSmith]=useState([])
     const [selectedGoldSmith,setSelectedGoldSmith]=useState({ id: null, name: "ALL" })
+    const[jobCardTotal,setJobCardTotal]=useState({})
 
+  const handleTotalCalculation = (jobcard) => {
+      console.log('total',jobcard)
+
+      const totalObj = jobcard.reduce(
+    (acc, job) => {
+      acc.givenWt += job.jobCardTotal[0].givenWt;
+      acc.itemWt += job.jobCardTotal[0].itemWt;
+      acc.stoneWt += job.jobCardTotal[0].stoneWt;
+      acc.wastage += job.jobCardTotal[0].wastage;
+      return acc;
+    },
+    { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0 } // Initial accumulator
+  );
+
+     console.log('total',totalObj)
+     setJobCardTotal(totalObj);
+};
   const handleDateClear=()=>{
       setFromDate(null)
       setToDate(null)
@@ -44,7 +62,8 @@ const JobCardReport=()=>{
       );
 
       console.log("data", response.data);
-      setJobCard(response.data); // set the fetched job cards
+      setJobCard(response.data);
+      handleTotalCalculation(response.data||[])
     } catch (error) {
       console.error("Error fetching goldsmith data:", error);
     }
@@ -113,7 +132,7 @@ const JobCardReport=()=>{
                     <th rowSpan={2}>S.No</th>
                     <th rowSpan={2}>Date</th>
                     <th rowSpan={2}>JobCard Id</th>
-                    <th colSpan={4}>Given Wt</th>
+                    <th colSpan={5}>Given Wt</th>
                     <th colSpan={2}>Item Wt</th>
                     <th rowSpan={2}>Stone Wt</th>
                     <th rowSpan={2}>After Wastage</th>
@@ -124,6 +143,7 @@ const JobCardReport=()=>{
                     <th>Item Date</th>
                     <th>Name</th>
                     <th>Weight</th>
+                    <th>GivenTotal</th>
                     <th>Touch</th>
                     <th>Name</th>
                     <th>Weight</th>
@@ -163,6 +183,7 @@ const JobCardReport=()=>{
                                 }):"-"}</td>
                           <td>{g?.itemName || "-"}</td>
                           <td>{g?.weight || "-"}</td>
+                         {i === 0 && <td rowSpan={maxRows}>{total?.givenWt || "-"}</td>}
                           <td>{g?.touch || "-"}</td>
                           <td>{d?.itemName || "-"}</td>
                           <td>{d?.weight || "-"}</td>
@@ -180,7 +201,7 @@ const JobCardReport=()=>{
                       );
                     });
                   })}
-                   {/* <tr>
+                   <tr>
                     <td colSpan={5}></td>
                     <td><strong>Total Given Weight:</strong> {jobCardTotal.givenWt}</td>
                     <td colSpan={2}></td>
@@ -189,11 +210,11 @@ const JobCardReport=()=>{
                     <td><strong>Total Wastage:</strong> {(jobCardTotal.wastage).toFixed(3)}</td>
                     <td colSpan={2}></td>
                    
-                  </tr> */}
+                  </tr>
                 </tbody>
               </table>
             ) : (
-              <span className="noJobCard">No JobCard For this GoldSmith</span>
+              <span style={{display:"block",textAlign:"center"}}>No JobCard For this GoldSmith</span>
             )}
           </div>
           
