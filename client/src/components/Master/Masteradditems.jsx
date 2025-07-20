@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,7 +9,7 @@ import { BACKEND_SERVER_URL } from "../../Config/Config";
 const Masteradditems = () => {
   const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState("");
-
+  const saveBtn=useRef()
   useEffect(() => {
     fetchItems();
   }, []);
@@ -57,9 +57,15 @@ const Masteradditems = () => {
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
             placeholder="Enter item name"
+           onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === "ArrowDown") {
+                saveBtn.current.focus();
+                }
+             }}
+
           />
 
-          <button onClick={handleAddItem}>Add Item</button>
+          <button onClick={handleAddItem} ref={saveBtn}>Add Item</button>
         </div>
 
         <div className="item-list">

@@ -19,6 +19,7 @@ function Mastergoldsmith() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [goldsmithName, setgoldsmithName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const[phoneErr,setPhoneErr]=useState({})
   const [wastage, setWastage] = useState(0);
   const [wastageErr,setWastageErr]=useState({})
   const [address, setAddress] = useState("");
@@ -27,6 +28,7 @@ function Mastergoldsmith() {
   const phoneRef=useRef()
   const wastageRef=useRef()
   const addressRef=useRef()
+  const saveBtn=useRef()
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -48,27 +50,51 @@ function Mastergoldsmith() {
         address: address || null,
         wastage:wastage || null
       };
-       if(wastageErr.err){
-         toast.warn('Enter Valid Wastage')
+       if(wastageErr.err || phoneErr.err){
+         toast.warn('Enter Valid Details')
          return;
        }
+       console.log('newGoldSmith',newGoldsmith)
       try {
         const response = await axios.post(
           `${BACKEND_SERVER_URL}/api/goldsmith`,
           newGoldsmith
         );
-
+        
         setGoldsmith([...goldsmith, response.data]);
         closeModal();
         toast.success("Goldsmith added successfully!");
       } catch (error) {
-        console.error("Error creating goldsmith:", error);
-        toast.error("Failed to add goldsmith. Please try again.");
+       if (error.response && error.response.data && error.response.data.message) {
+           toast.warn(error.response.data.message);
+       } else {
+          toast.error("Failed to add goldsmith. Please try again.");
+         }
       }
     } else {
+      
       toast.warn("Please enter the goldsmith's name.");
     }
   };
+  const handlePhoneChange = (val) => {
+  // Check if the value contains only digits
+  if (!/^\d*$/.test(val)) {
+    setPhoneErr({ err: "Please enter digits only" });
+    setPhoneNumber(val); // still allow user to correct
+    return;
+  }
+
+  // Check the length
+  if (val.length < 10) {
+     setPhoneErr({ err: "Phone number length is too short" });
+  } else if (val.length > 10) {
+     setPhoneErr({ err: "Phone number length is too long" });
+  } else {
+     setPhoneErr({ err: "" }); // valid case
+  }
+
+ setPhoneNumber(val);
+};
   const handleWastage = (val) => {
   // Check if val is a valid number (including decimal)
   if (!/^\d*\.?\d*$/.test(val)) {
@@ -133,9 +159,10 @@ function Mastergoldsmith() {
               }
             }}
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={(e) =>handlePhoneChange(e.target.value)}
             autoComplete="off"
           />
+           {phoneErr.err&&<p style={{color:"red"}}>{phoneErr.err}</p>}
           <TextField
             margin="dense"
             label="Address"
@@ -166,7 +193,7 @@ function Mastergoldsmith() {
             inputRef={wastageRef}
              onKeyDown={(e)=>{
               if(e.key==="Enter"||e.key==="ArrowDown"){
-                goldSmithRef.current.focus()
+                saveBtn.current.focus()
               }
               if(e.key==="ArrowUp"){
                 addressRef.current.focus()
@@ -180,10 +207,10 @@ function Mastergoldsmith() {
           {wastageErr.err&&<p style={{color:"red"}}>{wastageErr.err}</p>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeModal} color="secondary">
+          <Button onClick={closeModal} color="secondary" >
             Cancel
           </Button>
-          <Button onClick={handleSaveGoldsmith} color="primary">
+          <Button onClick={handleSaveGoldsmith} color="primary" ref={saveBtn}>
             Save
           </Button>
         </DialogActions>

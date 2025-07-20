@@ -8,8 +8,19 @@ exports.createGoldsmith = async (req, res) => {
   if (!name) {
     return res.status(400).json({ message: "Goldsmith name is required." });
   }
+  const isTrue = await prisma.goldsmith.findFirst({
+  where: {
+    phone: phonenumber,  // Ensure phonenumber is a string
+  },
+});
+
+if (isTrue) {
+  return res.status(400).json({ message: "Phone Number Already Exists" });
+}
+
 
   try {
+
     const newGoldsmith = await prisma.goldsmith.create({
       data: {
         name,
