@@ -879,6 +879,7 @@ const formatDate = (dateString) => {
 const jobCardFilter = async (req, res) => {
   const { fromDate, toDate } = req.query;
   const { id } = req.params;
+  console.log('reqquery',req.query)
 
   try {
     let whereCondition = {};
