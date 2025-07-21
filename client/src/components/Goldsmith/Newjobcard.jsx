@@ -18,7 +18,7 @@ const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
 const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
- masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmith}) => {
+ masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmithWastage}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
@@ -82,14 +82,9 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     deductionValidation(deductionRows,setDeductionErrors)
   };
   const handleGoldSmithChange = (e) => {
-
-   setGoldSmith(prev => ({
-                 ...prev,
-                 goldSmithInfo: {
-                 ...prev.goldSmithInfo,
-                wastage: e.target.value
-                }
-          }))
+    
+    setGoldSmithWastage(e.target.value)
+    
        if (!isNaN(e.target.value) && e.target.value !== "") {
               wastageValidation(e.target.value, setWastageErrors);
               setWastage(netWeight * parseFloat(e.target.value) / 100);
@@ -113,7 +108,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     0
   );
 
-  const totalBalance = balance>=0? totalGoldWeight+parseFloat(balance): totalGoldWeight-parseFloat(balance);
+  const totalBalance = balance>=0? parseFloat(totalGoldWeight)+parseFloat(balance): parseFloat(balance)+parseFloat(totalGoldWeight);
 
   const totalItemWeight = itemRows.reduce(
     (sum, item) => sum + parseFloat(item.weight || 0),
@@ -146,14 +141,19 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
     setItemPurity(calculatePurity(totalItemWeight, parseFloat(itemTouch)));
   }, [totalItemWeight, itemTouch]);
 
-  useEffect(()=>{
-    const difference = Math.abs(
-   parseFloat(totalBalance) - parseFloat(finalTotal)
-  );
-   setBalanceDifference(difference)
-   
-  
-  },[goldRows,itemRows,deductionRows,wastage])
+  const safeParse = (val) => (isNaN(parseFloat(val)) ? 0 : parseFloat(val));
+
+useEffect(() => {
+  const jobCardBalance = safeParse(balance) >= 0
+    ? safeParse(totalGoldWeight) + safeParse(balance)
+    : safeParse(balance) + safeParse(totalGoldWeight);
+
+  const difference = Math.abs(jobCardBalance - safeParse(finalTotal));
+  console.log('difference', difference);
+
+  setBalanceDifference(difference);
+}, [balance, goldRows, itemRows, deductionRows, wastage]);
+
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
     setNetWeight(format(calculatedNetWeight));
@@ -190,9 +190,6 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
      }
      
   }
-
- 
-
 
   return (
       <Dialog open={open} onClose={onclose} maxWidth={false} 
@@ -579,7 +576,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
              <p className="balance-text-owner">
               Owner should give balance:
               <span className="balance-amount">
-                {format(balanceDifference)}
+                {format(-balanceDifference)}
               </span>
             </p>
             

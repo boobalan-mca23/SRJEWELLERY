@@ -24,6 +24,7 @@ const SrJobCard=()=>{
         }
        
     )
+    const [goldSmithWastage,setGoldSmithWastage]=useState(0)
     const [jobCards,setJobCard]=useState([])
     const [openingBal,setOpeningBal]=useState()
     const [jobCardId,setJobCardId]=useState(null)
@@ -65,7 +66,7 @@ const SrJobCard=()=>{
             setItemRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.deliveryItem || [])));
             setDeductionRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.additionalWeight || [])));
             setReceived(JSON.parse(JSON.stringify(filteredJobcard[0]?.goldSmithReceived || [])));
-
+            setGoldSmithWastage(goldSmith.goldSmithInfo.wastage)
             let lastBalance=jobindex !=0 ? tempJobCard[jobindex].jobCardTotal[0].openBal: 0
             setOpeningBal(lastBalance)
             setopen(true)
@@ -96,37 +97,37 @@ const SrJobCard=()=>{
        }
        console.log('payload update',payload)
        
-      try {
-            const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
-                    headers: {
-                     'Content-Type': 'application/json',
-                   },
-             });
-             if(response.status===400){
-                alert(response.data.message)
-             }
-              console.log('Response:', response.data.jobCards); // success response
-              setJobCard( response.data.jobCards)
-              handleTotalCalculation(response.data.jobCards)
-              setJobCardLength(response.data.jobCardLength) 
-                    setGoldSmith(prev => ({
-                 ...prev,
-                 goldSmithInfo: {
-                 ...prev.goldSmithInfo,
-                balance: response.data.goldSmithBalance.balance
-                }
-          }))
-              setopen(false)
-              setEdit(false)
-              setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
-              setItemRows([{ weight: "", itemName: "" }])
-              setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
-              toast.success(response.data.message)
+      // try {
+      //       const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
+      //               headers: {
+      //                'Content-Type': 'application/json',
+      //              },
+      //        });
+      //        if(response.status===400){
+      //           alert(response.data.message)
+      //        }
+      //         console.log('Response:', response.data.jobCards); // success response
+      //         setJobCard( response.data.jobCards)
+      //         handleTotalCalculation(response.data.jobCards)
+      //         setJobCardLength(response.data.jobCardLength) 
+      //               setGoldSmith(prev => ({
+      //            ...prev,
+      //            goldSmithInfo: {
+      //            ...prev.goldSmithInfo,
+      //           balance: response.data.goldSmithBalance.balance
+      //           }
+      //     }))
+      //         setopen(false)
+      //         setEdit(false)
+      //         setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
+      //         setItemRows([{ weight: "", itemName: "" }])
+      //         setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
+      //         toast.success(response.data.message)
 
-       } catch (err) {
-                 console.error('POST Error:', err.response?.data || err.message);
-                toast.error(err.message || 'An error occurred while creating the job card'); 
-             }
+      //  } catch (err) {
+      //            console.error('POST Error:', err.response?.data || err.message);
+      //           toast.error(err.message || 'An error occurred while creating the job card'); 
+      //        }
        }
     const handleSaveJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance,openBal)=>{
          const payload={
@@ -222,6 +223,7 @@ const SrJobCard=()=>{
     const handleOpenJobCard=async()=>{
         setopen(true) 
         setEdit(false) 
+        setGoldSmithWastage(goldSmith.goldSmithInfo.wastage)
         try{
                    const res=await axios.get(`${BACKEND_SERVER_URL}/api/job-cards/${id}/lastBalance`)
                   //  setOpeningBal(res.data)
@@ -363,8 +365,8 @@ const SrJobCard=()=>{
 
               <NewJobCard
                 name={goldSmith?.goldSmithInfo?.name}
-                goldSmithWastage={goldSmith?.goldSmithInfo.wastage}
-                setGoldSmith={setGoldSmith}
+                goldSmithWastage={goldSmithWastage}
+                setGoldSmithWastage={setGoldSmithWastage}
                 balance={openingBal}
                 goldRows={goldRows}
                 setGoldRows={setGoldRows}
