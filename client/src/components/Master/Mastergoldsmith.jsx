@@ -76,25 +76,34 @@ function Mastergoldsmith() {
       toast.warn("Please enter the goldsmith's name.");
     }
   };
+
   const handlePhoneChange = (val) => {
+    // Allow empty input (user is deleting text)
+  if (val === "") {
+    setPhoneErr({ err: "" }); 
+    setPhoneNumber(val)
+    return;
+  }
+
   // Check if the value contains only digits
   if (!/^\d*$/.test(val)) {
     setPhoneErr({ err: "Please enter digits only" });
-    setPhoneNumber(val); // still allow user to correct
+    setPhoneNumber(val) // still allow user to correct
     return;
   }
 
   // Check the length
   if (val.length < 10) {
-     setPhoneErr({ err: "Phone number length is too short" });
+    setPhoneErr({ err: "Phone number length is too short" });
   } else if (val.length > 10) {
-     setPhoneErr({ err: "Phone number length is too long" });
+    setPhoneErr({ err: "Phone number length is too long" });
   } else {
-     setPhoneErr({ err: "" }); // valid case
+    setPhoneErr({ err: "" }); // valid case
   }
-
- setPhoneNumber(val);
+  setPhoneNumber(val)
 };
+
+
   const handleWastage = (val) => {
   // Check if val is a valid number (including decimal)
   if (!/^\d*\.?\d*$/.test(val)) {

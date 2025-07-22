@@ -147,8 +147,9 @@ useEffect(() => {
   const jobCardBalance = safeParse(balance) >= 0
     ? safeParse(totalGoldWeight) + safeParse(balance)
     : safeParse(balance) + safeParse(totalGoldWeight);
-
-  const difference = Math.abs(jobCardBalance - safeParse(finalTotal));
+  console.log('jobCardBalance',jobCardBalance)
+  console.log('finalTotal',safeParse(finalTotal))
+  const difference = jobCardBalance - safeParse(finalTotal);
   console.log('difference', difference);
 
   setBalanceDifference(difference);
@@ -197,7 +198,7 @@ useEffect(() => {
         className:"jobcard-dialog"
        }}
       >
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <DialogTitle  className ="dialogTitle"sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {edit ? "Update Job Card" : "Add New Job Card"}
         <IconButton onClick={onclose}>
           <CloseIcon />
@@ -317,7 +318,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="section">
+      <div className="section itemDelivery">
         <h3 className="section-title">Item Delivery</h3>
         {itemRows.map((item, i) => (
           <div key={i} className="row">
@@ -555,6 +556,7 @@ useEffect(() => {
 
       <div
         style={{ display: "flex", justifyContent: "center", marginTop: "20px", }}
+        className="button"
       >
         <Button variant="contained" color="success" style={{marginRight:"15px"}} onClick={()=>SaveJobCard()}>
           SAVE
@@ -576,7 +578,7 @@ useEffect(() => {
              <p className="balance-text-owner">
               Owner should give balance:
               <span className="balance-amount">
-                {format(-balanceDifference)}
+                {format(balanceDifference)}
               </span>
             </p>
             
