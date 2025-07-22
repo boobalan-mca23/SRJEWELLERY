@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   Paper,
@@ -56,6 +56,16 @@ const Goldsmith = () => {
     address: "",
     wastage:""
   });
+  const [wastageErr,setWastageErr]=useState({})
+  const [phoneErr,setPhoneErr]=useState({})
+  const formRef = useRef({
+    name: null,
+    phone: null,
+    address: null,
+    wastage: null,
+    update: null
+});
+
 
   useEffect(() => {
     const fetchGoldsmiths = async () => {
@@ -88,7 +98,56 @@ const Goldsmith = () => {
     setOpenEditDialog(true);
   };
 
+   const handleWastage = (val) => {
+  // Check if val is a valid number (including decimal)
+  if (!/^\d*\.?\d*$/.test(val)) {
+    setWastageErr({ err: "Please enter a valid number" });
+    // still update input so user can correct it
+    setFormData((prev)=>({...prev,wastage:val}))
+    return;
+  }
+  // Valid input
+  setFormData((prev)=>({...prev,wastage:val}))
+  setWastageErr({});
+};
+
+const handlePhoneChange = (val) => {
+  console.log('phoneval', val);
+
+  // Allow empty input (user is deleting text)
+  if (val === "") {
+    setPhoneErr({ err: "" }); 
+    setFormData((prev) => ({ ...prev, phone: val }));
+    return;
+  }
+
+  // Check if the value contains only digits
+  if (!/^\d*$/.test(val)) {
+    setPhoneErr({ err: "Please enter digits only" });
+    setFormData((prev) => ({ ...prev, phone: val })); // still allow user to correct
+    return;
+  }
+
+  // Check the length
+  if (val.length < 10) {
+    setPhoneErr({ err: "Phone number length is too short" });
+  } else if (val.length > 10) {
+    setPhoneErr({ err: "Phone number length is too long" });
+  } else {
+    setPhoneErr({ err: "" }); // valid case
+  }
+
+  setFormData((prev) => ({ ...prev, phone: val }));
+};
+
+
   const handleEditSubmit = async () => {
+
+     if(wastageErr.err || phoneErr.err){
+             toast.warn('Enter Valid Details')
+             return;
+      }
+     
     try {
       const response = await fetch(
         `${BACKEND_SERVER_URL}/api/goldsmith/${selectedGoldsmith.id}`,
@@ -113,7 +172,12 @@ const Goldsmith = () => {
         toast.error("Failed to update goldsmith");
       }
     } catch (error) {
-      toast.error("Error updating goldsmith");
+      if (error.response && error.response.data && error.response.data.message) {
+                 toast.warn(error.response.data.message);
+        } 
+      else {
+          toast.error("Failed to add goldsmith. Please try again.");
+       }
     }
   };
 
@@ -424,39 +488,76 @@ const Goldsmith = () => {
         <DialogContent>
           <TextField
             label="Name"
-            value={formData.name}
+            value={formData.name||""}
             fullWidth
             margin="normal"
+            inputRef={(el) => (formRef.current.name = el)}
+              onKeyDown={(e)=>{
+              if(e.key==="Enter" || e.key==="ArrowDown"){
+                formRef.current.phone.focus()
+              }
+              if(e.key==="ArrowUp"){
+                formRef.current.name.focus()
+              }
+            }}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <TextField
             label="Phone"
-            value={formData.phone}
+            value={formData.phone||""}
+            inputRef={(el) => (formRef.current.phone = el)}
+             onKeyDown={(e)=>{
+              if(e.key==="Enter" || e.key==="ArrowDown"){
+                formRef.current.address.focus()
+              }
+              if(e.key==="ArrowUp"){
+                 formRef.current.name.focus()
+              }
+            }}
             fullWidth
             margin="normal"
             onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
+             handlePhoneChange(e.target.value)
             }
           />
+            {phoneErr.err&&<p style={{color:"red"}}>{phoneErr.err}</p>}
           <TextField
             label="Address"
-            value={formData.address}
+            value={formData.address||""}
             fullWidth
             margin="normal"
+            inputRef={(el) => (formRef.current.address = el)}
+            onKeyDown={(e)=>{
+              if(e.key==="Enter" || e.key==="ArrowDown"){
+                formRef.current.wastage.focus()
+              }
+              if(e.key==="ArrowUp"){
+                 formRef.current.phone.focus()
+              }
+            }}
             onChange={(e) =>
               setFormData({ ...formData, address: e.target.value })
             }
           />
            <TextField
             label="Wastage"
-            value={formData.wastage}
+            value={formData.wastage||""}
             fullWidth
+            inputRef={(el) => (formRef.current.wastage = el)}
+            onKeyDown={(e)=>{
+              if(e.key==="Enter" || e.key==="ArrowDown"){
+                formRef.current.update.focus()
+              }
+              if(e.key==="ArrowUp"){
+                 formRef.current.address.focus()
+              }
+            }}
             margin="normal"
-            type="number"
             onChange={(e) =>
-              setFormData({ ...formData, wastage: e.target.value })
+             handleWastage(e.target.value)
             }
           />
+          {wastageErr.err&&<p style={{color:"red"}}>{wastageErr.err}</p>}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
@@ -464,6 +565,7 @@ const Goldsmith = () => {
             onClick={handleEditSubmit}
             variant="contained"
             color="primary"
+            ref={(el) => (formRef.current.update = el)}
           >
             Save
           </Button>

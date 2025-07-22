@@ -37,6 +37,8 @@ const SrJobCard=()=>{
     const [edit,setEdit]=useState(false)
     const [jobCardIndex,setJobCardIndex]=useState(0)
     const[jobCardTotal,setJobCardTotal]=useState({})
+    
+    const roundTo3 = (value) => Number(parseFloat(value).toFixed(3));
 
     const handleTotalCalculation = (jobcard) => {
       console.log('total',jobcard)
@@ -87,47 +89,47 @@ const SrJobCard=()=>{
         },
         'total':{
           'id':jobCards[jobCardIndex]?.jobCardTotal[0]?.id,
-           'givenWt':parseFloat(totalGoldWt).toFixed(3),
-           'itemWt':parseFloat(totalItemWt).toFixed(3),
-           'stoneWt':parseFloat(totalDeductionWt).toFixed(3),
-           'wastage':parseFloat(totalWastage).toFixed(3),
-           'balance':parseFloat(totalBalance).toFixed(3),
-           'openBal':parseFloat(openBal).toFixed(3)
+           'givenWt':roundTo3(totalGoldWt),
+           'itemWt':roundTo3(totalItemWt),
+           'stoneWt':roundTo3(totalDeductionWt),
+           'wastage':roundTo3(totalWastage),
+           'balance':roundTo3(totalBalance),
+           'openBal':roundTo3(openBal)
         }
        }
        console.log('payload update',payload)
        
-      // try {
-      //       const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
-      //               headers: {
-      //                'Content-Type': 'application/json',
-      //              },
-      //        });
-      //        if(response.status===400){
-      //           alert(response.data.message)
-      //        }
-      //         console.log('Response:', response.data.jobCards); // success response
-      //         setJobCard( response.data.jobCards)
-      //         handleTotalCalculation(response.data.jobCards)
-      //         setJobCardLength(response.data.jobCardLength) 
-      //               setGoldSmith(prev => ({
-      //            ...prev,
-      //            goldSmithInfo: {
-      //            ...prev.goldSmithInfo,
-      //           balance: response.data.goldSmithBalance.balance
-      //           }
-      //     }))
-      //         setopen(false)
-      //         setEdit(false)
-      //         setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
-      //         setItemRows([{ weight: "", itemName: "" }])
-      //         setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
-      //         toast.success(response.data.message)
+      try {
+            const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`, payload, {
+                    headers: {
+                     'Content-Type': 'application/json',
+                   },
+             });
+             if(response.status===400){
+                alert(response.data.message)
+             }
+              console.log('Response:', response.data.jobCards); // success response
+              setJobCard( response.data.jobCards)
+              handleTotalCalculation(response.data.jobCards)
+              setJobCardLength(response.data.jobCardLength) 
+                    setGoldSmith(prev => ({
+                 ...prev,
+                 goldSmithInfo: {
+                 ...prev.goldSmithInfo,
+                balance: response.data.goldSmithBalance.balance
+                }
+          }))
+              setopen(false)
+              setEdit(false)
+              setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
+              setItemRows([{ weight: "", itemName: "" }])
+              setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
+              toast.success(response.data.message)
 
-      //  } catch (err) {
-      //            console.error('POST Error:', err.response?.data || err.message);
-      //           toast.error(err.message || 'An error occurred while creating the job card'); 
-      //        }
+       } catch (err) {
+                 console.error('POST Error:', err.response?.data || err.message);
+                toast.error(err.message || 'An error occurred while creating the job card'); 
+             }
        }
     const handleSaveJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance,openBal)=>{
          const payload={
@@ -139,12 +141,12 @@ const SrJobCard=()=>{
         'balance':totalBalance
         },
         'total':{
-           'givenWt':parseFloat(totalGoldWt).toFixed(3),
-           'itemWt':parseFloat(totalItemWt).toFixed(3),
-           'stoneWt':parseFloat(totalDeductionWt).toFixed(3),
-           'wastage':parseFloat(totalWastage).toFixed(3),
-           'balance':parseFloat(totalBalance).toFixed(3),
-           'openBal':parseFloat(openBal).toFixed(3)
+           'givenWt':roundTo3(totalGoldWt),
+           'itemWt':roundTo3(totalItemWt),
+           'stoneWt':roundTo3(totalDeductionWt),
+           'wastage':roundTo3(totalWastage),
+           'balance':roundTo3(totalBalance),
+           'openBal':roundTo3(openBal)
         }
         
        }
