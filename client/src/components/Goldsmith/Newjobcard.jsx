@@ -30,7 +30,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   const[netWeight, setNetWeight] = useState("0.000");
   const[wastage,setWastage]=useState(0)
   const[finalTotal,setFinalTotal]=useState(0)
-  const [balanceDifference,setBalanceDifference]=useState(0)
+  const[balanceDifference,setBalanceDifference]=useState(0)
   // const [touch, setTouch] = useState("");
   // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
   const [itemTouch, setItemTouch] = useState("");
@@ -84,7 +84,6 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   const handleGoldSmithChange = (e) => {
     
     setGoldSmithWastage(e.target.value)
-    
        if (!isNaN(e.target.value) && e.target.value !== "") {
               wastageValidation(e.target.value, setWastageErrors);
               setWastage(netWeight * parseFloat(e.target.value) / 100);
@@ -92,12 +91,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
               setFinalTotal(format(calculatedFinalTotal));
           }else{
             wastageValidation(e.target.value, setWastageErrors);
-
-          }
-         
-     
-
-  };
+      }};
 
   const totalGoldWeight = goldRows.reduce(
     (sum, row) => sum + parseFloat(row.weight || 0),
@@ -130,13 +124,34 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
        const isTrue=window.confirm("Are you sure you want to remove this received row?")
        if(isTrue){
        const receivedItems=received.filter((_,index)=>index!=removeIndex)
-       console.log('index',removeIndex)
-       console.log('receivedItems',receivedItems)
        setReceived(receivedItems)
        }
-      
-      
- }
+      }
+  const handleRemovegold=(removeIndex)=>{
+    
+     const isTrue=window.confirm("Are you sure you want to remove this gold row?")
+       if(isTrue){
+       const goldItems=goldRows.filter((_,index)=>index!=removeIndex)
+       setGoldRows(goldItems)
+       }
+  } 
+  const handleRemoveItem=(removeIndex)=>{ 
+    
+    const isTrue=window.confirm("Are you sure you want to remove this Item row?")
+       if(isTrue){
+       const removeItems=itemRows.filter((_,index)=>index!=removeIndex)
+       setItemRows(removeItems)
+       }
+      }
+  const handleRemovededuction=(removeIndex)=>{
+     
+    const isTrue=window.confirm("Are you sure you want to deduction this Item row?")
+       if(isTrue){
+       const removeItems=deductionRows.filter((_,index)=>index!=removeIndex)
+       setDeductionRows(removeItems)
+       }
+  }     
+     
   useEffect(() => {
     setItemPurity(calculatePurity(totalItemWeight, parseFloat(itemTouch)));
   }, [totalItemWeight, itemTouch]);
@@ -188,8 +203,7 @@ useEffect(() => {
         }else{
           toast.warn("Give Correct Information")
         }
-     }
-     
+     }    
   }
 
   return (
@@ -275,7 +289,8 @@ useEffect(() => {
             /><br></br>
              {formErrors[i]?.touch&& (<span className="error">{formErrors[i].touch}</span>)}
             </div>
-            {/* <span className="operator">=</span>
+            {!row.id && <MdDeleteForever className="deleteIcon" onClick={()=>{handleRemovegold(i)}}/>}
+      {/* <span className="operator">=</span>
             <input
               type="text"
               readOnly
@@ -350,6 +365,7 @@ useEffect(() => {
             </select><br></br>
             {itemErrors[i]?.itemName&&(<span className="error">{itemErrors[i]?.itemName}</span>)}
            </div>
+            {!item.id && <MdDeleteForever className="deleteIcon" onClick={()=>{handleRemoveItem(i)}}/>}
           </div>
         ))}
         <button
@@ -415,6 +431,7 @@ useEffect(() => {
               /><br></br>
               {deductionErrors[i]?.weight&&(<span className="error">{deductionErrors[i]?.weight}</span>)}
              </div>
+              {!deduction.id && <MdDeleteForever className="deleteIcon" onClick={()=>{handleRemovededuction(i)}}/>}
             </div>
           ))}
           <button
@@ -527,7 +544,7 @@ useEffect(() => {
             />
              {receivedErrors[i]?.touch && (<span style={{color:"red",fontSize:"16px"}}>{receivedErrors[i].touch}</span>)}
              </div>
-           <MdDeleteForever className="deleteIcon" onClick={()=>{handleRemoveReceived(i)}}/>
+             {!row.id && <MdDeleteForever className="deleteIcon" onClick={()=>{handleRemoveReceived(i)}}/>}
             {/* <span className="operator">=</span>
             <input
               type="text"
