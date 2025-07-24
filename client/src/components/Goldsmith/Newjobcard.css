@@ -413,16 +413,33 @@
   margin-top: 10px;
 }
 
-@media print{
-  
-  .jobcard-dialog{
-    height: 100vh;
+@media print {
+  @page {
+    size: A5;
+    margin: 2mm; /* Adjust as needed */
   }
-  .container{
-    margin-left: 10px !important;
+
+  .container {
+    width: 100%;
+    max-width: 140mm; /* A5 width is 148mm, so leave some margin */
+    margin: 0px auto;
+    background-color:none !important;
+    border-radius: none !important;
+    
+     /* Adjust font size to fit */
   }
-  .circle-button,.button,.dialogTitle{
+
+  .jobcard-dialog {
+    height: auto;
+    font-size: 15px;
+    padding: 5mm;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .circle-button,
+  .button,
+  .dialogTitle,.deleteIcon {
     display: none !important;
   }
-  
 }

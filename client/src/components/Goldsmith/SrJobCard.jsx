@@ -4,6 +4,7 @@ import { FaEye } from "react-icons/fa";
 import axios from "axios";
 import { BACKEND_SERVER_URL } from "../../Config/Config";
 import NewJobCard from "./Newjobcard";
+import {TablePagination} from "@mui/material"
 import { useParams,useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -36,14 +37,16 @@ const SrJobCard=()=>{
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
     const [jobCardIndex,setJobCardIndex]=useState(0)
-    const[jobCardTotal,setJobCardTotal]=useState({})
+    const [balanceDifference,setBalanceDifference]=useState(0)
+    const [page, setPage] = useState(0); // 0-indexed for TablePagination
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    
+    const paginatedData = jobCards.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    
     
     const roundTo3 = (value) => Number(parseFloat(value).toFixed(3));
 
-    const handleTotalCalculation = (jobcard) => {
-      console.log('total',jobcard)
-
-      const totalObj = jobcard.reduce(
+   const currentPageTotal = paginatedData.reduce(
     (acc, job) => {
       acc.givenWt += job.jobCardTotal[0].givenWt;
       acc.itemWt += job.jobCardTotal[0].itemWt;
@@ -53,10 +56,18 @@ const SrJobCard=()=>{
     },
     { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0 } // Initial accumulator
   );
+  
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-     console.log('total',totalObj)
-     setJobCardTotal(totalObj);
-};
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+
+
 
     const handleFilterJobCard=(id,jobindex)=>{
              setJobCardId(id)
@@ -69,7 +80,9 @@ const SrJobCard=()=>{
             setDeductionRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.additionalWeight || [])));
             setReceived(JSON.parse(JSON.stringify(filteredJobcard[0]?.goldSmithReceived || [])));
             setGoldSmithWastage(goldSmith.goldSmithInfo.wastage)
+            setBalanceDifference(tempJobCard[jobindex].jobCardTotal[0].balance)
             let lastBalance=jobindex !=0 ? tempJobCard[jobindex].jobCardTotal[0].openBal: 0
+            console.log('lastBalance',lastBalance)
             setOpeningBal(lastBalance)
             setopen(true)
             setEdit(true)
@@ -110,7 +123,6 @@ const SrJobCard=()=>{
              }
               console.log('Response:', response.data.jobCards); // success response
               setJobCard( response.data.jobCards)
-              handleTotalCalculation(response.data.jobCards)
               setJobCardLength(response.data.jobCardLength) 
                     setGoldSmith(prev => ({
                  ...prev,
@@ -124,6 +136,7 @@ const SrJobCard=()=>{
               setGoldRows([{ itemName:"",weight: "", touch: 91.7}])
               setItemRows([{ weight: "", itemName: "" }])
               setDeductionRows([{ type: "Stone", customType: "", weight: "" }])
+              setReceived([])
               toast.success(response.data.message)
 
        } catch (err) {
@@ -159,7 +172,6 @@ const SrJobCard=()=>{
              });
                console.log('Response:', response.data.goldSmithBalance); // success response
                setJobCard( response.data.jobCards)
-               handleTotalCalculation(response.data.jobCards)
                setJobCardLength(response.data.jobCardLength) 
                setGoldSmith(prev => ({
                  ...prev,
@@ -199,7 +211,6 @@ const SrJobCard=()=>{
                      }}
                 setGoldSmith(newGoldSmith) 
                 setJobCard(res.data.jobCards) 
-                handleTotalCalculation(res.data.jobCards)
                 console.log('res',res.data.jobCards)
                 setJobCardLength(res.data.jobCardLength)      
             }catch(err){
@@ -267,7 +278,7 @@ const SrJobCard=()=>{
                   </div>
                  <div className="jobcardTable">
               {jobCards.length >= 1 ? (
-    <table>
+      <table>
       <thead className="jobCardHead">
         <tr>
           <th rowSpan={2}>S.No</th>
@@ -346,25 +357,40 @@ const SrJobCard=()=>{
         })}
          <tr>
           <td colSpan={5}></td>
-          <td><strong>Total Given Weight:</strong> {jobCardTotal.givenWt}</td>
-          <td colSpan={2}></td>
-          <td><strong>Total Item Weight:</strong> {(jobCardTotal.itemWt).toFixed(3)}</td>
-          <td><strong>Total Stone Weight:</strong> {(jobCardTotal.stoneWt).toFixed(3)}</td>
-          <td><strong>Total Wastage:</strong> {(jobCardTotal.wastage).toFixed(3)}</td>
+          <td><strong>Total Given Weight:</strong> {currentPageTotal.givenWt}</td>
+          <td colSpan={3}></td>
+          <td><strong>Total Item Weight:</strong> {(currentPageTotal.itemWt).toFixed(3)}</td>
+          <td><strong>Total Stone Weight:</strong> {(currentPageTotal.stoneWt).toFixed(3)}</td>
+          <td><strong>Total Wastage:</strong> {(currentPageTotal.wastage).toFixed(3)}</td>
           <td colSpan={2}></td>
          
         </tr>
+        <tr>
+          <td colSpan={12}></td>
+          <td style={{backgroundColor:"black",color:"white",fontSize:"18px"}}>{jobCards.at(-1).jobCardTotal[0].balance>=0 ?
+          `Gold Smith Should Given${(jobCards.at(-1).jobCardTotal[0].balance).toFixed(3)}`
+          : `Owner Should Given${(jobCards.at(-1).jobCardTotal[0].balance).toFixed(3)}`}</td>
+        </tr>
       </tbody>
     </table>
+    
   ) : (
     <span className="noJobCard">No JobCard For this GoldSmith</span>
   )}
+       {jobCards.length>=1 && <TablePagination
+              component="div"
+              count={jobCards.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25]}
+            />}
 </div>
 
                  </div>
              {open && 
-           
-
+        
               <NewJobCard
                 name={goldSmith?.goldSmithInfo?.name}
                 goldSmithWastage={goldSmithWastage}
@@ -379,6 +405,8 @@ const SrJobCard=()=>{
                 received={received}
                 setReceived={setReceived}
                 masterItems={masterItems}
+                balanceDifference={balanceDifference}
+                setBalanceDifference={setBalanceDifference}
                 handleSaveJobCard={handleSaveJobCard}
                 handleUpdateJobCard={handleUpdateJobCard}
                 jobCardLength={jobCardLength}

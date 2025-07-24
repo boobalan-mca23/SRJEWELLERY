@@ -18,7 +18,7 @@ const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
 const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
- masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmithWastage}) => {
+ masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmithWastage,balanceDifference,setBalanceDifference}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
@@ -30,7 +30,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   const[netWeight, setNetWeight] = useState("0.000");
   const[wastage,setWastage]=useState(0)
   const[finalTotal,setFinalTotal]=useState(0)
-  const[balanceDifference,setBalanceDifference]=useState(0)
+  
   // const [touch, setTouch] = useState("");
   // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
   const [itemTouch, setItemTouch] = useState("");
@@ -221,7 +221,9 @@ useEffect(() => {
 
       <DialogContent >
     <div className="container">
+       <h3>SR Jewellery </h3>
       <div className="header">
+       
         <div className="header-item">
           <span className="header-label">ID:</span> {edit?jobCardId:jobCardLength}
         </div>
