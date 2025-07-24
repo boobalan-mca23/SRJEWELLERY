@@ -46,7 +46,7 @@ const Goldsmith = () => {
   const [jobCardError,setJobCardError]=useState({})
   const [jobCardId,setJobCardId]=useState(null)
   const [jobCardTotal,setJobCardTotal]=useState([])
-  const [jobCardBalance,setJobCardBalance]=useState(0)
+  const [openingBalance,setOpeningBalance]=useState(0)
   const [selectedName,setSelectedName]=useState({})
   const [masterItems,setMasterItems]=useState([])
   const [noJobCard,setNoJobCard]=useState({})
@@ -291,7 +291,7 @@ const handlePhoneChange = (val) => {
                setReceived(data.jobcard[0].goldSmithReceived)
                setSelectedName(data.jobcard[0].goldsmith)
                setJobCardTotal(data.jobcard[0].jobCardTotal)
-               setJobCardBalance(data.jobCardBalance)
+               setOpeningBalance(data.jobCardBalance)
                setOpen(true)
                setEdit(true)
                setNoJobCard({})
@@ -460,7 +460,7 @@ const handlePhoneChange = (val) => {
       name={selectedName.name}
       goldSmithWastage={selectedName.wastage}
       setGoldSmith={setGoldsmith}
-      balance={jobCardBalance}
+      balance={openingBalance}
       goldRows={goldRows}
       setGoldRows={setGoldRows}
       itemRows={itemRows}
