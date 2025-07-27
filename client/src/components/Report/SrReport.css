@@ -10,6 +10,9 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     transition: all 0.3s ease; /* Smooth hover effect */
 }
+.print-btn-wrapper {
+  margin-left: auto;
+}
 
 .report:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -26,3 +29,6 @@
     background-color: black;
     color: white;
 }
+
+/* SrReport.css */
+

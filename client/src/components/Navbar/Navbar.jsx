@@ -59,7 +59,7 @@ const Navbar = () => {
   });
 
   return (
-    <div style={navContainer}>
+    <div style={navContainer} >
       <div style={navLeft}>
          
  

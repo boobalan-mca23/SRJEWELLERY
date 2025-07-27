@@ -37,7 +37,7 @@ const SrJobCard=()=>{
     const [open,setopen]=useState(false)
     const [edit,setEdit]=useState(false)
     const [jobCardIndex,setJobCardIndex]=useState(0)
-    const [balanceDifference,setBalanceDifference]=useState(0)
+    
     const [page, setPage] = useState(0); // 0-indexed for TablePagination
     const [rowsPerPage, setRowsPerPage] = useState(5);
     
@@ -80,7 +80,7 @@ const SrJobCard=()=>{
             setDeductionRows(JSON.parse(JSON.stringify(filteredJobcard[0]?.additionalWeight || [])));
             setReceived(JSON.parse(JSON.stringify(filteredJobcard[0]?.goldSmithReceived || [])));
             setGoldSmithWastage(goldSmith.goldSmithInfo.wastage)
-            setBalanceDifference(tempJobCard[jobindex].jobCardTotal[0].balance)
+           
             let lastBalance=jobindex !=0 ? tempJobCard[jobindex].jobCardTotal[0].openBal: 0
             console.log('lastBalance',lastBalance)
             setOpeningBal(lastBalance)
@@ -209,6 +209,7 @@ const SrJobCard=()=>{
                         wastage:goldSmithRes?.wastage ||"",
                         balance:goldSmithRes?.balance[0]?.balance
                      }}
+                        console.log('res',res.data.jobCards)
                 setGoldSmith(newGoldSmith) 
                 setJobCard(res.data.jobCards) 
                 console.log('res',res.data.jobCards)
@@ -253,7 +254,7 @@ const SrJobCard=()=>{
      return(
             
             <>
-              <div>
+              <div >
                 <ToastContainer
                         position="top-right"
                         autoClose={1000}
@@ -262,6 +263,7 @@ const SrJobCard=()=>{
                         pauseOnHover={false}
                         draggable={false}
                     />
+                    
                   <div className="goldSmith">
                       <div>
                          <h3 className="goldsmithhead">Gold Smith Information</h3>
@@ -276,6 +278,16 @@ const SrJobCard=()=>{
                               }}>Add New JobCard</button>
                       </div>
                   </div>
+              {jobCards.length > 0 && jobCards.at(-1)?.jobCardTotal?.length > 0 && (
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <p className="balanceInfo">
+                {jobCards.at(-1).jobCardTotal[0].balance >= 0
+                 ? `Gold Smith Should Given ${jobCards.at(-1).jobCardTotal[0].balance.toFixed(3)}`
+                : `Owner Should Given ${jobCards.at(-1).jobCardTotal[0].balance.toFixed(3)}`}
+             </p>
+             </div>
+              )}
+
                  <div className="jobcardTable">
               {jobCards.length >= 1 ? (
       <table>
@@ -365,12 +377,7 @@ const SrJobCard=()=>{
           <td colSpan={2}></td>
          
         </tr>
-        <tr>
-          <td colSpan={12}></td>
-          <td style={{backgroundColor:"black",color:"white",fontSize:"18px"}}>{jobCards.at(-1).jobCardTotal[0].balance>=0 ?
-          `Gold Smith Should Given${(jobCards.at(-1).jobCardTotal[0].balance).toFixed(3)}`
-          : `Owner Should Given${(jobCards.at(-1).jobCardTotal[0].balance).toFixed(3)}`}</td>
-        </tr>
+        
       </tbody>
     </table>
     
@@ -405,8 +412,6 @@ const SrJobCard=()=>{
                 received={received}
                 setReceived={setReceived}
                 masterItems={masterItems}
-                balanceDifference={balanceDifference}
-                setBalanceDifference={setBalanceDifference}
                 handleSaveJobCard={handleSaveJobCard}
                 handleUpdateJobCard={handleUpdateJobCard}
                 jobCardLength={jobCardLength}

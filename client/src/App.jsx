@@ -212,6 +212,7 @@ function PageWithNavbar({ children }) {
 
   return (
     <>
+
       <Navbar />
       {children}
     </>

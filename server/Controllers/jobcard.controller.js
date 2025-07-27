@@ -387,13 +387,13 @@ const prisma = new PrismaClient();
               balance: parseFloat((item.balance - receivedAmount).toFixed(3)), 
               isFinished: "false" 
               });
-              await prisma.jobCardReceived.update({
-                where:{
-                jobcardId:item.id
-              },
-                data:{
-                  received:parseFloat((item.balance - receivedAmount).toFixed(3)),
-                }})
+              // await prisma.jobCardReceived.update({
+              //   where:{
+              //   jobcardId:item.id
+              // },
+              //   data:{
+              //     received:parseFloat((item.balance - receivedAmount).toFixed(3)),
+              //   }})
       receivedAmount = 0;
       await updateNextJobs();
       break;
@@ -407,6 +407,8 @@ const prisma = new PrismaClient();
             await prisma.jobcardTotal.update({where:{id:last.id},data:{balance:(-receivedAmount)}})
           }}
       }
+
+
 
 
 const createJobCard = async (req, res) => {
@@ -440,7 +442,7 @@ const createJobCard = async (req, res) => {
     const givenGoldArr = goldRows.map((item) => ({
      
       itemName: item.itemName || null,
-      weight: parseFloat(item.weight),
+      weight:parseFloat(item.weight),
       touch: parseFloat(item.touch)||null,
       
     }));
@@ -484,7 +486,7 @@ const createJobCard = async (req, res) => {
               goldsmithId: parseInt(goldsmithId),
               balance: jobCardTotal.balance,
               received: 0,
-              remainingAmount: 0,
+           
           },
     },
   },
@@ -517,10 +519,10 @@ const createJobCard = async (req, res) => {
         JobCardReceived:true
        },
      
-    });
+    }); 
     let jobCardLength=await prisma.jobCard.findMany()
-
-
+          
+     console.log('createdJobCards',allJobCards)
     return res.status(200).json({
       message: "JobCard created successfully",
       jobCards: allJobCards,
@@ -593,7 +595,7 @@ const updateJobCard = async (req, res) => {
             },
           data:{
             itemName:gold.itemName|| null,
-            weight: parseFloat(gold.weight),
+            weight:parseFloat(gold.weight),
             touch: parseFloat(gold.touch),
            }
         })
@@ -664,36 +666,37 @@ const updateJobCard = async (req, res) => {
     }
      }
      
-    
-      // update next jobCard openBal
-    let goldSmithJob=await prisma.jobcardTotal.findMany({
+     // update next jobCard openBal
+       let goldSmithJob=await prisma.jobcardTotal.findMany({
       where:{
-        goldsmithId:parseFloat(goldSmithId)
+        id:{gte:total?.id},
+        goldsmithId:parseInt(goldSmithId)
       }
     })
-    console.log('if next job??',goldSmithJob)
+  
+    while(goldSmithJob.length!=1){
+         const prevJob=goldSmithJob[0]
+        const currentJob=goldSmithJob[1]
+   
+       await prisma.jobcardTotal.update({
+              where:{
+                id:currentJob.id,
+                goldsmithId:parseFloat(goldSmithId)
+              },
+           data:{ 
+             openBal:prevJob.balance,
+             balance:(currentJob.givenWt+prevJob.balance)-currentJob.wastage
+            }
+        })
     
-for (let i = 0; i < goldSmithJob.length; i++) {
-  const currentJob = goldSmithJob[i];
-  const prevJob = goldSmithJob[i - 1];
-
-  // Skip the first job as it has no previous
-  if (!prevJob) continue;
-
-  // Update current job with previous job's balance
-  const openBal = prevJob.balance;
-  const newBalance = (currentJob.givenWt + openBal) - currentJob.wastage;
-
-  await prisma.jobcardTotal.update({
-    where: {
-      id: currentJob.id,
-    },
-    data: {
-      openBal: openBal,
-      balance: newBalance,
-    },
-  });
-}
+     goldSmithJob=await prisma.jobcardTotal.findMany({
+         where:{
+          id:{gt:prevJob.id},
+          goldsmithId:parseFloat(goldSmithId)
+      }
+    })
+      
+    }
     // received Amount save
     
   if (receivedAmount.length >= 1) {

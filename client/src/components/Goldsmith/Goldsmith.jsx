@@ -73,13 +73,13 @@ const Goldsmith = () => {
         const response = await fetch(`${BACKEND_SERVER_URL}/api/goldsmith`);
         const data = await response.json();
         setGoldsmith(data);
+        console.log('goldSmith Data',data)
       } catch (error) {
         console.error("Error fetching goldsmith data:", error);
       }
     };
     const fetchMasterItem=async()=>{
                const res=await axios.get(`${BACKEND_SERVER_URL}/api/master-items`)
-               console.log('res',res.data)
                setMasterItems(res.data)
       }
 

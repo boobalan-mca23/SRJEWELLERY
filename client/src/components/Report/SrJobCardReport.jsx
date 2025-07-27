@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef} from "react";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 import {
   Autocomplete,
   Button,
@@ -28,9 +31,10 @@ const JobCardReport = () => {
   const [selectedGoldSmith, setSelectedGoldSmith] = useState({ id: null, name: "ALL" });
   const [page, setPage] = useState(0); // 0-indexed for TablePagination
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const paginatedData = isPrinting ? jobCard : jobCard.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const paginatedData = jobCard.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
+  const reportRef = useRef();
 
 // Calculate totals for current page
 const currentPageTotal = paginatedData.reduce(
@@ -43,6 +47,30 @@ const currentPageTotal = paginatedData.reduce(
   },
   { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0 }
 );
+
+
+
+const handleDownloadPdf = async () => {
+  setIsPrinting(true); // show all rows
+
+  setTimeout(async () => {
+    const element = reportRef.current;
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ unit: 'px', format: 'a4' });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('JobCard_Report.pdf');
+
+    setIsPrinting(false); // restore pagination
+  }, 500); // delay to allow re-render
+};
+
+
+
 
 
   const handleDateClear = () => {
@@ -68,7 +96,7 @@ const currentPageTotal = paginatedData.reduce(
         );
 
         setJobCard(response.data);
-        handleTotalCalculation(response.data || []);
+      
         setPage(0);
       } catch (error) {
         console.error("Error fetching goldsmith data:", error);
@@ -132,10 +160,13 @@ const currentPageTotal = paginatedData.reduce(
           renderInput={(params) => <TextField {...params} label="Select GoldSmith" />}
         />
 
-        <Button className="clrBtn" onClick={handleDateClear}>Clear</Button>
+        <Button className="clrBtn noprint" onClick={handleDateClear}>Clear</Button>
+        <div className="print-btn-wrapper noprint">
+            <Button onClick={()=>{handleDownloadPdf()}}>Print</Button>
+          </div>
       </div>
 
-      <div className="jobcardTable">
+      <div className="jobcardTable" ref={reportRef}>
         {jobCard.length >= 1 ? (
           <Paper>
             <TableContainer>
