@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
@@ -17,8 +16,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Autocomplete
-  
+  Autocomplete,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
@@ -37,35 +35,34 @@ const Goldsmith = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedGoldsmith, setSelectedGoldsmith] = useState(null);
-  const [goldRows,setGoldRows]=useState([])
-  const [itemRows,setItemRows]=useState([])
-  const [deductionRows,setDeductionRows]=useState([])
-  const [received,setReceived]=useState([])
-  const [open,setOpen]=useState(false)
-  const [edit,setEdit]=useState(false)
-  const [jobCardError,setJobCardError]=useState({})
-  const [jobCardId,setJobCardId]=useState(null)
-  const [jobCardTotal,setJobCardTotal]=useState([])
-  const [openingBalance,setOpeningBalance]=useState(0)
-  const [selectedName,setSelectedName]=useState({})
-  const [masterItems,setMasterItems]=useState([])
-  const [noJobCard,setNoJobCard]=useState({})
-  const [formData, setFormData] = useState({ 
+  const [goldRows, setGoldRows] = useState([]);
+  const [itemRows, setItemRows] = useState([]);
+  const [deductionRows, setDeductionRows] = useState([]);
+  const [received, setReceived] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [jobCardError, setJobCardError] = useState({});
+  const [jobCardId, setJobCardId] = useState(null);
+  const [jobCardTotal, setJobCardTotal] = useState([]);
+  const [openingBalance, setOpeningBalance] = useState(0);
+  const [selectedName, setSelectedName] = useState({});
+  const [masterItems, setMasterItems] = useState([]);
+  const [noJobCard, setNoJobCard] = useState({});
+  const [formData, setFormData] = useState({
     name: "",
     phone: "",
     address: "",
-    wastage:""
+    wastage: "",
   });
-  const [wastageErr,setWastageErr]=useState({})
-  const [phoneErr,setPhoneErr]=useState({})
+  const [wastageErr, setWastageErr] = useState({});
+  const [phoneErr, setPhoneErr] = useState({});
   const formRef = useRef({
     name: null,
     phone: null,
     address: null,
     wastage: null,
-    update: null
-});
-
+    update: null,
+  });
 
   useEffect(() => {
     const fetchGoldsmiths = async () => {
@@ -73,18 +70,18 @@ const Goldsmith = () => {
         const response = await fetch(`${BACKEND_SERVER_URL}/api/goldsmith`);
         const data = await response.json();
         setGoldsmith(data);
-        console.log('goldSmith Data',data)
+        console.log("goldSmith Data", data);
       } catch (error) {
         console.error("Error fetching goldsmith data:", error);
       }
     };
-    const fetchMasterItem=async()=>{
-               const res=await axios.get(`${BACKEND_SERVER_URL}/api/master-items`)
-               setMasterItems(res.data)
-      }
+    const fetchMasterItem = async () => {
+      const res = await axios.get(`${BACKEND_SERVER_URL}/api/master-items`);
+      setMasterItems(res.data);
+    };
 
     fetchGoldsmiths();
-    fetchMasterItem()
+    fetchMasterItem();
   }, []);
 
   const handleEditClick = (goldsmith) => {
@@ -93,61 +90,59 @@ const Goldsmith = () => {
       name: goldsmith.name,
       phone: goldsmith.phone,
       address: goldsmith.address,
-      wastage:goldsmith.wastage
+      wastage: goldsmith.wastage,
     });
     setOpenEditDialog(true);
   };
 
-   const handleWastage = (val) => {
-  // Check if val is a valid number (including decimal)
-  if (!/^\d*\.?\d*$/.test(val)) {
-    setWastageErr({ err: "Please enter a valid number" });
-    // still update input so user can correct it
-    setFormData((prev)=>({...prev,wastage:val}))
-    return;
-  }
-  // Valid input
-  setFormData((prev)=>({...prev,wastage:val}))
-  setWastageErr({});
-};
+  const handleWastage = (val) => {
+    // Check if val is a valid number (including decimal)
+    if (!/^\d*\.?\d*$/.test(val)) {
+      setWastageErr({ err: "Please enter a valid number" });
+      // still update input so user can correct it
+      setFormData((prev) => ({ ...prev, wastage: val }));
+      return;
+    }
+    // Valid input
+    setFormData((prev) => ({ ...prev, wastage: val }));
+    setWastageErr({});
+  };
 
-const handlePhoneChange = (val) => {
-  console.log('phoneval', val);
+  const handlePhoneChange = (val) => {
+    console.log("phoneval", val);
 
-  // Allow empty input (user is deleting text)
-  if (val === "") {
-    setPhoneErr({ err: "" }); 
+    // Allow empty input (user is deleting text)
+    if (val === "") {
+      setPhoneErr({ err: "" });
+      setFormData((prev) => ({ ...prev, phone: val }));
+      return;
+    }
+
+    // Check if the value contains only digits
+    if (!/^\d*$/.test(val)) {
+      setPhoneErr({ err: "Please enter digits only" });
+      setFormData((prev) => ({ ...prev, phone: val })); // still allow user to correct
+      return;
+    }
+
+    // Check the length
+    if (val.length < 10) {
+      setPhoneErr({ err: "Phone number length is too short" });
+    } else if (val.length > 10) {
+      setPhoneErr({ err: "Phone number length is too long" });
+    } else {
+      setPhoneErr({ err: "" }); // valid case
+    }
+
     setFormData((prev) => ({ ...prev, phone: val }));
-    return;
-  }
-
-  // Check if the value contains only digits
-  if (!/^\d*$/.test(val)) {
-    setPhoneErr({ err: "Please enter digits only" });
-    setFormData((prev) => ({ ...prev, phone: val })); // still allow user to correct
-    return;
-  }
-
-  // Check the length
-  if (val.length < 10) {
-    setPhoneErr({ err: "Phone number length is too short" });
-  } else if (val.length > 10) {
-    setPhoneErr({ err: "Phone number length is too long" });
-  } else {
-    setPhoneErr({ err: "" }); // valid case
-  }
-
-  setFormData((prev) => ({ ...prev, phone: val }));
-};
-
+  };
 
   const handleEditSubmit = async () => {
+    if (wastageErr.err || phoneErr.err) {
+      toast.warn("Enter Valid Details");
+      return;
+    }
 
-     if(wastageErr.err || phoneErr.err){
-             toast.warn('Enter Valid Details')
-             return;
-      }
-     
     try {
       const response = await fetch(
         `${BACKEND_SERVER_URL}/api/goldsmith/${selectedGoldsmith.id}`,
@@ -172,12 +167,15 @@ const handlePhoneChange = (val) => {
         toast.error("Failed to update goldsmith");
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-                 toast.warn(error.response.data.message);
-        } 
-      else {
-          toast.error("Failed to add goldsmith. Please try again.");
-       }
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.warn(error.response.data.message);
+      } else {
+        toast.error("Failed to add goldsmith. Please try again.");
+      }
     }
   };
 
@@ -199,55 +197,66 @@ const handlePhoneChange = (val) => {
       }
     } catch (error) {
       toast.error(responseData.message);
-
     }
   };
 
-  const handleUpdateJobCard=async(totalGoldWt,totalItemWt,totalDeductionWt,totalWastage,totalBalance,openBal)=>{
-      console.log('update')
-          
-        const payload={
-        'goldRows':goldRows,
-        'itemRow':itemRows,
-        'deductionRows':deductionRows,
-        'receivedAmount':received,
-        'goldSmithBalance':{
-         'id':selectedName.id,
-         'balance':totalBalance
-        },
-        'total':{
-          'id':jobCardTotal[0]?.id,
-          'givenWt':totalGoldWt,
-          'itemWt':totalItemWt,
-          'stoneWt':totalDeductionWt,
-          'wastage':totalWastage,
-          'balance':totalBalance,
-          'openBal':openBal
-        }
-       }
-       console.log('payload update',payload)
-       
-      try {
-            const response = await axios.put(`${BACKEND_SERVER_URL}/api/job-cards/${selectedName.id}/${jobCardId}`, payload, {
-                    headers: {
-                     'Content-Type': 'application/json',
-                   },
-             });
-             if(response.status===400){
-                alert(response.data.message)
-             }
-              console.log('Response:', response.data.jobCards); // success response
-             
-              setOpen(false)
-              setEdit(false)
-             
-              toast.success(response.data.message)
+  const handleUpdateJobCard = async (
+    totalGoldWt,
+    totalItemWt,
+    totalDeductionWt,
+    totalWastage,
+    totalBalance,
+    openBal
+  ) => {
+    console.log("update");
 
-       } catch (err) {
-                 console.error('POST Error:', err.response?.data || err.message);
-                toast.error(err.message || 'An error occurred while creating the job card'); 
-             }
-       }
+    const payload = {
+      goldRows: goldRows,
+      itemRow: itemRows,
+      deductionRows: deductionRows,
+      receivedAmount: received,
+      goldSmithBalance: {
+        id: selectedName.id,
+        balance: totalBalance,
+      },
+      total: {
+        id: jobCardTotal[0]?.id,
+        givenWt: totalGoldWt,
+        itemWt: totalItemWt,
+        stoneWt: totalDeductionWt,
+        wastage: totalWastage,
+        balance: totalBalance,
+        openBal: openBal,
+      },
+    };
+    console.log("payload update", payload);
+
+    try {
+      const response = await axios.put(
+        `${BACKEND_SERVER_URL}/api/job-cards/${selectedName.id}/${jobCardId}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 400) {
+        alert(response.data.message);
+      }
+      console.log("Response:", response.data.jobCards); // success response
+
+      setOpen(false);
+      setEdit(false);
+
+      toast.success(response.data.message);
+    } catch (err) {
+      console.error("POST Error:", err.response?.data || err.message);
+      toast.error(
+        err.message || "An error occurred while creating the job card"
+      );
+    }
+  };
 
   const filteredGoldsmith = goldsmith.filter((gs) => {
     const nameMatch =
@@ -258,58 +267,64 @@ const handlePhoneChange = (val) => {
     return nameMatch || phoneMatch || addressMatch;
   });
 
-  const handleJobCardId=(id)=>{
-    const num=Number(id)
-    if(isNaN(num)){
-      setJobCardError({'err':"Please Enter Vaild Input"})
-    }else{
-      setJobCardError({}) 
-      setJobCardId(num)
+  const handleJobCardId = (id) => {
+    const num = Number(id);
+    if (isNaN(num)) {
+      setJobCardError({ err: "Please Enter Vaild Input" });
+    } else {
+      setJobCardError({});
+      setJobCardId(num);
     }
-   
-  }
-  const handleSearch =()=>{
-    if (!jobCardError.err && !isNaN(jobCardId) && jobCardId!==null) {
-         const fetchJobCardById=async()=>{
-            try{
-               const res= await fetch(`${BACKEND_SERVER_URL}/api/job-cards/${jobCardId}/jobcard`, {
-                 method: "GET",
-                 headers: {
-                 "Content-Type": "application/json"
-                }
-               })
-               const data=await res.json()
-               if(res.status===404){
-                setOpen(false)
-                setEdit(false)
-                setNoJobCard({err:"No Job Card For This Id"})
-               }else{
-                console.log('data',data)
-               setGoldRows(data.jobcard[0].givenGold)
-               setItemRows(data.jobcard[0].deliveryItem.length>=1?data.jobcard[0].deliveryItem:[{ weight: "", itemName: "" }])
-               setDeductionRows(data.jobcard[0].additionalWeight.length>=1?data.jobcard[0].additionalWeight:[{ type: "Stone", customType: "", weight: "" }])
-               setReceived(data.jobcard[0].goldSmithReceived)
-               setSelectedName(data.jobcard[0].goldsmith)
-               setJobCardTotal(data.jobcard[0].jobCardTotal)
-               setOpeningBalance(data.jobCardBalance)
-               setOpen(true)
-               setEdit(true)
-               setNoJobCard({})
-               }
-               
-
-            }catch(err){
-                toast.error(err.message)
+  };
+  const handleSearch = () => {
+    if (!jobCardError.err && !isNaN(jobCardId) && jobCardId !== null) {
+      const fetchJobCardById = async () => {
+        try {
+          const res = await fetch(
+            `${BACKEND_SERVER_URL}/api/job-cards/${jobCardId}/jobcard`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
             }
-         }
-         fetchJobCardById()
-      }
-  }
-
+          );
+          const data = await res.json();
+          if (res.status === 404) {
+            setOpen(false);
+            setEdit(false);
+            setNoJobCard({ err: "No Job Card For This Id" });
+          } else {
+            console.log("data", data);
+            setGoldRows(data.jobcard[0].givenGold);
+            setItemRows(
+              data.jobcard[0].deliveryItem.length >= 1
+                ? data.jobcard[0].deliveryItem
+                : [{ weight: "", itemName: "" }]
+            );
+            setDeductionRows(
+              data.jobcard[0].additionalWeight.length >= 1
+                ? data.jobcard[0].additionalWeight
+                : [{ type: "Stone", customType: "", weight: "" }]
+            );
+            setReceived(data.jobcard[0].goldSmithReceived);
+            setSelectedName(data.jobcard[0].goldsmith);
+            setJobCardTotal(data.jobcard[0].jobCardTotal);
+            setOpeningBalance(data.jobCardBalance);
+            setOpen(true);
+            setEdit(true);
+            setNoJobCard({});
+          }
+        } catch (err) {
+          toast.error(err.message);
+        }
+      };
+      fetchJobCardById();
+    }
+  };
 
   return (
-     <div className="homeContainer">
-      
+    <div className="homeContainer">
       <Paper className="customer-details-container" elevation={3} sx={{ p: 3 }}>
         <Typography variant="h5" align="center" gutterBottom>
           Goldsmith Details
@@ -378,7 +393,7 @@ const handlePhoneChange = (val) => {
                   <TableCell align="center">{goldsmith.name}</TableCell>
                   <TableCell align="center">{goldsmith.phone}</TableCell>
                   <TableCell align="center">{goldsmith.address}</TableCell>
-                   <TableCell align="center">{goldsmith.wastage}</TableCell>
+                  <TableCell align="center">{goldsmith.wastage}</TableCell>
                   <TableCell align="center">
                     <Tooltip title="View Jobcard">
                       <Link
@@ -426,57 +441,60 @@ const handlePhoneChange = (val) => {
         </Table>
       </Paper>
 
-    <div className="customer-details-container">
-            <Typography variant="h6" gutterBottom>
-                Search Job Card
-            </Typography>
+      <div className="customer-details-container">
+        <Typography variant="h6" gutterBottom>
+          Search Job Card
+        </Typography>
         <div className="searchBox">
           <div className="inputWithError">
-                   <TextField
-                   id="outlined-basic"
-                   label="JobCard Id"
-                   onChange={(e) => handleJobCardId(e.target.value)}
-                   variant="outlined"
-                   autoComplete="off"
-                    />
-                {jobCardError.err && <p className="errorText">{jobCardError.err}</p>}
-                {noJobCard.err && <p className="errorText">{noJobCard.err}</p>}
-           </div>
+            <TextField
+              id="outlined-basic"
+              label="JobCard Id"
+              onChange={(e) => handleJobCardId(e.target.value)}
+              variant="outlined"
+              autoComplete="off"
+            />
+            {jobCardError.err && (
+              <p className="errorText">{jobCardError.err}</p>
+            )}
+            {noJobCard.err && <p className="errorText">{noJobCard.err}</p>}
+          </div>
 
-                  <Button
-                  className="searchBtn"
-                  variant="contained"
-                  onClick={handleSearch}
-                  disabled={!!jobCardError.err}
-                   >
-                  Search
-                  </Button>
-               </div>
+          <Button
+            className="searchBtn"
+            variant="contained"
+            onClick={handleSearch}
+            disabled={!!jobCardError.err}
+          >
+            Search
+          </Button>
+        </div>
+      </div>
 
-    </div>
-     
-      {open&&  
-      <NewJobCard
-      name={selectedName.name}
-      goldSmithWastage={selectedName.wastage}
-      setGoldSmith={setGoldsmith}
-      balance={openingBalance}
-      goldRows={goldRows}
-      setGoldRows={setGoldRows}
-      itemRows={itemRows}
-      setItemRows={setItemRows}
-      deductionRows={deductionRows}
-      setDeductionRows={setDeductionRows}
-      received={received}
-      setReceived={setReceived}
-      masterItems={masterItems}
-      handleUpdateJobCard={handleUpdateJobCard}
-      jobCardId={jobCardId}
-      onclose={()=>{setOpen(false)}}
-      open={open}
-      edit={edit}
-      
-      />}
+      {open && (
+        <NewJobCard
+          name={selectedName.name}
+          goldSmithWastage={selectedName.wastage}
+          setGoldSmith={setGoldsmith}
+          balance={openingBalance}
+          goldRows={goldRows}
+          setGoldRows={setGoldRows}
+          itemRows={itemRows}
+          setItemRows={setItemRows}
+          deductionRows={deductionRows}
+          setDeductionRows={setDeductionRows}
+          received={received}
+          setReceived={setReceived}
+          masterItems={masterItems}
+          handleUpdateJobCard={handleUpdateJobCard}
+          jobCardId={jobCardId}
+          onclose={() => {
+            setOpen(false);
+          }}
+          open={open}
+          edit={edit}
+        />
+      )}
 
       <Dialog
         open={openEditDialog}
@@ -488,76 +506,72 @@ const handlePhoneChange = (val) => {
         <DialogContent>
           <TextField
             label="Name"
-            value={formData.name||""}
+            value={formData.name || ""}
             fullWidth
             margin="normal"
             inputRef={(el) => (formRef.current.name = el)}
-              onKeyDown={(e)=>{
-              if(e.key==="Enter" || e.key==="ArrowDown"){
-                formRef.current.phone.focus()
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "ArrowDown") {
+                formRef.current.phone.focus();
               }
-              if(e.key==="ArrowUp"){
-                formRef.current.name.focus()
+              if (e.key === "ArrowUp") {
+                formRef.current.name.focus();
               }
             }}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <TextField
             label="Phone"
-            value={formData.phone||""}
+            value={formData.phone || ""}
             inputRef={(el) => (formRef.current.phone = el)}
-             onKeyDown={(e)=>{
-              if(e.key==="Enter" || e.key==="ArrowDown"){
-                formRef.current.address.focus()
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "ArrowDown") {
+                formRef.current.address.focus();
               }
-              if(e.key==="ArrowUp"){
-                 formRef.current.name.focus()
+              if (e.key === "ArrowUp") {
+                formRef.current.name.focus();
               }
             }}
             fullWidth
             margin="normal"
-            onChange={(e) =>
-             handlePhoneChange(e.target.value)
-            }
+            onChange={(e) => handlePhoneChange(e.target.value)}
           />
-            {phoneErr.err&&<p style={{color:"red"}}>{phoneErr.err}</p>}
+          {phoneErr.err && <p style={{ color: "red" }}>{phoneErr.err}</p>}
           <TextField
             label="Address"
-            value={formData.address||""}
+            value={formData.address || ""}
             fullWidth
             margin="normal"
             inputRef={(el) => (formRef.current.address = el)}
-            onKeyDown={(e)=>{
-              if(e.key==="Enter" || e.key==="ArrowDown"){
-                formRef.current.wastage.focus()
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "ArrowDown") {
+                formRef.current.wastage.focus();
               }
-              if(e.key==="ArrowUp"){
-                 formRef.current.phone.focus()
+              if (e.key === "ArrowUp") {
+                formRef.current.phone.focus();
               }
             }}
             onChange={(e) =>
               setFormData({ ...formData, address: e.target.value })
             }
           />
-           <TextField
+          <TextField
             label="Wastage"
-            value={formData.wastage||""}
+            value={formData.wastage || ""}
             fullWidth
             inputRef={(el) => (formRef.current.wastage = el)}
-            onKeyDown={(e)=>{
-              if(e.key==="Enter" || e.key==="ArrowDown"){
-                formRef.current.update.focus()
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "ArrowDown") {
+                formRef.current.update.focus();
               }
-              if(e.key==="ArrowUp"){
-                 formRef.current.address.focus()
+              if (e.key === "ArrowUp") {
+                formRef.current.address.focus();
               }
             }}
             margin="normal"
-            onChange={(e) =>
-             handleWastage(e.target.value)
-            }
+            onChange={(e) => handleWastage(e.target.value)}
           />
-          {wastageErr.err&&<p style={{color:"red"}}>{wastageErr.err}</p>}
+          {wastageErr.err && <p style={{ color: "red" }}>{wastageErr.err}</p>}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
@@ -573,7 +587,7 @@ const handlePhoneChange = (val) => {
       </Dialog>
 
       <ToastContainer position="top-right" autoClose={3000} />
-      </div>
+    </div>
   );
 };
 

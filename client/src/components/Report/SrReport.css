@@ -1,15 +1,16 @@
 .report {
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 20px;
   padding: 15px 20px;
   background: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
+
 
 .report:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
