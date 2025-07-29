@@ -346,7 +346,7 @@ const SrJobCard=()=>{
                         year: "numeric",
                       }):"-"}</td>
                 <td>{g?.itemName || "-"}</td>
-                <td>{g?.weight || "-"}</td>
+                <td>{(g?.weight).toFixed(3) || "-"}</td>
                  {i === 0 && <td rowSpan={maxRows}>{total?.givenWt || "-"}</td>}
                 <td>{g?.touch || "-"}</td>
                 <td>{d?.itemName || "-"}</td>
@@ -358,7 +358,7 @@ const SrJobCard=()=>{
                     <td rowSpan={maxRows}>{(total?.wastage).toFixed(3) ?? "-"}</td>
                     <td rowSpan={maxRows}>{(total?.balance).toFixed(3) ?? "-"}</td>
                     <td rowSpan={maxRows}>
-                      <button onClick={()=>handleFilterJobCard(job.id,jobIndex)}><FaEye className="eyeIcon"></FaEye></button>
+                      <button style={{color:"white",backgroundColor:"green",fontSize:"18px"}}onClick={()=>handleFilterJobCard(job.id,jobIndex)}>View</button>
                     </td>
                   </>
                 )}

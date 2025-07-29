@@ -28,7 +28,7 @@ const JobCardReport = () => {
   const [toDate, setToDate] = useState(null);
   const [jobCard, setJobCard] = useState([]);
   const [goldSmith, setGoldSmith] = useState([]);
-  const [selectedGoldSmith, setSelectedGoldSmith] = useState({ id: null, name: "ALL" });
+  const [selectedGoldSmith, setSelectedGoldSmith] = useState({});
   const [page, setPage] = useState(0); // 0-indexed for TablePagination
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isPrinting, setIsPrinting] = useState(false);
@@ -79,11 +79,11 @@ const handleDownloadPdf = async () => {
   };
 
   const handleGoldSmith = (newValue) => {
-    if (newValue && newValue.id === null) {
-      setSelectedGoldSmith({ id: null, name: "ALL" });
-    } else {
-      setSelectedGoldSmith(newValue);
+
+    if (!newValue || newValue===null) {
+      return
     }
+    setSelectedGoldSmith(newValue)
 
     const fetchJobCards = async () => {
       try {
@@ -110,8 +110,8 @@ const handleDownloadPdf = async () => {
       try {
         const response = await fetch(`${BACKEND_SERVER_URL}/api/goldsmith`);
         const data = await response.json();
-        const allOption = { id: null, name: "ALL" };
-        setGoldSmith([allOption, ...data]);
+        
+        setGoldSmith(data || []);
       } catch (error) {
         console.error("Error fetching goldsmith data:", error);
       }
@@ -173,22 +173,24 @@ const handleDownloadPdf = async () => {
               <Table>
                 <TableHead>
                   <TableRow className="jobCardHead">
-                    <TableCell rowSpan={2}>S.No</TableCell>
-                    <TableCell rowSpan={2}>Date</TableCell>
-                    <TableCell rowSpan={2}>JobCard Id</TableCell>
+                    <TableCell>S.No</TableCell>
+                    <TableCell>Date</TableCell>
+                    <TableCell>JobCard Id</TableCell>
                     <TableCell colSpan={5}>Given Wt</TableCell>
                     <TableCell colSpan={2}>Item Wt</TableCell>
-                    <TableCell rowSpan={2}>Stone Wt</TableCell>
-                    <TableCell rowSpan={2}>After Wastage</TableCell>
+                    <TableCell >Stone Wt</TableCell>
+                    <TableCell >After Wastage</TableCell>
                   </TableRow>
                   <TableRow>
+                    <TableCell colSpan={3}></TableCell>
                     <TableCell>Item Date</TableCell>
                     <TableCell>Name</TableCell>
                     <TableCell>Weight</TableCell>
                     <TableCell>GivenTotal</TableCell>
                     <TableCell>Touch</TableCell>
-                    <TableCell>Name</TableCell>
+                    <TableCell>Name</TableCell> 
                     <TableCell>Weight</TableCell>
+                    <TableCell colSpan={2}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

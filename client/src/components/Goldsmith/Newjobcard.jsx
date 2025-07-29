@@ -173,7 +173,9 @@ useEffect(() => {
 
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
+    console.log('before calculations',calculatedNetWeight);
     setNetWeight(format(adjustToThreeDecimals(calculatedNetWeight)));
+    console.log('after calculations',adjustToThreeDecimals(calculatedNetWeight));
     setWastage(format(adjustToThreeDecimals(calculatedNetWeight*goldSmithWastage/100)))
     setFinalTotal(totalItemWeight+(calculatedNetWeight*goldSmithWastage)/100)
   }, [itemRows, deductionRows]);
@@ -208,7 +210,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="jobcard-page">
+    <div className="jobcard-page print-jobcard">
       <Dialog open={open} onClose={onclose} maxWidth={false} 
        PaperProps={{
         className:"jobcard-dialog"
@@ -519,7 +521,7 @@ useEffect(() => {
         </div>
         <div className="finalTotalContainer">
           
-          <span className="finalTotal"><strong>Total</strong> = {totalItemWeight} + {parseFloat(wastage).toFixed(3)}</span><br></br><br></br>
+          <span className="finalTotal"><strong>Total</strong> = {format(totalItemWeight)} + {parseFloat(wastage).toFixed(3)}</span><br></br><br></br>
           <span className="finalTotal"> = <strong> {format(finalTotal)}</strong></span>
         </div>
 

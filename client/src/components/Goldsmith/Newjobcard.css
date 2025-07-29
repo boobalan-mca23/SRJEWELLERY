@@ -437,9 +437,4 @@
     border-radius: 0;
   }
 
-  .circle-button,
-  .button,
-  .dialogTitle,.deleteIcon {
-    display: none !important;
-  }
 }
