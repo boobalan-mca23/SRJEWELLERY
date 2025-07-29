@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import { MdDeleteForever } from "react-icons/md";
 import "./NewJobCard.css";
 import { goldRowValidation,receiveRowValidation,itemValidation,deductionValidation,wastageValidation} from "./JobcardValidation";
-
+import adjustToThreeDecimals from "./adjustThree";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -18,7 +18,7 @@ const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
 
 const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRows,setGoldRows,itemRows,setItemRows,deductionRows,setDeductionRows,
- masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmithWastage,balanceDifference,setBalanceDifference}) => {
+ masterItems,handleSaveJobCard,handleUpdateJobCard,jobCardId,received,setReceived,jobCardLength,setGoldSmithWastage}) => {
   
   const today = new Date().toLocaleDateString("en-IN");
  // const [description, setDescription] = useState("");
@@ -30,6 +30,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
   const[netWeight, setNetWeight] = useState("0.000");
   const[wastage,setWastage]=useState(0)
   const[finalTotal,setFinalTotal]=useState(0)
+  const [balanceDifference,setBalanceDifference]=useState(0)
   
   // const [touch, setTouch] = useState("");
   // const [percentageSymbol, setPercentageSymbol] = useState("Touch");
@@ -41,7 +42,7 @@ const NewJobCard = ({ open, onclose, edit, name,goldSmithWastage,balance,goldRow
 
   const handleGoldRowChange = (i, field, val) => {
     const copy = [...goldRows];
-    copy[i][field] = val;
+    copy[i][field] =val;
     // copy[i].purity = calculatePurity(
     //   parseFloat(copy[i].weight),
     //   parseFloat(copy[i].touch)
@@ -172,9 +173,11 @@ useEffect(() => {
 
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
-    setNetWeight(format(calculatedNetWeight));
-    setWastage(format(calculatedNetWeight*goldSmithWastage/100))
-    setFinalTotal(calculatedNetWeight+(calculatedNetWeight*goldSmithWastage)/100)
+    console.log('before calculations',calculatedNetWeight);
+    setNetWeight(format(adjustToThreeDecimals(calculatedNetWeight)));
+    console.log('after calculations',adjustToThreeDecimals(calculatedNetWeight));
+    setWastage(format(adjustToThreeDecimals(calculatedNetWeight*goldSmithWastage/100)))
+    setFinalTotal(totalItemWeight+(calculatedNetWeight*goldSmithWastage)/100)
   }, [itemRows, deductionRows]);
 
   
@@ -207,6 +210,7 @@ useEffect(() => {
   }
 
   return (
+    <div className="jobcard-page print-jobcard">
       <Dialog open={open} onClose={onclose} maxWidth={false} 
        PaperProps={{
         className:"jobcard-dialog"
@@ -517,7 +521,7 @@ useEffect(() => {
         </div>
         <div className="finalTotalContainer">
           
-          <span className="finalTotal"><strong>Total</strong> = {netWeight} + {parseFloat(wastage).toFixed(3)}</span><br></br><br></br>
+          <span className="finalTotal"><strong>Total</strong> = {format(totalItemWeight)} + {parseFloat(wastage).toFixed(3)}</span><br></br><br></br>
           <span className="finalTotal"> = <strong> {format(finalTotal)}</strong></span>
         </div>
 
@@ -608,6 +612,7 @@ useEffect(() => {
       
     </DialogContent>
       </Dialog>
+      </div>
     
   );
 };

@@ -26,6 +26,7 @@ import Orderreport from "./components/Report/orderreport";
 import Newjobcard from "./components/Goldsmith/Newjobcard";
 import SrJobCard from "./components/Goldsmith/SrJobCard";
 import JobCardReport from "./components/Report/SrJobCardReport";
+import './App.css'
 
 function App() {
   return (
@@ -212,7 +213,10 @@ function PageWithNavbar({ children }) {
 
   return (
     <>
-      <Navbar />
+      <div className="noPrint-nav">
+            <Navbar />
+      </div>
+    
       {children}
     </>
   );

@@ -52,3 +52,12 @@
   color: red;
   margin-top: 20px;
 }
+.balanceInfo {
+  text-align: right;
+  font-weight: bold;
+  font-size: 20px;
+  margin: 10px 20px 10px auto;
+  padding: 10px;
+  background-color:black;
+  color:white;
+}
