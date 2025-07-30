@@ -54,7 +54,7 @@ const NewJobCard = ({
   const [wastage, setWastage] = useState(0);
   const [finalTotal, setFinalTotal] = useState(0);
   const [balanceDifference, setBalanceDifference] = useState(0);
-  const [itemTouch, setItemTouch] = useState("");
+  const [time, setTime] = useState("");
 
 
   const calculatePurity = (w, t) =>
@@ -103,9 +103,8 @@ const NewJobCard = ({
     setGoldSmithWastage(e.target.value);
     if (!isNaN(e.target.value) && e.target.value !== "") {
       wastageValidation(e.target.value, setWastageErrors);
-      setWastage((netWeight * parseFloat(e.target.value)) / 100);
-      let calculatedFinalTotal =
-        parseFloat(netWeight) + (netWeight * parseFloat(e.target.value)) / 100;
+      setWastage(adjustToThreeDecimals((netWeight * parseFloat(e.target.value)) / 100));
+      let calculatedFinalTotal =parseFloat(totalItemWeight) + adjustToThreeDecimals((netWeight * parseFloat(e.target.value)) / 100);
       setFinalTotal(format(calculatedFinalTotal));
     } else {
       wastageValidation(e.target.value, setWastageErrors);
@@ -177,9 +176,9 @@ const NewJobCard = ({
     }
   };
 
-  useEffect(() => {
-    setItemPurity(calculatePurity(totalItemWeight, parseFloat(itemTouch)));
-  }, [totalItemWeight, itemTouch]);
+  // useEffect(() => {
+  //   setItemPurity(calculatePurity(totalItemWeight, parseFloat(itemTouch)));
+  // }, [totalItemWeight, itemTouch]);
 
   const safeParse = (val) => (isNaN(parseFloat(val)) ? 0 : parseFloat(val));
 
@@ -188,7 +187,7 @@ const NewJobCard = ({
       safeParse(balance) >= 0
         ? safeParse(totalGoldWeight) + safeParse(balance)
         : safeParse(balance) + safeParse(totalGoldWeight);
-
+         console.log('finalTotal',finalTotal)
     let difference = jobCardBalance - safeParse(finalTotal);
 
     if (received.length >= 1) {
@@ -204,23 +203,35 @@ const NewJobCard = ({
 
   useEffect(() => {
     let calculatedNetWeight = totalItemWeight - totalDeductionWeight;
-    console.log("before calculations", calculatedNetWeight);
     setNetWeight(format(adjustToThreeDecimals(calculatedNetWeight)));
-    console.log(
-      "after calculations",
-      adjustToThreeDecimals(calculatedNetWeight)
-    );
     setWastage(
       format(
         adjustToThreeDecimals((calculatedNetWeight * goldSmithWastage) / 100)
       )
     );
+    
     setFinalTotal(
-      totalItemWeight + (calculatedNetWeight * goldSmithWastage) / 100
+      totalItemWeight + adjustToThreeDecimals((calculatedNetWeight * goldSmithWastage) / 100)
     );
   }, [itemRows, deductionRows]);
 
+useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+     
+      setTime(
+        now.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      );
+    };
 
+    updateTime();
+    const timer = setInterval(updateTime, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const SaveJobCard = () => {
     // form validation
@@ -304,6 +315,9 @@ const NewJobCard = ({
               </div>
               <div className="header-item">
                 <span className="header-label">Date:</span> {today}
+              </div>
+               <div className="header-item">
+                <span className="header-label">Time:</span> {time}
               </div>
             </div>
 

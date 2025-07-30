@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { use, useState ,useEffect} from "react";
 import "./Mastergoldsmith.css";
 import {
   Button,
@@ -14,6 +14,7 @@ import { BACKEND_SERVER_URL } from "../../Config/Config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRef } from "react";
+
 
 function Mastergoldsmith() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,7 +117,13 @@ function Mastergoldsmith() {
   setWastage(val);
   setWastageErr({});
 };
-
+   useEffect(()=>{
+       const fetchAllGoldSmith=async()=>{
+          const response=await axios.get(`${BACKEND_SERVER_URL}/api/goldsmith`)
+          setGoldsmith(response.data||[])
+       }
+       fetchAllGoldSmith()
+   },[])
 
   return (
     <div className="customer-container">
@@ -133,7 +140,7 @@ function Mastergoldsmith() {
       >
         Add Goldsmith
       </Button>
-
+     
       <Dialog open={isModalOpen} onClose={closeModal}>
         <DialogTitle>Add New Goldsmith</DialogTitle>
         <DialogContent>
@@ -238,12 +245,14 @@ function Mastergoldsmith() {
 
       {goldsmith.length > 0 && (
         <Paper className="customer-table">
+          <h2>Gold Smith InforMations</h2>
           <table border="1" width="100%">
             <thead>
               <tr>
                 <th>Goldsmith Name</th>
                 <th>Phone Number</th>
                 <th>Address</th>
+                <th>Wastage</th>
               </tr>
             </thead>
             <tbody>
@@ -252,6 +261,7 @@ function Mastergoldsmith() {
                   <td>{goldsmith.name}</td>
                   <td>{goldsmith.phone}</td>
                   <td>{goldsmith.address}</td>
+                  <td>{goldsmith.wastage}</td>
                 </tr>
               ))}
             </tbody>

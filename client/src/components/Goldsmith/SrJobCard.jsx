@@ -330,10 +330,10 @@ const SrJobCard = () => {
               {jobCards.at(-1).jobCardTotal[0].balance >= 0
                 ? `Gold Smith Should Given ${jobCards
                     .at(-1)
-                    .jobCardTotal[0].balance.toFixed(3)}`
+                    .jobCardTotal[0].balance.toFixed(3)}g`
                 : `Owner Should Given ${jobCards
                     .at(-1)
-                    .jobCardTotal[0].balance.toFixed(3)}`}
+                    .jobCardTotal[0].balance.toFixed(3)} g`}
             </p>
           </div>
         )}
@@ -430,7 +430,7 @@ const SrJobCard = () => {
                               {total.isFinished === "true" ? (
                                 <FaCheck />
                               ) : (
-                                <GrFormSubtract />
+                                <GrFormSubtract size={30}/>
                               )}
                             </td>
                             <td rowSpan={maxRows}>

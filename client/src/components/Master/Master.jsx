@@ -62,7 +62,9 @@ const Master = () => {
     <div style={containerStyle}>
       <div style={navContainer}>
         <div style={navLeft}>
-          <button onClick={handleBack} style={backButton}>
+          <button onClick={handleBack} 
+           style={getNavButtonStyle("home")}
+          >
            Home
           </button>
           
