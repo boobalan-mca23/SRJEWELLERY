@@ -5,7 +5,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
+import { FaCheck } from "react-icons/fa";
+import { GrFormSubtract } from "react-icons/gr";
 import {
   Autocomplete,
   Button,
@@ -52,7 +53,13 @@ const JobCardReport = () => {
 
   const handleDownloadPdf = async () => {
     setIsPrinting(false); // show all rows
+  const clearBtn = document.getElementById('clear');
+  const printBtn = document.getElementById('print');
+  const pagination=document.getElementById('pagination');
 
+  clearBtn.style.visibility = 'hidden';
+  printBtn.style.visibility="hidden";
+  pagination.style.visibility="hidden";
     setTimeout(async () => {
       const element = reportRef.current;
       const canvas = await html2canvas(element, { scale: 2 });
@@ -65,7 +72,11 @@ const JobCardReport = () => {
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save("JobCard_Report.pdf");
 
-      setIsPrinting(true); // restore pagination
+      setIsPrinting(true);
+       clearBtn.style.visibility = 'visible';
+       printBtn.style.visibility="visible";
+       pagination.style.visibility="visible";
+       // restore pagination
     }, 1000); // delay to allow re-render
   };
 
@@ -130,10 +141,11 @@ const JobCardReport = () => {
         <div>
           <h3 className="reportHead">SR Job Card Report</h3>
         </div>
-        <div className="report">
+        <div className={`report ${!isPrinting ? "print-mode" : ""}`}>
           {/* Date Pickers */}
+            <label>From Date</label>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <label>From Date</label>
+            
             <DemoContainer components={["DatePicker"]}>
             
               <DatePicker
@@ -169,7 +181,7 @@ const JobCardReport = () => {
           />
 
           {isPrinting && (
-            <Button className="clrBtn noprint" onClick={handleDateClear}>
+            <Button id="clear" className="clr noprint" onClick={handleDateClear}>
               Clear
             </Button>
           )}
@@ -177,6 +189,7 @@ const JobCardReport = () => {
           {isPrinting && (
             <div className="print-btn-wrapper noprint">
               <Button
+              id="print"
                 onClick={() => {
                   handleDownloadPdf();
                 }}
@@ -186,7 +199,19 @@ const JobCardReport = () => {
             </div>
           )}
         </div>
+        {jobCard.length > 0 && jobCard.at(-1)?.jobCardTotal?.length > 0 && (
+          <div className="jobInfo">
+            {jobCard.at(-1).jobCardTotal[0].balance >= 0 ? 
+            <span style={{color:"green"}}>Gold Smith Should Given {jobCard.at(-1).jobCardTotal[0].balance.toFixed(3)}g</span>:
+              jobCard.at(-1).jobCardTotal[0].balance<0 ?  
+             <span style={{color:"red"}}>Owner Should Given {jobCard
+                    .at(-1)
+                    .jobCardTotal[0].balance.toFixed(3)}g</span>
+            :<span style={{color:"black"}}>balance 0</span>}
 
+           
+          </div>
+        )}
         <div className="jobcardTable">
           {jobCard.length >= 1 ? (
             <Paper>
@@ -201,6 +226,8 @@ const JobCardReport = () => {
                       <TableCell colSpan={2}>Item Wt</TableCell>
                       <TableCell>Stone Wt</TableCell>
                       <TableCell>After Wastage</TableCell>
+                      <TableCell>Balance</TableCell>
+                      <TableCell>Is Finished</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={3}></TableCell>
@@ -211,7 +238,7 @@ const JobCardReport = () => {
                       <TableCell>Touch</TableCell>
                       <TableCell>Name</TableCell>
                       <TableCell>Weight</TableCell>
-                      <TableCell colSpan={2}></TableCell>
+                      <TableCell colSpan={4}></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -278,6 +305,13 @@ const JobCardReport = () => {
                                 <TableCell rowSpan={maxRows}>
                                   {(total?.wastage).toFixed(3) ?? "-"}
                                 </TableCell>
+                                 <TableCell rowSpan={maxRows}>
+                                  {(total?.balance).toFixed(3) ?? "-"}
+                                </TableCell>
+                                  <TableCell rowSpan={maxRows}>
+                                 {total.isFinished === "true" ? (
+                                 <FaCheck />) : (<GrFormSubtract size={30} />)}
+                                </TableCell>
                               </>
                             )}
                           </TableRow>
@@ -303,6 +337,7 @@ const JobCardReport = () => {
                         <strong>Total Wastage:</strong>{" "}
                         {currentPageTotal.wastage.toFixed(3)}
                       </TableCell>
+                      <TableCell colSpan={2}></TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -310,6 +345,7 @@ const JobCardReport = () => {
 
               {/* MUI Table Pagination */}
               <TablePagination
+                id="pagination"
                 component="div"
                 count={jobCard.length}
                 page={page}

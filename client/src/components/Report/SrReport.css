@@ -10,8 +10,16 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
-
-
+.jobInfo{
+  display:flex;
+  justify-content: end;
+  font-size: 20px; 
+  margin: 12px;
+  font-weight: bold;
+ }
+.print-mode{
+  justify-content: flex-start;
+}
 .report:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background: #f1f1f1;
@@ -32,4 +40,10 @@
 
 .print-btn-wrapper {
   margin-left: auto;
+}
+.jobcardTable {
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: auto;
 }
