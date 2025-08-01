@@ -28,3 +28,25 @@ exports.getItems = async (req, res) => {
     res.status(500).json({ error: "Something went wrong." });
   }
 };
+
+exports.updateItems=async(req,res)=>{
+  const {id}=req.params
+  console.log('id',id)
+  const {editItemName}=req.body
+  console.log('editItemName',editItemName)
+  try{
+   const items = await prisma.masterItem.update({
+      where:{
+        id:parseInt(id)
+      },
+      data:{
+        itemName:editItemName
+      }
+    });
+    const updatedItems=await prisma.masterItem.findMany()
+    res.status(200).json({updatedItems,message:"Item Updated"})
+  }catch(err){
+    console.error("Error Updating items:", err);
+    res.status(500).json({ error: "Something went wrong." });
+  }
+}

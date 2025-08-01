@@ -46,9 +46,10 @@ const JobCardReport = () => {
       acc.itemWt += job.jobCardTotal[0]?.itemWt || 0;
       acc.stoneWt += job.jobCardTotal[0]?.stoneWt || 0;
       acc.wastage += job.jobCardTotal[0]?.wastage || 0;
+      acc.receive += job.jobCardTotal[0].receivedTotal;
       return acc;
     },
-    { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0 }
+    { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0,receive:0  }
   );
 
   const handleDownloadPdf = async () => {
@@ -100,7 +101,7 @@ const JobCardReport = () => {
           `${BACKEND_SERVER_URL}/api/job-cards/${newValue.id}/goldsmithCard`,
           { params: { fromDate: from, toDate: to } }
         );
-
+        console.log('data',response.data)
         setJobCard(response.data);
 
         setPage(0);
@@ -116,7 +117,7 @@ const JobCardReport = () => {
       try {
         const response = await fetch(`${BACKEND_SERVER_URL}/api/goldsmith`);
         const data = await response.json();
-
+        
         setGoldSmith(data || []);
       } catch (error) {
         console.error("Error fetching goldsmith data:", error);
@@ -212,46 +213,52 @@ const JobCardReport = () => {
            
           </div>
         )}
-        <div className="jobcardTable">
+        <div className="jobReportTable">
           {jobCard.length >= 1 ? (
-            <Paper>
-              <TableContainer>
+            <Paper >
+              <TableContainer className="reportContainer" >
                 <Table>
-                  <TableHead>
-                    <TableRow className="jobCardHead">
-                      <TableCell>S.No</TableCell>
-                      <TableCell>Date</TableCell>
-                      <TableCell>JobCard Id</TableCell>
-                      <TableCell colSpan={5}>Given Wt</TableCell>
-                      <TableCell colSpan={2}>Item Wt</TableCell>
-                      <TableCell>Stone Wt</TableCell>
-                      <TableCell>After Wastage</TableCell>
-                      <TableCell>Balance</TableCell>
-                      <TableCell>Is Finished</TableCell>
+                  <TableHead >
+                    <TableRow >
+                      <TableCell className="stickyHeader">S.No</TableCell>
+                      <TableCell className="stickyHeader">Date</TableCell>
+                      <TableCell className="stickyHeader">JobCard Id</TableCell>
+                      <TableCell colSpan={5} className="stickyHeader">Given Wt</TableCell>
+                      <TableCell colSpan={3} className="stickyHeader">Item Wt</TableCell>
+                      <TableCell className="stickyHeader" rowSpan={2}>Stone Wt</TableCell>
+                      <TableCell className="stickyHeader" rowSpan={2}>After Wastage</TableCell>
+                      <TableCell className="stickyHeader" rowSpan={2}>Balance</TableCell>
+                      <TableCell className="stickyHeader" colSpan={3}>ReceiveAmt</TableCell>
+                      <TableCell className="stickyHeader" rowSpan={2}>Is Finished</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell colSpan={3}></TableCell>
-                      <TableCell>Item Date</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Weight</TableCell>
-                      <TableCell>GivenTotal</TableCell>
-                      <TableCell>Touch</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Weight</TableCell>
-                      <TableCell colSpan={4}></TableCell>
+                      <TableCell colSpan={3} className="stickyHeader"></TableCell>
+                      <TableCell className="stickyHeader">Issue Date</TableCell>
+                      <TableCell className="stickyHeader">Name</TableCell>
+                      <TableCell className="stickyHeader">Weight</TableCell>
+                      <TableCell className="stickyHeader">GivenTotal</TableCell>
+                      <TableCell className="stickyHeader">Touch</TableCell>
+                       <TableCell className="stickyHeader">Delivery Date</TableCell>
+                      <TableCell className="stickyHeader">Name</TableCell>
+                      <TableCell className="stickyHeader">Weight</TableCell>
+                      <TableCell className="stickyHeader">Weight</TableCell>
+                      <TableCell className="stickyHeader">Touch</TableCell>
+                      <TableCell className="stickyHeader">ReceiveTotal</TableCell>
+              
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {paginatedData.map((job, jobIndex) => {
                       const given = job.givenGold;
                       const delivery = job.deliveryItem;
-                      const maxRows =
-                        Math.max(given.length, delivery.length) || 1;
+                      const receive=job.goldSmithReceived
+                      const maxRows = Math.max(given?.length, delivery?.length,receive?.length) || 1;
 
                       return [...Array(maxRows)].map((_, i) => {
-                        const g = given[i];
-                        const d = delivery[i];
-                        const total = job.jobCardTotal?.[0];
+                       const g = given?.[i] || {};
+                       const d = delivery?.[i] || {};
+                       const r = receive?.[i] || {};
+                       const total = job.jobCardTotal?.[0];
 
                         return (
                           <TableRow key={`${job.id}-${i}`}>
@@ -262,13 +269,13 @@ const JobCardReport = () => {
                                 </TableCell>
                                 <TableCell rowSpan={maxRows}>
                                   {new Date(job.createdAt).toLocaleDateString(
-                                    "en-GB",
-                                    {
-                                      day: "2-digit",
-                                      month: "short",
-                                      year: "numeric",
-                                    }
-                                  )}
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                }
+                              )}
                                 </TableCell>
                                 <TableCell rowSpan={maxRows}>
                                   {job.id}
@@ -277,24 +284,35 @@ const JobCardReport = () => {
                             )}
                             <TableCell>
                               {g?.createdAt
-                                ? new Date(g?.createdAt).toLocaleDateString(
-                                    "en-GB",
-                                    {
-                                      day: "2-digit",
-                                      month: "short",
-                                      year: "numeric",
-                                    }
-                                  )
-                                : "-"}
+                            ? new Date(g?.createdAt).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                }
+                              )
+                            : "-"}
                             </TableCell>
                             <TableCell>{g?.itemName || "-"}</TableCell>
                             <TableCell>{g?.weight || "-"}</TableCell>
+                          
                             {i === 0 && (
                               <TableCell rowSpan={maxRows}>
                                 {total?.givenWt || "-"}
                               </TableCell>
                             )}
                             <TableCell>{g?.touch || "-"}</TableCell>
+                               <TableCell>{d?.createdAt
+                            ? new Date(d?.createdAt).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                }
+                              )
+                            : "-"}</TableCell>
                             <TableCell>{d?.itemName || "-"}</TableCell>
                             <TableCell>{d?.weight || "-"}</TableCell>
                             {i === 0 && (
@@ -308,12 +326,23 @@ const JobCardReport = () => {
                                  <TableCell rowSpan={maxRows}>
                                   {(total?.balance).toFixed(3) ?? "-"}
                                 </TableCell>
-                                  <TableCell rowSpan={maxRows}>
+                               </>
+                            )} 
+                            <TableCell >
+                                 {r?.weight||"-"}
+                                </TableCell>
+                             <TableCell >
+                                  {r?.touch||"-"}
+                                </TableCell>   
+
+                        {i===0 && (<>
+                         <TableCell rowSpan={maxRows}>{total?.receivedTotal || "-"}</TableCell>
+                         <TableCell rowSpan={maxRows}>
                                  {total.isFinished === "true" ? (
                                  <FaCheck />) : (<GrFormSubtract size={30} />)}
                                 </TableCell>
-                              </>
-                            )}
+                          </>)}
+                            
                           </TableRow>
                         );
                       });
@@ -324,7 +353,7 @@ const JobCardReport = () => {
                         <strong>Total Given Weight:</strong>{" "}
                         {currentPageTotal.givenWt}
                       </TableCell>
-                      <TableCell colSpan={3}></TableCell>
+                      <TableCell colSpan={4}></TableCell>
                       <TableCell>
                         <strong>Total Item Weight:</strong>{" "}
                         {currentPageTotal.itemWt.toFixed(3)}
@@ -337,7 +366,12 @@ const JobCardReport = () => {
                         <strong>Total Wastage:</strong>{" "}
                         {currentPageTotal.wastage.toFixed(3)}
                       </TableCell>
-                      <TableCell colSpan={2}></TableCell>
+                      <TableCell colSpan={3}></TableCell>
+                       <TableCell>
+                        <strong>Total Received:</strong>{" "}
+                        {currentPageTotal.receive.toFixed(3)}
+                      </TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

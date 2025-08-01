@@ -153,18 +153,20 @@ model AdditionalWeight {
   jobCard      JobCard @relation(fields: [jobcardId], references: [id])
 }
 model JobcardTotal{
-  id          Int @id @default(autoincrement())
-  givenWt     Float? 
-  itemWt      Float?
-  stoneWt     Float?
-  wastage     Float?
-  openBal     Float?
-  balance     Float?
-  isFinished  String?
-  jobcardId   Int
-  goldsmithId Int
-  goldsmith   Goldsmith @relation(fields: [goldsmithId], references: [id])
-  jobCard     JobCard @relation(fields: [jobcardId], references: [id])
+  id               Int @id @default(autoincrement())
+  givenWt          Float? 
+  itemWt           Float?
+  stoneWt          Float?
+  wastage          Float?
+  goldSmithWastage Float?
+  openBal          Float?
+  balance          Float?
+  receivedTotal    Float?
+  isFinished       String?
+  jobcardId        Int
+  goldsmithId      Int
+  goldsmith        Goldsmith @relation(fields: [goldsmithId], references: [id])
+  jobCard          JobCard @relation(fields: [jobcardId], references: [id])
 }
 model JobCardReceived{
   id              Int @id @default(autoincrement())

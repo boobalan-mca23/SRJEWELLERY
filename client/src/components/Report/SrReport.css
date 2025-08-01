@@ -41,9 +41,21 @@
 .print-btn-wrapper {
   margin-left: auto;
 }
-.jobcardTable {
+.jobReportTable {
   padding: 10px;
   box-sizing: border-box;
   width: 100%;
-  overflow-x: auto;
+ }
+.reportContainer{
+  position: relative !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+  
+}
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(2px);
+  text-align: center !important;
 }

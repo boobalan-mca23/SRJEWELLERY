@@ -56,9 +56,10 @@ const SrJobCard = () => {
       acc.itemWt += job.jobCardTotal[0].itemWt;
       acc.stoneWt += job.jobCardTotal[0].stoneWt;
       acc.wastage += job.jobCardTotal[0].wastage;
+      acc.receive += job.jobCardTotal[0].receivedTotal;
       return acc;
     },
-    { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0 } // Initial accumulator
+    { givenWt: 0, itemWt: 0, stoneWt: 0, wastage: 0,receive:0 } // Initial accumulator
   );
 
   const handleChangePage = (event, newPage) => {
@@ -90,7 +91,8 @@ const SrJobCard = () => {
     setReceived(
       JSON.parse(JSON.stringify(filteredJobcard[0]?.goldSmithReceived || []))
     );
-    setGoldSmithWastage(goldSmith.goldSmithInfo.wastage);
+    
+    setGoldSmithWastage(filteredJobcard[0]?.jobCardTotal[0].goldSmithWastage||0);
 
     let lastBalance =
       jobindex != 0 ? tempJobCard[jobindex].jobCardTotal[0].openBal : 0;
@@ -105,7 +107,8 @@ const SrJobCard = () => {
     totalDeductionWt,
     totalWastage,
     totalBalance,
-    openBal
+    openBal,
+    totalReceivedWeight
   ) => {
     console.log("update");
 
@@ -124,12 +127,16 @@ const SrJobCard = () => {
         itemWt: roundTo3(totalItemWt),
         stoneWt: roundTo3(totalDeductionWt),
         wastage: roundTo3(totalWastage),
+        goldSmithWastage:roundTo3(goldSmithWastage),
         balance: roundTo3(totalBalance),
         openBal: roundTo3(openBal),
+        receivedTotal:roundTo3(totalReceivedWeight)
+        
       },
     };
-    console.log("payload update", payload);
+    console.log("payload update", totalReceivedWeight);
 
+    
     try {
       const response = await axios.put(
         `${BACKEND_SERVER_URL}/api/job-cards/${goldSmith.goldSmithInfo.id}/${jobCardId}`,
@@ -173,7 +180,8 @@ const SrJobCard = () => {
     totalDeductionWt,
     totalWastage,
     totalBalance,
-    openBal
+    openBal,
+    totalReceivedWeight
   ) => {
     const payload = {
       goldsmithId: goldSmith.goldSmithInfo.id,
@@ -188,8 +196,10 @@ const SrJobCard = () => {
         itemWt: roundTo3(totalItemWt),
         stoneWt: roundTo3(totalDeductionWt),
         wastage: roundTo3(totalWastage),
+        goldSmithWastage:roundTo3(goldSmithWastage),
         balance: roundTo3(totalBalance),
         openBal: roundTo3(openBal),
+        receivedTotal:roundTo3(totalReceivedWeight)
       },
     };
     console.log("payload", payload);
@@ -289,7 +299,7 @@ const SrJobCard = () => {
 
   return (
     <>
-      <div>
+      <div className="jobCard">
         <ToastContainer
           position="top-right"
           autoClose={1000}
@@ -299,22 +309,17 @@ const SrJobCard = () => {
           draggable={false}
         />
 
-        <div className="goldSmith">
-          <div>
+        < div className="goldSmith">
+        
             <h3 className="goldsmithhead">Gold Smith Information</h3>
-            <p>
+            <div className="goldSmithInfo">
+              <p>
               <strong>Name:</strong> {goldSmith?.goldSmithInfo?.name}
             </p>
             <p>
               <strong>Phone Number:</strong> {goldSmith?.goldSmithInfo?.phoneNo}
             </p>
-            <p>
-              <strong>Address:</strong> {goldSmith?.goldSmithInfo?.address}
-            </p>
-          </div>
-
-          <div className="addjobcard">
-            <button
+             <button
               className="addbtn"
               onClick={() => {
                 handleOpenJobCard();
@@ -322,7 +327,10 @@ const SrJobCard = () => {
             >
               Add New JobCard
             </button>
-          </div>
+            </div>
+          
+
+          
         </div>
         {jobCards.length > 0 && jobCards.at(-1)?.jobCardTotal?.length > 0 && (
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -342,53 +350,63 @@ const SrJobCard = () => {
           {jobCards.length >= 1 ? (
             <table>
               <thead className="jobCardHead">
-                <tr>
+                <tr >
                   <th rowSpan={2}>S.No</th>
                   <th rowSpan={2}>Date</th>
                   <th rowSpan={2}>JobCard Id</th>
                   <th colSpan={5}>Given Wt</th>
-                  <th colSpan={2}>Item Wt</th>
+                  <th colSpan={3}>Item Wt</th>
                   <th rowSpan={2}>Stone Wt</th>
                   <th rowSpan={2}>After Wastage</th>
                   <th rowSpan={2}>Balance</th>
+                  <th colSpan={3}>ReceiveAmt</th>
                   <th rowSpan={2}>isFinished</th>
                   <th rowSpan={2}>Action</th>
                 </tr>
-                <tr>
-                  <th>Item Date</th>
+                <tr >
+                  <th >Issue Date</th>
                   <th>Name</th>
                   <th>Weight</th>
                   <th>GivenTotal</th>
                   <th>Touch</th>
+                  <th>Delivery Date</th>
                   <th>Name</th>
                   <th>Weight</th>
+                  <th>Weight</th>
+                  <th>Touch</th>
+                  <th>ReceiveTotal</th>
                 </tr>
               </thead>
               <tbody>
                 {jobCards.map((job, jobIndex) => {
                   const given = job.givenGold;
                   const delivery = job.deliveryItem;
-                  const maxRows = Math.max(given.length, delivery.length) || 1;
+                  const receive=job.goldSmithReceived
+                  const maxRows = Math.max(given?.length, delivery?.length,receive?.length) || 1;
 
                   return [...Array(maxRows)].map((_, i) => {
-                    const g = given[i];
-                    const d = delivery[i];
+                    const g = given?.[i] || {};
+                    const d = delivery?.[i] || {};
+                    const r = receive?.[i] || {};
                     const total = job.jobCardTotal?.[0];
+                    
 
                     return (
                       <tr key={`${job.id}-${i}`}>
                         {i === 0 && (
                           <>
-                            <td rowSpan={maxRows}>{jobIndex + 1}</td>
+                            <td rowSpan={maxRows} >{jobIndex + 1}</td>
                             <td rowSpan={maxRows}>
-                              {new Date(job.createdAt).toLocaleDateString(
+                              
+                                {new Date(job.createdAt).toLocaleDateString(
                                 "en-GB",
                                 {
                                   day: "2-digit",
-                                  month: "short",
+                                  month: "2-digit",
                                   year: "numeric",
                                 }
                               )}
+                              
                             </td>
                             <td rowSpan={maxRows}>{job.id}</td>
                           </>
@@ -400,21 +418,32 @@ const SrJobCard = () => {
                                 "en-GB",
                                 {
                                   day: "2-digit",
-                                  month: "short",
+                                  month: "2-digit",
                                   year: "numeric",
                                 }
                               )
                             : "-"}
                         </td>
                         <td>{g?.itemName || "-"}</td>
-                        <td>{(g?.weight).toFixed(3) || "-"}</td>
+                        <td>{(g?.weight)?.toFixed(3) || "-"}</td>
                         {i === 0 && (
                           <td rowSpan={maxRows}>{total?.givenWt || "-"}</td>
                         )}
                         <td>{g?.touch || "-"}</td>
+                          <td> {d?.createdAt
+                            ? new Date(d?.createdAt).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                }
+                              )
+                            : "-"}</td>
                         <td>{d?.itemName || "-"}</td>
-                        <td>{d?.weight || "-"}</td>
-
+                        <td>{(d?.weight)?.toFixed(3) || "-"}</td>
+                       
+            
                         {i === 0 && (
                           <>
                             <td rowSpan={maxRows}>
@@ -426,13 +455,22 @@ const SrJobCard = () => {
                             <td rowSpan={maxRows}>
                               {(total?.balance).toFixed(3) ?? "-"}
                             </td>
-                            <td rowSpan={maxRows}>
+                             </>
+                        )}
+                           <td>{r?.weight||"-"}</td>
+                           <td>{r?.touch||"-"}</td>
+                  
+                          {i===0 && (
+                            <>
+                            <td rowSpan={maxRows}>{total?.receivedTotal || "-"}</td>
+                                <td rowSpan={maxRows}>
                               {total.isFinished === "true" ? (
                                 <FaCheck />
                               ) : (
                                 <GrFormSubtract size={30}/>
                               )}
                             </td>
+                      
                             <td rowSpan={maxRows}>
                               <button
                                 style={{
@@ -446,31 +484,39 @@ const SrJobCard = () => {
                               >
                                 View
                               </button>
-                            </td>
-                          </>
-                        )}
+                            </td>  
+                            
+                            </>
+                          
+                          )}
+                         
                       </tr>
                     );
                   });
                 })}
-                <tr>
+                <tr className="tableFooter">
                   <td colSpan={5}></td>
                   <td>
                     <strong>Total Given Weight:</strong>{" "}
-                    {currentPageTotal.givenWt.toFixed(3)}
+                    {currentPageTotal.givenWt?.toFixed(3)}
                   </td>
                   <td colSpan={3}></td>
                   <td>
                     <strong>Total Item Weight:</strong>{" "}
-                    {currentPageTotal.itemWt.toFixed(3)}
+                    {currentPageTotal.itemWt?.toFixed(3)}
                   </td>
                   <td>
                     <strong>Total Stone Weight:</strong>{" "}
-                    {currentPageTotal.stoneWt.toFixed(3)}
+                    {currentPageTotal.stoneWt?.toFixed(3)}
                   </td>
                   <td>
                     <strong>Total Wastage:</strong>{" "}
-                    {currentPageTotal.wastage.toFixed(3)}
+                    {currentPageTotal.wastage?.toFixed(3)}
+                  </td>
+                   <td colSpan={2}></td>
+                  <td>
+                    <strong>Total Receive:</strong>{" "}
+                    {currentPageTotal.receive?.toFixed(3)}
                   </td>
                   <td colSpan={2}></td>
                 </tr>

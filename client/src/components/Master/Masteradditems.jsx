@@ -19,7 +19,7 @@ import {
 const Masteradditems = () => {
   const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState("");
-  const [editItemName,setEditItemName]=useState("")
+  const [editItem,setEditItem]=useState({id:"",editItemName:""})
   const [openEditDialog,setOpenEditDialog]=useState(false)
   const saveBtn=useRef()
   useEffect(() => {
@@ -36,11 +36,22 @@ const Masteradditems = () => {
     }
   };
   
-   const handleEditItem=(id)=>{
-       const filterItem=items.filter((item,)=>id===item.id)
-       setEditItemName(filterItem[0].itemName)
+   const handleEditItem=(Itemindex)=>{
+       const filterItem=items.filter((_,index)=>index===Itemindex)
+       setEditItem({id:filterItem[0].id,editItemName:filterItem[0].itemName})
        setOpenEditDialog(true)
    } 
+   const handleUpdateItem=async()=>{
+       setItems([])
+      try{
+          const resposne= await axios.put(`${BACKEND_SERVER_URL}/api/master-items/${editItem.id}`,{editItemName:editItem.editItemName})
+          setItems(resposne.data.updatedItems)
+          setOpenEditDialog(false)
+          toast.success(resposne.data.message,{autoClose:2000})
+       }catch(err){
+          console.error("Failed to fetch items", err);
+       }
+   }
 
   const handleAddItem = async () => {
     if (itemName) {
@@ -107,7 +118,7 @@ const Masteradditems = () => {
                           marginRight: "10px",
                           color: "#388e3c",
                         }}
-                        onClick={() => handleEditItem(item.id)}
+                        onClick={() => handleEditItem(index)}
                       /></td>
                   </tr>
                 ))}
@@ -126,11 +137,12 @@ const Masteradditems = () => {
         maxWidth="sm"
       >
         <DialogTitle>Edit Master Item</DialogTitle>
-        <DialogContent>
+        <DialogContent >
           <TextField
+            className="editItemText"
             label="Item Name"
-            value={editItemName}
-            onChange={(e)=>{setEditItemName(e.target.value)}}
+            value={editItem.editItemName}
+            onChange={(e)=>{setEditItem({...editItem,editItemName:e.target.value})}}
            
           />
           
@@ -138,7 +150,7 @@ const Masteradditems = () => {
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button
-            // onClick={handleEditSubmit}
+            onClick={()=>handleUpdateItem()}
             variant="contained"
             color="primary"
             // ref={(el) => (formRef.current.update = el)}
@@ -147,12 +159,6 @@ const Masteradditems = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-
-
-
-
-
 
     </>
   );

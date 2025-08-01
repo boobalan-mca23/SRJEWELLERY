@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import axios from 'axios'
 import Button from "@mui/material/Button";
 import { MdDeleteForever } from "react-icons/md";
+import { FaWeight } from "react-icons/fa";
 import "./NewJobCard.css";
 import {
   goldRowValidation,
@@ -18,6 +19,7 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
+import { BACKEND_SERVER_URL } from "../../Config/Config";
 
 const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
@@ -100,7 +102,7 @@ const NewJobCard = ({
     deductionValidation(deductionRows, setDeductionErrors);
   };
   const handleGoldSmithChange = (e) => {
-    setGoldSmithWastage(e.target.value);
+     setGoldSmithWastage(e.target.value);
     if (!isNaN(e.target.value) && e.target.value !== "") {
       wastageValidation(e.target.value, setWastageErrors);
       setWastage(adjustToThreeDecimals((netWeight * parseFloat(e.target.value)) / 100));
@@ -251,13 +253,15 @@ useEffect(() => {
         receivedIsTrue &&
         !wastageErrors.wastage
       ) {
+        console.log('received',totalReceivedWeight)
         handleUpdateJobCard(
           totalGoldWeight,
           totalItemWeight,
           totalDeductionWeight,
           finalTotal,
           balanceDifference,
-          balance
+          balance,
+          format(totalReceivedWeight)
         );
       } else {
         toast.warn("Give Correct Information");
@@ -270,13 +274,34 @@ useEffect(() => {
           totalDeductionWeight,
           finalTotal,
           balanceDifference,
-          balance
+          balance,
+          totalReceivedWeight
         );
       } else {
         toast.warn("Give Correct Information");
       }
     }
   };
+
+  const getGivenWeight=async(i,item="gold")=>{
+      try{
+        const res=await axios.get(`${BACKEND_SERVER_URL}/api/weightRoute/getWeight`)
+         console.log('weight from mechine',res.data.weightdata)
+          
+         if(item==="gold"){
+          const copy = [...goldRows];
+          copy[i]['weight'] = res.data.weightdata;
+          setGoldRows(copy);
+         }else{
+           const copy = [...itemRows];
+          copy[i]['weight'] = res.data.weightdata;
+          setItemRows(copy);
+         }
+      }catch(err){
+        toast.error("Weight Mechine Not Connected",{autoClose:2000})
+      }
+  }
+  
 
   return (
     <div className="jobcard-page print-jobcard">
@@ -347,6 +372,7 @@ useEffect(() => {
                       <span className="error">{formErrors[i]?.itemName}</span>
                     )}
                   </div>
+                 
                   <div>
                     <input
                       type="text"
@@ -357,10 +383,15 @@ useEffect(() => {
                       }
                       className="input"
                     />{" "}
+                     
                     <br></br>
+                   
                     {formErrors[i]?.weight && (
                       <span className="error">{formErrors[i].weight}</span>
                     )}
+                  </div>
+                   <div>
+                    <FaWeight onClick={()=>getGivenWeight(i)} className="weight"/>
                   </div>
 
                   <span className="operator">x</span>
@@ -452,6 +483,9 @@ useEffect(() => {
                       <span className="error">{itemErrors[i]?.weight}</span>
                     )}
                   </div>
+                  {edit &&  <div>
+                    <FaWeight onClick={()=>getGivenWeight(i,"item")} className="weight"/>
+                  </div>}
                   <div>
                     <select
                       value={item.itemName}
