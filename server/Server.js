@@ -14,6 +14,7 @@ const transactionRoutes = require("./Routes/transaction.routes");
 const entryRoutes = require("./Routes/cashgold.routes");
 const customerOrderRoutes = require("./Routes/customerOrder.routes");
 const masterTouchRoutes = require("./Routes/mastertouch.routes");
+const weightRoute=require('./Routes/weight.routes')
 
 const path = require("path");
 
@@ -42,6 +43,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/entries", entryRoutes);
 app.use("/api/customerOrder", customerOrderRoutes);
 app.use("/api/master-touch", masterTouchRoutes);
+app.use("/api/weightRoute",weightRoute)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.listen(PORT, () => {

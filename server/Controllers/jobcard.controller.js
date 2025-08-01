@@ -412,17 +412,21 @@ const createJobCard = async (req, res) => {
     }));
 
    // Job Card Total
+    
     const jobCardTotal={
        "goldsmithId":parseInt(goldsmithId),
        "givenWt" :parseFloat(total?.givenWt)||0,
        "itemWt"  :parseFloat(total?.itemWt)||0, 
        "stoneWt" :parseFloat(total?.stoneWt)||0,
        "wastage" :parseFloat(total?.wastage)||0,
+       "goldSmithWastage":parseFloat(total?.goldSmithWastage)||0,
        "balance" :parseFloat(total?.balance)||0,
        "openBal" :parseFloat(total?.openBal)||0,
+       "receivedTotal":parseFloat(total?.receivedTotal)||0,
        "isFinished" :"false"
 
     }
+    
     // update GoldSmith balance
     const goldSmithBalanceAmt=await prisma.goldSmithBalance.update({
       where:{
@@ -543,8 +547,10 @@ const updateJobCard = async (req, res) => {
           itemWt: parseFloat(total?.itemWt)||0,
           stoneWt:parseFloat(total?.stoneWt)||0,
           wastage:parseFloat(total?.wastage)||0,
+          goldSmithWastage:parseFloat(total?.goldSmithWastage)||0,
           balance:parseFloat(total?.balance)||0,
-          openBal:parseFloat(total?.openBal)||0
+          openBal:parseFloat(total?.openBal)||0,
+          receivedTotal:parseFloat(total?.receivedTotal)||0,
         }
     })
    
@@ -925,6 +931,7 @@ const jobCardFilter = async (req, res) => {
         deliveryItem: true,
         additionalWeight: true,
         jobCardTotal: true,
+        goldSmithReceived:true
        
       },
     });
