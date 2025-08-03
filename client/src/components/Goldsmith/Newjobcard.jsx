@@ -44,6 +44,7 @@ const NewJobCard = ({
   received,
   setReceived,
   jobCardLength,
+  lastJobCard,
   setGoldSmithWastage,
 }) => {
   const today = new Date().toLocaleDateString("en-IN");
@@ -756,6 +757,7 @@ useEffect(() => {
                     setReceived([...received, { weight: 0, touch: 91.7 }])
                   }
                   className="circle-button"
+                  disabled={jobCardId!==lastJobCard[0].id ?true:lastJobCard[0].isFinished==="false" ? false:true}
                 >
                   +
                 </button>
