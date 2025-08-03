@@ -866,6 +866,7 @@ const getAllJobCardByGoldsmithId = async (req, res) => {
      
     });
     let jobCardLength=await prisma.jobCard.findMany()
+   
 
     return res.status(200).json({
       goldsmith: {
@@ -877,7 +878,8 @@ const getAllJobCardByGoldsmithId = async (req, res) => {
         balance: goldsmithInfo.goldSmithBalance, // can be an array
       },
       jobCards: allJobCards,
-      jobCardLength:jobCardLength.length+1
+      jobCardLength:jobCardLength.length+1,
+      
     });
   } catch (err) {
     console.error("Error fetching job card info:", err);

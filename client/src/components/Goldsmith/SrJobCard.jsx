@@ -39,7 +39,6 @@ const SrJobCard = () => {
   const [open, setopen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [jobCardIndex, setJobCardIndex] = useState(0);
-
   const [page, setPage] = useState(0); // 0-indexed for TablePagination
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -93,11 +92,12 @@ const SrJobCard = () => {
     );
     
     setGoldSmithWastage(filteredJobcard[0]?.jobCardTotal[0].goldSmithWastage||0);
-
+    console.log('last',jobCards.at(-1).jobCardTotal)
     let lastBalance =
       jobindex != 0 ? tempJobCard[jobindex].jobCardTotal[0].openBal : 0;
     console.log("lastBalance", lastBalance);
     setOpeningBal(lastBalance);
+   
     setopen(true);
     setEdit(true);
   };
@@ -557,6 +557,7 @@ const SrJobCard = () => {
           handleUpdateJobCard={handleUpdateJobCard}
           jobCardLength={jobCardLength}
           jobCardId={jobCardId}
+          lastJobCard={jobCards.at(-1).jobCardTotal}
           open={open}
           onclose={() => handleClosePop()}
           edit={edit}
