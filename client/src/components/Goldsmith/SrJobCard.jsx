@@ -92,7 +92,7 @@ const SrJobCard = () => {
     );
     
     setGoldSmithWastage(filteredJobcard[0]?.jobCardTotal[0].goldSmithWastage||0);
-    console.log('last',jobCards.at(-1).jobCardTotal)
+   
     let lastBalance =
       jobindex != 0 ? tempJobCard[jobindex].jobCardTotal[0].openBal : 0;
     console.log("lastBalance", lastBalance);
@@ -557,7 +557,8 @@ const SrJobCard = () => {
           handleUpdateJobCard={handleUpdateJobCard}
           jobCardLength={jobCardLength}
           jobCardId={jobCardId}
-          lastJobCard={jobCards.at(-1).jobCardTotal}
+          lastJobCardId={jobCards?.at(-1)?.jobCardTotal[0]?.jobcardId}
+          lastIsFinish={jobCards?.at(-1)?.jobCardTotal[0]?.isFinished}
           open={open}
           onclose={() => handleClosePop()}
           edit={edit}
