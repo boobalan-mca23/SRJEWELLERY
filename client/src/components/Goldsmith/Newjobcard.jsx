@@ -44,7 +44,8 @@ const NewJobCard = ({
   received,
   setReceived,
   jobCardLength,
-  lastJobCard,
+  lastJobCardId,
+  lastIsFinish,
   setGoldSmithWastage,
 }) => {
   const today = new Date().toLocaleDateString("en-IN");
@@ -756,8 +757,18 @@ useEffect(() => {
                   onClick={() =>
                     setReceived([...received, { weight: 0, touch: 91.7 }])
                   }
-                  className="circle-button"
-                  disabled={jobCardId!==lastJobCard[0].id ?true:lastJobCard[0].isFinished==="false" ? false:true}
+                  className="circle-button" 
+                  // this code used for does'nt open previous job card and if its last job card and its status true that time is not work
+                 disabled={
+                    !lastJobCardId
+                    ? false // If lastJobCard doesn't exist yet, disable the button
+                    : jobCardId !==lastJobCardId
+                   ? true
+                   : lastIsFinish === "false"
+                   ? false
+                   : true
+                    }
+
                 >
                   +
                 </button>

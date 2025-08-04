@@ -822,7 +822,9 @@ const getJobCardById=async(req,res)=>{
             }
         })
         let balance=parseInt(id)===1 ? 0 :jobCardTotal[0].balance
-       return res.status(200).json({"jobcard":jobCardInfo,"jobCardBalance":balance})
+        let lastJobCard=(await prisma.jobcardTotal.findMany({where:{goldsmithId:goldSmithInfo.goldsmithId}})).at(-1)
+       
+       return res.status(200).json({"jobcard":jobCardInfo,"jobCardBalance":balance,lastJobCard:lastJobCard})
 
       } catch(err){
       return res.status(500).json({err:"Server Error"})

@@ -48,6 +48,7 @@ const Goldsmith = () => {
   const [selectedName, setSelectedName] = useState({});
   const [masterItems, setMasterItems] = useState([]);
   const [noJobCard, setNoJobCard] = useState({});
+  const [lastJobCard,setLastJobCard]=useState({})
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -310,6 +311,7 @@ const Goldsmith = () => {
             setReceived(data.jobcard[0].goldSmithReceived);
             setSelectedName(data.jobcard[0].goldsmith);
             setJobCardTotal(data.jobcard[0].jobCardTotal);
+            setLastJobCard(data.lastJobCard||{})
             setOpeningBalance(data.jobCardBalance);
             setOpen(true);
             setEdit(true);
@@ -488,6 +490,8 @@ const Goldsmith = () => {
           masterItems={masterItems}
           handleUpdateJobCard={handleUpdateJobCard}
           jobCardId={jobCardId}
+          lastJobCardId={lastJobCard.jobcardId}
+          lastIsFinish={lastJobCard.isFinished}
           onclose={() => {
             setOpen(false);
           }}
