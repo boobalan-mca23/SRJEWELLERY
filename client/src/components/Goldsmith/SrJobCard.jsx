@@ -313,12 +313,33 @@ const SrJobCard = () => {
         
             <h3 className="goldsmithhead">Gold Smith Information</h3>
             <div className="goldSmithInfo">
-              <p>
-              <strong>Name:</strong> {goldSmith?.goldSmithInfo?.name}
-            </p>
-            <p>
-              <strong>Phone Number:</strong> {goldSmith?.goldSmithInfo?.phoneNo}
-            </p>
+            <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:"20px"}}>
+                <p>
+                <strong>Name:</strong> {goldSmith?.goldSmithInfo?.name}
+               </p>
+               <p>
+                <strong>Phone Number:</strong> {goldSmith?.goldSmithInfo?.phoneNo}
+               </p>
+            </div>
+
+             {jobCards.length > 0 && jobCards.at(-1)?.jobCardTotal?.length > 0 && (
+          <div >
+            
+              {jobCards.at(-1).jobCardTotal[0].balance > 0
+                ? <p style={{color:"green",fontWeight:"bolder"}}>Gold Smith Should Given {jobCards
+                    .at(-1)
+                    .jobCardTotal[0].balance.toFixed(3)}g</p>
+                : jobCards.at(-1).jobCardTotal[0].balance<0 ?<p style={{color:"red",fontWeight:"bolder"}}>Owner Should Given {jobCards
+                    .at(-1)
+                    .jobCardTotal[0].balance.toFixed(3)} g</p>:
+                    <p style={{color:"black",fontWeight:"bolder"}}>Balance Nill: {jobCards
+                    .at(-1)
+                    .jobCardTotal[0].balance.toFixed(3)} g</p> }
+            
+          </div>
+        )}
+
+      
              <button
               className="addbtn"
               onClick={() => {
@@ -332,23 +353,11 @@ const SrJobCard = () => {
 
           
         </div>
-        {jobCards.length > 0 && jobCards.at(-1)?.jobCardTotal?.length > 0 && (
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <p className="balanceInfo">
-              {jobCards.at(-1).jobCardTotal[0].balance >= 0
-                ? `Gold Smith Should Given ${jobCards
-                    .at(-1)
-                    .jobCardTotal[0].balance.toFixed(3)}g`
-                : `Owner Should Given ${jobCards
-                    .at(-1)
-                    .jobCardTotal[0].balance.toFixed(3)} g`}
-            </p>
-          </div>
-        )}
+       
 
-        <div className="jobcardTable">
-          {jobCards.length >= 1 ? (
-            <table>
+        <div className="jobcardTable" >
+          {paginatedData.length >= 1 ? (
+            <table  >
               <thead className="jobCardHead">
                 <tr >
                   <th rowSpan={2}>S.No</th>
@@ -369,7 +378,7 @@ const SrJobCard = () => {
                   <th>Weight</th>
                   <th>GivenTotal</th>
                   <th>Touch</th>
-                  <th>Delivery Date</th>
+                  <th>Dly Date</th>
                   <th>Name</th>
                   <th>Weight</th>
                   <th>Weight</th>
@@ -378,7 +387,7 @@ const SrJobCard = () => {
                 </tr>
               </thead>
               <tbody>
-                {jobCards.map((job, jobIndex) => {
+                {paginatedData.map((job, jobIndex) => {
                   const given = job.givenGold;
                   const delivery = job.deliveryItem;
                   const receive=job.goldSmithReceived
@@ -395,7 +404,7 @@ const SrJobCard = () => {
                       <tr key={`${job.id}-${i}`}>
                         {i === 0 && (
                           <>
-                            <td rowSpan={maxRows} >{jobIndex + 1}</td>
+                            <td rowSpan={maxRows} > {page * rowsPerPage + jobIndex + 1}</td>
                             <td rowSpan={maxRows}>
                               
                                 {new Date(job.createdAt).toLocaleDateString(
@@ -494,31 +503,26 @@ const SrJobCard = () => {
                     );
                   });
                 })}
-                <tr className="tableFooter">
-                  <td colSpan={5}></td>
+                <tr className="totalOfJobCard">
+                  <td colSpan={5}><b>Total</b></td>
                   <td>
-                    <strong>Total Given Weight:</strong>{" "}
-                    {currentPageTotal.givenWt?.toFixed(3)}
+                    <b> {currentPageTotal.givenWt?.toFixed(3)}</b>
                   </td>
                   <td colSpan={3}></td>
                   <td>
-                    <strong>Total Item Weight:</strong>{" "}
-                    {currentPageTotal.itemWt?.toFixed(3)}
+                    <b>{currentPageTotal.itemWt?.toFixed(3)}</b>
                   </td>
                   <td>
-                    <strong>Total Stone Weight:</strong>{" "}
-                    {currentPageTotal.stoneWt?.toFixed(3)}
+                    <b>{currentPageTotal.stoneWt?.toFixed(3)}</b>
                   </td>
                   <td>
-                    <strong>Total Wastage:</strong>{" "}
-                    {currentPageTotal.wastage?.toFixed(3)}
+                    <b>{currentPageTotal.wastage?.toFixed(3)}</b>
                   </td>
                    <td colSpan={2}></td>
                   <td>
-                    <strong>Total Receive:</strong>{" "}
-                    {currentPageTotal.receive?.toFixed(3)}
+                   <b>{currentPageTotal.receive?.toFixed(3)}</b>
                   </td>
-                  <td colSpan={2}></td>
+                  <td colSpan={4}></td>
                 </tr>
               </tbody>
             </table>
@@ -527,6 +531,7 @@ const SrJobCard = () => {
           )}
           {jobCards.length >= 1 && (
             <TablePagination
+              
               component="div"
               count={jobCards.length}
               page={page}

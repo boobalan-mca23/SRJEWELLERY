@@ -20,6 +20,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
 import { BACKEND_SERVER_URL } from "../../Config/Config";
+import weight from '../../Assets/weight.jpg'
 
 const format = (val) =>
   isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3);
@@ -139,7 +140,7 @@ const NewJobCard = ({
     0
   );
 
-  const stoneOptions = ["Stone", "Enamel", "Beads", "Others"];
+  const stoneOptions = ["Stone", "Enamel", "Beads","Chain", "Others"];
 
   const handleRemoveReceived = (removeIndex) => {
     const isTrue = window.confirm(
@@ -294,11 +295,17 @@ useEffect(() => {
           const copy = [...goldRows];
           copy[i]['weight'] = res.data.weightdata;
           setGoldRows(copy);
-         }else{
-           const copy = [...itemRows];
+         }else if(item==="item"){
+          const copy = [...itemRows];
           copy[i]['weight'] = res.data.weightdata;
           setItemRows(copy);
+         }else{
+           const copy = [...received];
+          copy[i]['weight'] = res.data.weightdata;
+          setReceived(copy);
          }
+          
+         
       }catch(err){
         toast.error("Weight Mechine Not Connected",{autoClose:2000})
       }
@@ -331,7 +338,7 @@ useEffect(() => {
 
         <DialogContent>
           <div className="container">
-            <h3>SR Jewellery </h3>
+            <h3  className="section-title">SR Jewellery </h3>
             <div className="header">
               <div className="header-item">
                 <span className="header-label">ID:</span>{" "}
@@ -374,7 +381,10 @@ useEffect(() => {
                       <span className="error">{formErrors[i]?.itemName}</span>
                     )}
                   </div>
-                 
+                  <div>
+                    <img src={weight} className ="weight" onClick={()=>{getGivenWeight(i)}}></img>
+                  </div>
+                  
                   <div>
                     <input
                       type="text"
@@ -392,9 +402,7 @@ useEffect(() => {
                       <span className="error">{formErrors[i].weight}</span>
                     )}
                   </div>
-                   <div>
-                    <FaWeight onClick={()=>getGivenWeight(i)} className="weight"/>
-                  </div>
+                  
 
                   <span className="operator">x</span>
                   <div>
@@ -465,10 +473,10 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="section itemDelivery">
+            <div className="section itemDelivery" style={{opacity:edit?1:0.3}} >
               <h3 className="section-title">Item Delivery</h3>
               {itemRows.map((item, i) => (
-                <div key={i} className="row">
+                <div key={i} className="row" >
                   <div>
                     <input
                       type="text"
@@ -485,9 +493,11 @@ useEffect(() => {
                       <span className="error">{itemErrors[i]?.weight}</span>
                     )}
                   </div>
-                  {edit &&  <div>
-                    <FaWeight onClick={()=>getGivenWeight(i,"item")} className="weight"/>
-                  </div>}
+                   <div>
+                    {edit && <img src={weight} className ="weight" onClick={()=>{getGivenWeight(i,"item")}}></img> }
+                   
+                  </div>
+              
                   <div>
                     <select
                       value={item.itemName}
@@ -525,6 +535,7 @@ useEffect(() => {
                 }
                 className="circle-button"
                 disabled={!edit}
+                style={{opacity:edit?1:0.3}}
               >
                 +
               </button>
@@ -535,7 +546,7 @@ useEffect(() => {
                 </span>
               </div>
 
-              <div className="deduction-section">
+              <div className="deduction-section" >
                 <h4>Stone Section </h4>
                 {deductionRows.map((deduction, i) => (
                   <div key={i} className="deduction-row">
@@ -668,6 +679,7 @@ useEffect(() => {
                       onChange={(e) => {
                         handleGoldSmithChange(e);
                       }}
+                      disabled={!edit}
                     />{" "}
                     <br></br>
                     {wastageErrors?.wastage && (
@@ -700,6 +712,9 @@ useEffect(() => {
                 <h3 className="section-title">Received Section</h3>
                 {received.map((row, i) => (
                   <div key={i} className="row">
+                  <div>
+                    <img src={weight} className ="weight" onClick={()=>{getGivenWeight(i,"receive")}}></img>
+                  </div>
                     <div>
                       <input
                         type="number"
@@ -719,6 +734,7 @@ useEffect(() => {
                       )}
                     </div>
                     <span className="operator">x</span>
+                  
                     <div>
                       <input
                         type="number"
@@ -760,13 +776,14 @@ useEffect(() => {
                   className="circle-button" 
                   // this code used for does'nt open previous job card and if its last job card and its status true that time is not work
                  disabled={
-                    !lastJobCardId
-                    ? false // If lastJobCard doesn't exist yet, disable the button
+                   edit? !lastJobCardId
+                    ? true // If lastJobCard doesn't exist yet, disable the button
                     : jobCardId !==lastJobCardId
                    ? true
                    : lastIsFinish === "false"
                    ? false
-                   : true
+                   : true : true
+                     
                     }
 
                 >

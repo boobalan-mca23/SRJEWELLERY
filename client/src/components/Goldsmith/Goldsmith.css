@@ -4,6 +4,7 @@
   gap: 20px;
   align-items: start;
   padding: 20px;
+  margin-top: 40px;
 }
 
 .customer-details-container {
@@ -14,27 +15,24 @@
   background: white;
  
 }
+.tableCell{
+  border: 3px solid black !important;
+}
+.tableContainer{
+  position: relative !important;
+  overflow: auto !important;
+  max-height: 600px !important;
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+}
+.thead{
+  position: sticky !important;
+  top: 0px;
+  z-index: 10;
+  background-color: black !important;
+  color: white !important;
+  
 }
 
-th, td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-}
-
-th {
-  background-color: aliceblue;
-  color: #0d47a1; /* ✅ Fixed text contrast */
-  font-weight: bold;
-}
-
-tr:hover {
-  background-color: #f9f9f9;
-}
 .searchBox {
   display: flex;
   justify-content: flex-start;

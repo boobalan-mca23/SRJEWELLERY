@@ -415,32 +415,55 @@
 
 @media print {
   @page {
-    size: A5;
-    margin: 2mm; /* Adjust as needed */
+    size: A6;
+    margin: 5mm;
+  }
+
+  html, body {
+    font-size: 10px !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .jobcard-page.print-jobcard {
+    font-size: 12px !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .container {
-    width: 100%;
-    max-width: 140mm; /* A5 width is 148mm, so leave some margin */
-    margin: 0px auto;
-    background-color:none !important;
-    border-radius: none !important;
-    
-     /* Adjust font size to fit */
+    width: 100% !important;
+    max-width: 148mm !important;  /* A6 width */
+    margin: 0 auto !important;
+    padding: 2px 75px !important;
+    border-radius: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .jobcard-dialog {
-    height: auto;
-    font-size: 15px;
-    padding: 5mm;
-    box-shadow: none;
-    border-radius: 0;
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
+  .circle-button,
+  .button,
+  .dialogTitle,
+  .deleteIcon,
+  .weight {
+    display: none !important;
+  }
 }
+
 .weight{
-  font-size: 20px;
   cursor: pointer;
-  width:20px;
-  height:20px;
+  width:30px;
+  height:30px;
 }
