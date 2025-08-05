@@ -50,12 +50,7 @@
     overflow: hidden !important;
   }
   
-  .circle-button,
-  .button,
-  .dialogTitle,
-  .deleteIcon {
-    display: none !important;
-  }
+  
 
 
 }

@@ -1,12 +1,13 @@
 
 .goldSmith {
-  margin: 30px 60px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #fdfcfb;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+   margin:100px 60px 5px 60px ;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   background-color: #fdfcfb;
+   border: 1px solid #e0e0e0;
+   border-radius: 12px;
+   padding: 24px;
+   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  
 }
 
 .goldsmithhead {
@@ -32,8 +33,9 @@
   color: #444;
 }
 
-.goldSmithInfo strong {
+.goldSmithInfo p {
   color: #000;
+  font-size: 20px;
 }
 
 .addbtn {
@@ -42,8 +44,7 @@
   border: none;
   border-radius: 8px;
   color: white;
-  font-weight: 600;
-  font-size: 15px;
+  font-size: 18px !important;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -73,10 +74,8 @@
     
 }
 .jobcardTable{
-  width:100%;
- 
-  
-}
+  padding: 0 3vw;
+ }
 .eyeIcon{
   font-size:large;
   cursor: pointer;
@@ -91,24 +90,19 @@
   margin-top: 20px;
 }
 .balanceInfo {
-  text-align: right;
+  text-align:center;
   font-weight: bold;
-  font-size: 20px;
-  margin: 10px 20px 10px auto;
-  padding: 10px;
-  background-color:black;
-  color:white;
-  border-radius: 10px;
- 
 }
-table {
+ .jobcardTable table {
   width: 100%;
   border-collapse: collapse;
   border: 1px solid black;
+
  
-}
+ }
 
 table th, table td {
+
   border: 1px solid black;
   padding: 8px;
   text-align: center;
@@ -119,9 +113,12 @@ table th, table td {
   font-weight: bold;
 }
 .jobcardTable{
+  margin-top: 10px;
   position: relative;
-  max-height: 90vh;
-  overflow: auto;
+  max-height: 600px !important;
+  overflow: auto !important;
+  
+ 
 }
  thead {
   position: sticky;
@@ -133,3 +130,15 @@ table th, table td {
   transition: background-color 0.3s ease;
 }
 
+.totalOfJobCard {
+  position: sticky;
+  bottom: 0;
+  z-index: 99;
+}
+
+.totalOfJobCard td {
+  font-weight: 500;
+  background-color: rgb(172, 152, 152);
+  color: white;
+  border: 2px solid black;
+}

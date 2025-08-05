@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { FiLogOut, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import logo from '../../Assets/srlogo.png'
-import { margin } from "@mui/system";
+
+
+
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -11,6 +13,8 @@ const Navbar = () => {
   const [activeReport, setActiveReport] = useState("");
   const [hoveredItem, setHoveredItem] = useState(null);
   const reportsRef = useRef(null);
+const location = useLocation();
+const currentPath = location.pathname;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -32,19 +36,14 @@ const Navbar = () => {
     setShowReports(!showReports);
   };
 
+  
   const getNavLinkStyle = (path) => ({
-    ...navLink,
-    color: activeLink === path ? "#fff" : "rgba(255, 255, 255, 0.8)",
-    backgroundColor:
-      activeLink === path
-        ? "rgba(255, 255, 255, 0.15)"
-        : hoveredItem === path
-        ? "rgba(255, 255, 255, 0.1)"
-        : "transparent",
-    fontWeight: activeLink === path ? 600 : 500,
-    transform: hoveredItem === path ? "translateY(-1px)" : "translateY(0)",
-    boxShadow: hoveredItem === path ? "0 2px 5px rgba(0,0,0,0.1)" : "none",
-  });
+  ...navLink,
+  color: currentPath === path ? "#fff" : "rgba(199, 196, 196, 0.8)",
+  fontWeight: currentPath === path ? 700 : 500,
+ 
+});
+
 
   const getReportItemStyle = (path) => ({
     ...dropdownItem,
@@ -173,18 +172,21 @@ const Navbar = () => {
 };
 
 const navContainer = {
-  backgroundColor: "#2c3e50",
   background: "linear-gradient(135deg, #2c3e50 0%, #1a2530 100%)",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   padding: "0 24px",
   color: "#fff",
-  position: "relative",
+  position: "fixed",    
+  top: 0,                
+  left: 0,
+  right: 0,
   height: "64px",
+  zIndex: 1000,          
   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
- 
 };
+
 const logoImg={
   width:"50px",
   height:"50px",

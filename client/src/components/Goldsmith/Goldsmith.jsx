@@ -3,6 +3,7 @@ import {
   Container,
   Paper,
   Typography,
+  TableContainer,
   Table,
   TableHead,
   TableBody,
@@ -261,7 +262,7 @@ const Goldsmith = () => {
 
   const filteredGoldsmith = goldsmith.filter((gs) => {
     const nameMatch =
-      gs.name && gs.name.toLowerCase().includes(searchTerm.toLowerCase());
+      gs.name && gs.name.toLowerCase().startsWith(searchTerm.toLowerCase());
     const phoneMatch = gs.phone && gs.phone.includes(searchTerm);
     const addressMatch =
       gs.address && gs.address.toLowerCase().includes(searchTerm.toLowerCase());
@@ -327,7 +328,7 @@ const Goldsmith = () => {
 
   return (
     <div className="homeContainer">
-      <Paper className="customer-details-container" elevation={3} sx={{ p: 3 }}>
+      <Paper className="customer-details-container " elevation={3} sx={{ p: 3 }} >
         <Typography variant="h5" align="center" gutterBottom>
           Goldsmith Details
         </Typography>
@@ -358,32 +359,26 @@ const Goldsmith = () => {
           }}
         />
 
-        <Table>
+        <div className="tableContainer">
+          <Table>
           <TableHead
-            sx={{
-              backgroundColor: "#e3f2fd",
-              "& th": {
-                backgroundColor: "#e3f2fd",
-                color: "#0d47a1",
-                fontWeight: "bold",
-                fontSize: "1rem",
-              },
-            }}
+           
+            className="thead"
           >
             <TableRow>
-              <TableCell align="center">
+              <TableCell align="center" className="tableCell" >
                 <strong>Goldsmith Name</strong>
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className="tableCell">
                 <strong>Phone Number</strong>
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className="tableCell">
                 <strong>Address</strong>
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className="tableCell">
                 <strong>GoldSmith Wastage</strong>
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className="tableCell">
                 <strong>Actions</strong>
               </TableCell>
             </TableRow>
@@ -441,6 +436,7 @@ const Goldsmith = () => {
             )}
           </TableBody>
         </Table>
+        </div>
       </Paper>
 
       <div className="customer-details-container">
