@@ -33,9 +33,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background: #f1f1f1;
 }
-.reportThead {
-    background-color: #2F80ED; /* blue */
-    color: #ffffff; /* white text */
+.reportThead th {
+   font-weight: bold;
+   background-color: #54a7b1; /* blue */
+   color: #ffffff; /* white text */
 }
 
 .print-mode {
@@ -79,37 +80,13 @@
   margin:1vw 3vw;
 }
 
-.stickyHeader {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 10 !important;
-  backdrop-filter: blur(3px);
-  text-align: center !important;
-  font-size: 0.95rem !important;
-  font-weight: bold !important;
-  padding: 6px; 
-  border-collapse: collapse !important;
-  
-}
+
  
 .reportHead {
   text-align: center;
   font-size: 1.4rem;
   color: red;
   margin-bottom: 1rem;
-}
-
-/* .totalOfJobCard {
-  position: sticky;
-  bottom: 0;
-  z-index: 99;
-} */
-
-.totalOfJobCard td {
-  font-weight: 500;
-  background-color: rgb(172, 152, 152);
-  color: white;
-  border: 2px solid black;
 }
 
 .table {
@@ -125,7 +102,12 @@
   text-align: center;
   box-sizing: border-box;
 }
-
+ thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
 
 
 .table thead {
@@ -136,6 +118,20 @@
 .table tbody {
   box-sizing: border-box;
 }
+.totalOfJobCardReport {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+   transition: background-color 1s ease;
+  }
+
+.totalOfJobCardReport td {
+  font-weight: 500;
+  background-color: rgb(172, 152, 152);
+  color: white;
+  border: 2px solid black;
+}
+
 
 
 

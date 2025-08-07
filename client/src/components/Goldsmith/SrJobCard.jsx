@@ -362,7 +362,7 @@ const SrJobCard = () => {
         <div className="jobcardTable" >
           {paginatedData.length >= 1 ? (
             <table  >
-              <thead className="jobCardHead">
+              <thead className="jobCardThead">
                 <tr >
                   <th rowSpan={2}>S.No</th>
                   <th rowSpan={2}>Date</th>
@@ -408,7 +408,7 @@ const SrJobCard = () => {
                       <tr key={`${job.id}-${i}`}>
                         {i === 0 && (
                           <>
-                            <td rowSpan={maxRows} > {page * rowsPerPage + jobIndex + 1}</td>
+                            <td rowSpan={maxRows} > {jobIndex + 1}</td>
                             <td rowSpan={maxRows}>
                               
                                 {new Date(job.createdAt).toLocaleDateString(
@@ -507,7 +507,10 @@ const SrJobCard = () => {
                     );
                   });
                 })}
-                <tr className="totalOfJobCard">
+               </tbody>
+
+               <tfoot className="totalOfJobCard">
+                  <tr >
                   <td colSpan={5}><b>Total</b></td>
                   <td>
                     <b> {currentPageTotal.givenWt?.toFixed(3)}</b>
@@ -528,7 +531,7 @@ const SrJobCard = () => {
                   </td>
                   <td colSpan={2}></td>
                 </tr>
-              </tbody>
+               </tfoot>
             </table>
           ) : (
             <span className="noJobCard">No JobCard For this GoldSmith</span>
