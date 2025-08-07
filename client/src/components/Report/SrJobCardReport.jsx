@@ -54,37 +54,72 @@ const JobCardReport = () => {
   );
 
   const handleDownloadPdf = async () => {
-    setIsPrinting(false); // show all rows
-    const clearBtn = document.getElementById("clear");
-    const printBtn = document.getElementById("print");
-   
+  setIsPrinting(false); // show all rows
 
-    clearBtn.style.visibility = "hidden";
-    printBtn.style.visibility = "hidden";
-   
-    setTimeout(async () => {
-      const element = reportRef.current;
-      const canvas = await html2canvas(element, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ unit: "px", format: "a4" });
+  const clearBtn = document.getElementById("clear");
+  const printBtn = document.getElementById("print");
+  const tfoot=document.getElementById("tfoot");
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  clearBtn.style.visibility = "hidden";
+  printBtn.style.visibility = "hidden";
 
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("JobCard_Report.pdf");
+  setTimeout(async () => {
+    const element = reportRef.current;
+    const canvas = await html2canvas(element, { scale: 2 });
 
-      setIsPrinting(true);
-      clearBtn.style.visibility = "visible";
-      printBtn.style.visibility = "visible";
-     
-      // restore pagination
-    }, 1000); // delay to allow re-render
-  };
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = {
+      width: pdfWidth,
+      height: (canvas.height * pdfWidth) / canvas.width,
+    };
+
+    let position = 0;
+    let pageHeight = pdfHeight;
+
+    // Split image if taller than one page
+    if (imgProps.height < pageHeight) {
+      pdf.addImage(imgData, "PNG", 0, 0, imgProps.width, imgProps.height);
+    } else {
+      let remainingHeight = imgProps.height;
+      let pageCount = 0;
+
+      while (remainingHeight > 0) {
+        pdf.addImage(
+          imgData,
+          "PNG",
+          0,
+          position,
+          imgProps.width,
+          imgProps.height
+        );
+        remainingHeight -= pageHeight;
+        position -= pageHeight;
+
+        if (remainingHeight > 0) {
+          pdf.addPage();
+        }
+      }
+    }
+
+    pdf.save("JobCard_Report.pdf");
+
+    // restore UI
+    setIsPrinting(true);
+    clearBtn.style.visibility = "visible";
+    printBtn.style.visibility = "visible";
+  }, 1000); // allow DOM to update
+};
+
 
   const handleDateClear = () => {
     setFromDate(null);
     setToDate(null);
+     setSelectedGoldSmith({})
   };
 
   const handleGoldSmith = (newValue) => {
@@ -142,7 +177,7 @@ const JobCardReport = () => {
 
   return (
     <>
-      <div ref={reportRef}>
+      <div >
         <div className="reportHeader">
           <h3>GoldSmith Report</h3>
           <div className={`report ${!isPrinting ? "print-mode" : ""}`}>
@@ -227,26 +262,26 @@ const JobCardReport = () => {
           </div>
         </div>
 
-        <div className="jobReportTable ">
+        <div className="jobReportTable" >
           {paginatedData.length >= 1 ? (
          
-              <div className="reportContainer">
-                <table>
-                  <thead className="reportThea">
+              <div className="reportContainer" >
+                <table ref={reportRef}>
+                  <thead className="reportThead">
                     <tr>
-                      <th rowSpan="2">S.No</th>
-                      <th rowSpan="2">Date</th>
-                      <th rowSpan="2">JobCard Id</th>
+                      <th >S.No</th>
+                      <th >Date</th>
+                      <th >JobCard Id</th>
                       <th colSpan="5">Given Wt</th>
                       <th colSpan="3">Item Wt</th>
-                      <th rowSpan="2">Stone Wt</th>
-                      <th rowSpan="2">After Wastage</th>
-                      <th rowSpan="2">Balance</th>
+                      <th >Stone Wt</th>
+                      <th >After Wastage</th>
+                      <th >Balance</th>
                       <th colSpan="3">ReceiveAmt</th>
-                      <th rowSpan="2">Is Finished</th>
+                      <th>Is Finished</th>
                     </tr>
                     <tr>
-                      
+                      <th colSpan={3}></th>
                       <th>Issue Date</th>
                       <th>Name</th>
                       <th>Weight</th>
@@ -255,9 +290,11 @@ const JobCardReport = () => {
                       <th>Dly Date</th>
                       <th>Name</th>
                       <th>Weight</th>
+                      <th colSpan={3}></th>
                       <th>Weight</th>
                       <th>Touch</th>
                       <th>ReceiveTotal</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -282,7 +319,7 @@ const JobCardReport = () => {
                           <tr key={`${job.id}-${i}`}>
                             {i === 0 && (
                               <>
-                                <td rowSpan={maxRows}>
+                                <td rowSpan={maxRows} >
                                   {page * rowsPerPage + jobIndex + 1}
                                 </td>
                                 <td rowSpan={maxRows}>
@@ -336,7 +373,7 @@ const JobCardReport = () => {
                                   {total?.receivedTotal || "-"}
                                 </td>
                                 <td rowSpan={maxRows}>
-                                  {total?.isFinished === "true" ? "✔" : "✖"}
+                                  {total?.isFinished === "true" ? <FaCheck /> :<GrFormSubtract size={30}/>}
                                 </td>
                               </>
                             )}
@@ -344,7 +381,7 @@ const JobCardReport = () => {
                         );
                       });
                     })}
-                    <tr className="totalOfJobCard">
+                    <tr className="totalOfJobCard" >
                       <td colSpan="5">
                         <b>Total</b>
                       </td>

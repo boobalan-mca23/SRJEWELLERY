@@ -15,9 +15,7 @@
   background: white;
  
 }
-.tableCell{
-  border: 3px solid black !important;
-}
+
 .tableContainer{
   position: relative !important;
   overflow: auto !important;
@@ -28,7 +26,6 @@
   position: sticky !important;
   top: 0px;
   z-index: 10;
-  background-color: black !important;
   color: white !important;
   
 }
@@ -54,6 +51,10 @@
 .searchBtn{
   font-size: 17px !important;
   padding: 10px !important;
+}
+.thead{
+   background-color: #5f9ef0; /* blue */
+   color: #ffffff; /* white text */
 }
 
 

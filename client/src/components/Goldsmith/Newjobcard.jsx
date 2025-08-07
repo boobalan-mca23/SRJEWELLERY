@@ -47,6 +47,7 @@ const NewJobCard = ({
   jobCardLength,
   lastJobCardId,
   lastIsFinish,
+  isFinished,
   setGoldSmithWastage,
 }) => {
   const today = new Date().toLocaleDateString("en-IN");
@@ -238,7 +239,7 @@ useEffect(() => {
     return () => clearInterval(timer);
   }, []);
 
-  const SaveJobCard = () => {
+  const SaveJobCard = (print="noprint") => {
     // form validation
     let goldIsTrue = goldRowValidation(goldRows, setFormErrors);
     let itemIsTrue = "";
@@ -256,30 +257,63 @@ useEffect(() => {
         receivedIsTrue &&
         !wastageErrors.wastage
       ) {
-        console.log('received',totalReceivedWeight)
-        handleUpdateJobCard(
-          totalGoldWeight,
-          totalItemWeight,
-          totalDeductionWeight,
-          finalTotal,
-          balanceDifference,
-          balance,
-          format(totalReceivedWeight)
-        );
+        if(print==="print"){
+          window.print()
+          if(isFinished==="false"){
+            console.log('testinnnnn')
+            handleUpdateJobCard(
+             totalGoldWeight,
+             totalItemWeight,
+             totalDeductionWeight,
+             finalTotal,
+             balanceDifference,
+             balance,
+             format(totalReceivedWeight)
+             );
+          }
+        }
+        else{
+           handleUpdateJobCard(
+             totalGoldWeight,
+             totalItemWeight,
+             totalDeductionWeight,
+             finalTotal,
+             balanceDifference,
+             balance,
+             format(totalReceivedWeight)
+             );
+        }
+       
+        
       } else {
         toast.warn("Give Correct Information");
       }
     } else {
       if (goldIsTrue && receivedIsTrue && !wastageErrors.wastage) {
-        handleSaveJobCard(
-          totalGoldWeight,
-          totalItemWeight,
-          totalDeductionWeight,
-          finalTotal,
-          balanceDifference,
-          balance,
-          totalReceivedWeight
-        );
+        if(print==="print"){
+          window.print()
+              handleSaveJobCard(
+                totalGoldWeight,
+                totalItemWeight,
+                totalDeductionWeight,
+                finalTotal,
+                balanceDifference,
+                balance,
+                totalReceivedWeight
+             );
+          }else{
+             handleSaveJobCard(
+                totalGoldWeight,
+                totalItemWeight,
+                totalDeductionWeight,
+                finalTotal,
+                balanceDifference,
+                balance,
+                totalReceivedWeight
+             );
+          }
+         
+       
       } else {
         toast.warn("Give Correct Information");
       }
@@ -545,7 +579,7 @@ useEffect(() => {
                   {format(totalItemWeight)}
                 </span>
               </div>
-
+          <div className="wastageBox">
               <div className="deduction-section" >
                 <h4>Stone Section </h4>
                 {deductionRows.map((deduction, i) => (
@@ -607,6 +641,7 @@ useEffect(() => {
                         className="deduction-input"
                         placeholder="Weight"
                       />
+                      
                       <br></br>
                       {deductionErrors[i]?.weight && (
                         <span className="error">
@@ -614,7 +649,8 @@ useEffect(() => {
                         </span>
                       )}
                     </div>
-                    {!deduction.id && (
+                    <div className="delBtn">
+                       {!deduction.id && (
                       <MdDeleteForever
                         className="deleteIcon"
                         onClick={() => {
@@ -622,6 +658,8 @@ useEffect(() => {
                         }}
                       />
                     )}
+                    </div>
+                   
                   </div>
                 ))}
                 <button
@@ -636,46 +674,26 @@ useEffect(() => {
                 >
                   +
                 </button>
-                <div className="total-purity-container">
-                  <span className="total-purity-label">
-                    Total Stone Weight:
-                  </span>
-                  <span className="total-purity-value">
-                    {format(totalDeductionWeight)}
-                  </span>
-                </div>
+               
               </div>
 
-              <div className="net-weight-display">
-                <span className="header-label">Net Weight:</span>
-                <span className="net-weight-value" style={{ color: "blue" }}>
-                  {netWeight}
-                </span>
-              </div>
-              <div>
-                <strong>Wastage Section</strong>
-              </div>
-              <div className="input-group-fluid" style={{ marginTop: "10px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    flexWrap: "wrap",
-                  }}
-                >
+              <div className="wastageSection">
+                  <h4>Wastage Section </h4>
+         
+               <div className="wastageInputBox">
+                 
                   <input
                     readOnly
                     type="number"
                     value={netWeight}
-                    className="inputwastage"
+                    
                   />
                   <span className="operator">x</span>
                   <div>
                     <input
                       type="text"
                       value={goldSmithWastage}
-                      className="inputwastage"
+                     
                       onChange={(e) => {
                         handleGoldSmithChange(e);
                       }}
@@ -691,11 +709,10 @@ useEffect(() => {
                     readOnly
                     type="number"
                     value={wastage}
-                    className="inputwastage"
+                   
                   />
                 </div>
-              </div>
-              <div className="finalTotalContainer">
+                <div className="finalTotalContainer">
                 <span className="finalTotal">
                   <strong>Total</strong> = {format(totalItemWeight)} +{" "}
                   {parseFloat(wastage).toFixed(3)}
@@ -707,6 +724,25 @@ useEffect(() => {
                   = <strong> {format(finalTotal)}</strong>
                 </span>
               </div>
+           
+              </div>
+             </div>
+              <div className="total-purity-container">
+                  <span className="total-purity-label">
+                    Total Stone Wt:
+                  </span>
+                  <span className="total-purity-value">
+                    {format(totalDeductionWeight)}
+                  </span>
+                </div>
+              <div className="net-weight-display">
+                <span className="header-label">Net Weight:</span>
+                <span className="net-weight-value" style={{ color: "blue" }}>
+                  {netWeight}
+                </span>
+              </div>
+             
+              
 
               <div className="section">
                 <h3 className="section-title">Received Section</h3>
@@ -769,7 +805,7 @@ useEffect(() => {
             /> */}
                   </div>
                 ))}
-                <button
+                {itemRows.length>0 && <button
                   onClick={() =>
                     setReceived([...received, { weight: 0, touch: 91.7 }])
                   }
@@ -788,7 +824,7 @@ useEffect(() => {
 
                 >
                   +
-                </button>
+                </button>}
                 <div className="total-purity-container">
                   <span className="total-purity-label">Total:</span>
                   <span className="total-purity-value">
@@ -811,13 +847,14 @@ useEffect(() => {
                 color="success"
                 style={{ marginRight: "15px" }}
                 onClick={() => SaveJobCard()}
+                disabled={edit?isFinished==="true"? true:false:false}
               >
-                SAVE
+                {edit ?"UPDATE":"SAVE"}
               </Button>
               <Button
                 variant="contained"
                 style={{ backgroundColor: "blue" }}
-                onClick={() => window.print()}
+                onClick={() => SaveJobCard("print")}
               >
                 PRINT
               </Button>

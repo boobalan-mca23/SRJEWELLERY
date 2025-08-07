@@ -767,7 +767,7 @@ const getPreviousJobCardBal=async(req,res)=>{
         const jobCards = await prisma.jobcardTotal.findMany({
             where:{
             goldsmithId:parseInt(id)
-           }
+           } 
         });
        
         if(jobCards.length>=1){

@@ -249,6 +249,7 @@ function Mastergoldsmith() {
           <table border="1" width="100%">
             <thead>
               <tr>
+                <th>S No</th>
                 <th>Goldsmith Name</th>
                 <th>Phone Number</th>
                 <th>Address</th>
@@ -258,6 +259,7 @@ function Mastergoldsmith() {
             <tbody>
               {goldsmith.map((goldsmith, index) => (
                 <tr key={index}>
+                  <td>{index+1}</td>
                   <td>{goldsmith.name}</td>
                   <td>{goldsmith.phone}</td>
                   <td>{goldsmith.address}</td>
