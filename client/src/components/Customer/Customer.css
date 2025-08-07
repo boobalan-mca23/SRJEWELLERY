@@ -18,19 +18,17 @@ th, td {
   
 }
 
-th {
+/* th {
   background-color: #1976d2;
   color: white;
   font-weight: bold;
-}
+} */
 
-tr:nth-child(even) {
-  background-color: #f5f5f5;
-}
 
-tr:hover {
+
+/* tr:hover {
   background-color: #e3f2fd;
-}
+} */
 
 .icon-button {
   color: #1976d2;

@@ -111,6 +111,8 @@ table th, table td {
 
 .jobCardHead th {
   font-weight: bold;
+  background-color: #4791f2; /* blue */
+  color: #ffffff; /* white text */
 }
 .jobcardTable{
   margin-top: 10px;
@@ -124,9 +126,9 @@ table th, table td {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f5f9f9; /* match table bg */
+  /* match table bg */
   /* Optional smooth visual enhancements */
-  backdrop-filter: blur(2px);
+  
   transition: background-color 0.3s ease;
 }
 

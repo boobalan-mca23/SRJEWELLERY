@@ -39,6 +39,7 @@ const SrJobCard = () => {
   const [open, setopen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [jobCardIndex, setJobCardIndex] = useState(0);
+  const [currentJob,setCurrentJob]=useState("")
   const [page, setPage] = useState(0); // 0-indexed for TablePagination
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -73,9 +74,10 @@ const SrJobCard = () => {
   const handleFilterJobCard = (id, jobindex) => {
     setJobCardId(id);
     setJobCardIndex(jobindex);
+ 
     const tempJobCard = [...jobCards];
     const filteredJobcard = tempJobCard.filter(
-      (_, index) => index === jobindex
+      (item,_) => item.id === id
     );
     console.log("filter", filteredJobcard);
     setGoldRows(
@@ -92,9 +94,10 @@ const SrJobCard = () => {
     );
     
     setGoldSmithWastage(filteredJobcard[0]?.jobCardTotal[0].goldSmithWastage||0);
+    setCurrentJob(filteredJobcard[0]?.jobCardTotal[0].isFinished)
+    console.log('filterJobStatus',filteredJobcard[0]?.jobCardTotal[0].isFinished)
    
-    let lastBalance =
-      jobindex != 0 ? tempJobCard[jobindex].jobCardTotal[0].openBal : 0;
+    let lastBalance = filteredJobcard[0]?.jobCardTotal[0].openBal ;
     console.log("lastBalance", lastBalance);
     setOpeningBal(lastBalance);
    
@@ -255,7 +258,7 @@ const SrJobCard = () => {
             balance: goldSmithRes?.balance[0]?.balance,
           },
         };
-        console.log("res", res.data.jobCards);
+        console.log("res", res.data);
         setGoldSmith(newGoldSmith);
         setJobCard(res.data.jobCards);
         console.log("res", res.data.jobCards);
@@ -284,8 +287,9 @@ const SrJobCard = () => {
     setEdit(false);
     setGoldSmithWastage(goldSmith.goldSmithInfo.wastage);
     try {
+     
       const res = await axios.get(
-        `${BACKEND_SERVER_URL}/api/job-cards/${id}/lastBalance`
+        `${BACKEND_SERVER_URL}/api/job-cards/${id}/lastBalance` // this id is GoldSmithId
       );
       //  setOpeningBal(res.data)
       res.data.status === "nobalance"
@@ -518,11 +522,11 @@ const SrJobCard = () => {
                   <td>
                     <b>{currentPageTotal.wastage?.toFixed(3)}</b>
                   </td>
-                   <td colSpan={2}></td>
+                   <td colSpan={4}></td>
                   <td>
                    <b>{currentPageTotal.receive?.toFixed(3)}</b>
                   </td>
-                  <td colSpan={4}></td>
+                  <td colSpan={2}></td>
                 </tr>
               </tbody>
             </table>
@@ -564,6 +568,7 @@ const SrJobCard = () => {
           jobCardId={jobCardId}
           lastJobCardId={jobCards?.at(-1)?.jobCardTotal[0]?.jobcardId}
           lastIsFinish={jobCards?.at(-1)?.jobCardTotal[0]?.isFinished}
+          isFinished={currentJob}
           open={open}
           onclose={() => handleClosePop()}
           edit={edit}

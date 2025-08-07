@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  TablePagination,
   Autocomplete,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -50,6 +51,7 @@ const Goldsmith = () => {
   const [masterItems, setMasterItems] = useState([]);
   const [noJobCard, setNoJobCard] = useState({});
   const [lastJobCard,setLastJobCard]=useState({})
+  const [goldSmithWastage,setGoldSmithWastage]=useState(0)
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -65,6 +67,9 @@ const Goldsmith = () => {
     wastage: null,
     update: null,
   });
+  const [currentJob,setCurrentJob]=useState("")
+  
+
 
   useEffect(() => {
     const fetchGoldsmiths = async () => {
@@ -229,6 +234,7 @@ const Goldsmith = () => {
         wastage: totalWastage,
         balance: totalBalance,
         openBal: openBal,
+        goldSmithWastage:goldSmithWastage,
       },
     };
     console.log("payload update", payload);
@@ -259,8 +265,9 @@ const Goldsmith = () => {
       );
     }
   };
-
-  const filteredGoldsmith = goldsmith.filter((gs) => {
+  
+ 
+   let filterGoldSmith= goldsmith.filter((gs) => {
     const nameMatch =
       gs.name && gs.name.toLowerCase().startsWith(searchTerm.toLowerCase());
     const phoneMatch = gs.phone && gs.phone.includes(searchTerm);
@@ -268,6 +275,8 @@ const Goldsmith = () => {
       gs.address && gs.address.toLowerCase().includes(searchTerm.toLowerCase());
     return nameMatch || phoneMatch || addressMatch;
   });
+  
+   
 
   const handleJobCardId = (id) => {
     const num = Number(id);
@@ -302,16 +311,19 @@ const Goldsmith = () => {
             setItemRows(
               data.jobcard[0].deliveryItem.length >= 1
                 ? data.jobcard[0].deliveryItem
-                : [{ weight: "", itemName: "" }]
+                : []
             );
             setDeductionRows(
               data.jobcard[0].additionalWeight.length >= 1
                 ? data.jobcard[0].additionalWeight
-                : [{ type: "Stone", customType: "", weight: "" }]
+                : []
             );
             setReceived(data.jobcard[0].goldSmithReceived);
             setSelectedName(data.jobcard[0].goldsmith);
             setJobCardTotal(data.jobcard[0].jobCardTotal);
+            setGoldSmithWastage(data.jobcard[0].jobCardTotal[0].goldSmithWastage)
+             setCurrentJob(data.jobcard[0].jobCardTotal[0].isFinished)
+            console.log('wastage',data.jobcard[0].jobCardTotal[0].goldSmithWastage)
             setLastJobCard(data.lastJobCard||{})
             setOpeningBalance(data.jobCardBalance);
             setOpen(true);
@@ -366,6 +378,9 @@ const Goldsmith = () => {
             className="thead"
           >
             <TableRow>
+               <TableCell align="center" className="tableCell" >
+                <strong>S.No</strong>
+              </TableCell>
               <TableCell align="center" className="tableCell" >
                 <strong>Goldsmith Name</strong>
               </TableCell>
@@ -384,9 +399,10 @@ const Goldsmith = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredGoldsmith.length > 0 ? (
-              filteredGoldsmith.map((goldsmith, index) => (
+            {filterGoldSmith.length > 0 ? (
+              filterGoldSmith.map((goldsmith, index) => (
                 <TableRow key={index}>
+                  <TableCell align="center">{ index + 1}</TableCell>
                   <TableCell align="center">{goldsmith.name}</TableCell>
                   <TableCell align="center">{goldsmith.phone}</TableCell>
                   <TableCell align="center">{goldsmith.address}</TableCell>
@@ -429,14 +445,18 @@ const Goldsmith = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} align="center">
+                <TableCell colSpan={6} align="center">
                   No goldsmith details available.
                 </TableCell>
               </TableRow>
             )}
+            
           </TableBody>
+          
         </Table>
+         
         </div>
+       
       </Paper>
 
       <div className="customer-details-container">
@@ -472,8 +492,8 @@ const Goldsmith = () => {
       {open && (
         <NewJobCard
           name={selectedName.name}
-          goldSmithWastage={selectedName.wastage}
-          setGoldSmith={setGoldsmith}
+          goldSmithWastage={ goldSmithWastage}
+          setGoldSmithWastage={setGoldSmithWastage}
           balance={openingBalance}
           goldRows={goldRows}
           setGoldRows={setGoldRows}
@@ -484,6 +504,7 @@ const Goldsmith = () => {
           received={received}
           setReceived={setReceived}
           masterItems={masterItems}
+          isFinished={currentJob}
           handleUpdateJobCard={handleUpdateJobCard}
           jobCardId={jobCardId}
           lastJobCardId={lastJobCard.jobcardId}
