@@ -98,8 +98,12 @@
   border-collapse: collapse;
   border: 1px solid black;
 
- 
- }
+}
+.jobCardThead{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
 
 table th, table td {
 
@@ -109,9 +113,9 @@ table th, table td {
   font-size: 17px;
 }
 
-.jobCardHead th {
+.jobCardThead th {
   font-weight: bold;
-  background-color: #4791f2; /* blue */
+  background-color: #54a7b1; /* blue */; /* blue */
   color: #ffffff; /* white text */
 }
 .jobcardTable{
@@ -122,25 +126,15 @@ table th, table td {
   
  
 }
- thead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  /* match table bg */
-  /* Optional smooth visual enhancements */
-  
-  transition: background-color 0.3s ease;
-}
-
-.totalOfJobCard {
+.totalOfJobCard{
   position: sticky;
   bottom: 0;
   z-index: 99;
 }
-
-.totalOfJobCard td {
-  font-weight: 500;
+.totalOfJobCard{
   background-color: rgb(172, 152, 152);
   color: white;
-  border: 2px solid black;
 }
+ 
+
+

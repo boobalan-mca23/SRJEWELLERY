@@ -58,10 +58,13 @@ const JobCardReport = () => {
 
   const clearBtn = document.getElementById("clear");
   const printBtn = document.getElementById("print");
-  const tfoot=document.getElementById("tfoot");
+  const thead = document.getElementById("reportHead");
+  const tfoot = document.getElementById("reportFoot");
 
   clearBtn.style.visibility = "hidden";
   printBtn.style.visibility = "hidden";
+  thead.style.position = "static"; // fix for print
+  tfoot.style.position = "static"; // fix for print
 
   setTimeout(async () => {
     const element = reportRef.current;
@@ -73,47 +76,52 @@ const JobCardReport = () => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const imgProps = {
-      width: pdfWidth,
-      height: (canvas.height * pdfWidth) / canvas.width,
-    };
+    // Define margins
+    const margin = 10; // mm
+    const usableWidth = pdfWidth - margin * 2;
+    const imgHeight = (canvas.height * usableWidth) / canvas.width;
 
-    let position = 0;
-    let pageHeight = pdfHeight;
+    let position = margin;
+    let remainingHeight = imgHeight;
+    let imgPosition = 0;
 
-    // Split image if taller than one page
-    if (imgProps.height < pageHeight) {
-      pdf.addImage(imgData, "PNG", 0, 0, imgProps.width, imgProps.height);
+    if (imgHeight <= pdfHeight - margin * 2) {
+      // fits in one page
+      pdf.addImage(imgData, "PNG", margin, margin, usableWidth, imgHeight);
     } else {
-      let remainingHeight = imgProps.height;
-      let pageCount = 0;
-
       while (remainingHeight > 0) {
         pdf.addImage(
           imgData,
           "PNG",
-          0,
+          margin,
           position,
-          imgProps.width,
-          imgProps.height
+          usableWidth,
+          imgHeight,
+          undefined,
+          'FAST'
         );
-        remainingHeight -= pageHeight;
-        position -= pageHeight;
+
+        remainingHeight -= (pdfHeight - margin * 2);
+        imgPosition -= (pdfHeight - margin * 2);
 
         if (remainingHeight > 0) {
           pdf.addPage();
+          position = margin;
         }
       }
     }
 
     pdf.save("JobCard_Report.pdf");
 
-    // restore UI
+    // Restore UI
     setIsPrinting(true);
     clearBtn.style.visibility = "visible";
     printBtn.style.visibility = "visible";
+    thead.style.position = "sticky";
+    tfoot.style.position = "sticky";
   }, 1000); // allow DOM to update
 };
+
 
 
   const handleDateClear = () => {
@@ -241,17 +249,17 @@ const JobCardReport = () => {
             {jobCard.length > 0 && jobCard.at(-1)?.jobCardTotal?.length > 0 ? (
               <div className="jobInfo">
                 {jobCard.at(-1).jobCardTotal[0].balance >= 0 ? (
-                  <span style={{ color: "green" }}>
+                  <span style={{ color: "green",fontSize:"20px" }}>
                     Gold Smith Should Given{" "}
                     {jobCard.at(-1).jobCardTotal[0].balance.toFixed(3)}g
                   </span>
                 ) : jobCard.at(-1).jobCardTotal[0].balance < 0 ? (
-                  <span style={{ color: "red" }}>
+                  <span style={{ color: "red",fontSize:"20px"}}>
                     Owner Should Given{" "}
                     {jobCard.at(-1).jobCardTotal[0].balance.toFixed(3)}g
                   </span>
                 ) : (
-                  <span style={{ color: "black" }}>balance 0</span>
+                  <span style={{ color: "black",fontSize:"20px" }}>balance 0</span>
                 )}
               </div>
             ) : (
@@ -267,7 +275,7 @@ const JobCardReport = () => {
          
               <div className="reportContainer" >
                 <table ref={reportRef}>
-                  <thead className="reportThead">
+                  <thead className="reportThead" id="reportHead">
                     <tr>
                       <th >S.No</th>
                       <th >Date</th>
@@ -320,7 +328,7 @@ const JobCardReport = () => {
                             {i === 0 && (
                               <>
                                 <td rowSpan={maxRows} >
-                                  {page * rowsPerPage + jobIndex + 1}
+                                  { jobIndex + 1}
                                 </td>
                                 <td rowSpan={maxRows}>
                                   {new Date(job.createdAt).toLocaleDateString(
@@ -381,7 +389,10 @@ const JobCardReport = () => {
                         );
                       });
                     })}
-                    <tr className="totalOfJobCard" >
+                  
+                  </tbody>
+                  <tfoot>
+                      <tr className="totalOfJobCardReport" id="reportFoot" >
                       <td colSpan="5">
                         <b>Total</b>
                       </td>
@@ -404,7 +415,7 @@ const JobCardReport = () => {
                       </td>
                       <td></td>
                     </tr>
-                  </tbody>
+                  </tfoot>
                 </table>
 
                  <TablePagination
