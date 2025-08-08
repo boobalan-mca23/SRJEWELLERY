@@ -818,13 +818,29 @@ const getJobCardById=async(req,res)=>{
         })
         const jobCardTotal= await prisma.jobcardTotal.findMany({
             where:{
-              id:parseInt(id-1)
+              goldsmithId:jobCardInfo[0].goldsmithId
             }
         })
-        let balance=parseInt(id)===1 ? 0 :jobCardTotal[0].balance
+        let balance=""
+        let currindex = jobCardTotal.findIndex(item => parseInt(item.id) === parseInt(id));
+       
+        if(currindex===0){
+          balance=0
+        }else{
+          currindex=currindex-1
+           let prevJob=jobCardTotal.filter((item,index)=>currindex===index)
+           balance=prevJob[0].balance
+           
+        }
+         console.log('balance', balance);
+        
+        
+        
+      
+       
         let lastJobCard=(await prisma.jobcardTotal.findMany({where:{goldsmithId:goldSmithInfo.goldsmithId}})).at(-1)
        
-       return res.status(200).json({"jobcard":jobCardInfo,"jobCardBalance":balance,lastJobCard:lastJobCard})
+       return res.status(200).json({"jobcard":jobCardInfo,jobCardBalance:balance,lastJobCard:lastJobCard})
 
       } catch(err){
       return res.status(500).json({err:"Server Error"})
