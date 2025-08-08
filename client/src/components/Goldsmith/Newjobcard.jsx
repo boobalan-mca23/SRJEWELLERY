@@ -372,7 +372,6 @@ useEffect(() => {
 
         <DialogContent>
           <div className="container">
-            <h3  className="section-title">SR Jewellery </h3>
             <div className="header">
               <div className="header-item">
                 <span className="header-label">ID:</span>{" "}
@@ -392,7 +391,8 @@ useEffect(() => {
           
 
             <div className="section">
-              <h3 className="section-title">Given Gold</h3>
+              <h4 className="section-title" >Given Gold</h4>
+              
               {goldRows.map((row, i) => (
                 <div key={i} className="row">
                   <div>
@@ -465,7 +465,8 @@ useEffect(() => {
                   
                 </div>
               ))}
-              <button
+               <div className="Balance">
+                   <button
                 onClick={() =>
                   setGoldRows([
                     ...goldRows,
@@ -482,10 +483,11 @@ useEffect(() => {
                   {format(totalGoldWeight)}
                 </span>
               </div>
+               </div>
             </div>
 
             <div className="section">
-              <h3 className="section-title">Balance</h3>
+              {/* <h4 className="section-title">Balance</h4> */}
               <div className="balance-block">
                 <div className="balance-display-row">
                   <span className="balance-label">
@@ -495,11 +497,11 @@ useEffect(() => {
                 </div>
                 <div className="balance-display-row">
                   <span className="balance-label">Total:</span>
-                  <span className="balance-value">
+                  <span className="balance-value balanceLine">
                     {format(totalGoldWeight)}
                   </span>
                 </div>
-                <div>----------</div>
+              
                 <div className="balance-display-row">
                   <span className="balance-label">Total Balance:</span>
                   <span className="balance-value">{format(totalBalance)}</span>
@@ -508,8 +510,9 @@ useEffect(() => {
             </div>
 
             <div className="section itemDelivery" style={{opacity:edit?1:0.3}} >
-              <h3 className="section-title">Item Delivery</h3>
-              {itemRows.map((item, i) => (
+              <h4 className="section-title">Item Delivery</h4>
+              <div className="itemsGrid">
+                {itemRows.map((item, i) => (
                 <div key={i} className="row" >
                   <div>
                     <input
@@ -563,6 +566,7 @@ useEffect(() => {
                   )}
                 </div>
               ))}
+              </div>
               <button
                 onClick={() =>
                   setItemRows([...itemRows, { weight: "", name: "" }])
@@ -581,7 +585,7 @@ useEffect(() => {
               </div>
           <div className="wastageBox">
               <div className="deduction-section" >
-                <h4>Stone Section </h4>
+                <h4  className="section-title">Stone Section </h4>
                 {deductionRows.map((deduction, i) => (
                   <div key={i} className="deduction-row">
                     <div>
@@ -678,7 +682,7 @@ useEffect(() => {
               </div>
 
               <div className="wastageSection">
-                  <h4>Wastage Section </h4>
+                  <h4 className="section-title">Wastage Section </h4>
          
                <div className="wastageInputBox">
                  
@@ -689,7 +693,7 @@ useEffect(() => {
                     
                   />
                   <span className="operator">x</span>
-                  <div>
+                  <div  className="watageGoldSmith">
                     <input
                       type="text"
                       value={goldSmithWastage}
@@ -717,8 +721,7 @@ useEffect(() => {
                   <strong>Total</strong> = {format(totalItemWeight)} +{" "}
                   {parseFloat(wastage).toFixed(3)}
                 </span>
-                <br></br>
-                <br></br>
+              
                 <span className="finalTotal">
                   {" "}
                   = <strong> {format(finalTotal)}</strong>
@@ -744,8 +747,8 @@ useEffect(() => {
              
               
 
-              <div className="section">
-                <h3 className="section-title">Received Section</h3>
+              <div className="recevedSection" >
+                <h4 className="section-title">Received Section</h4>
                 {received.map((row, i) => (
                   <div key={i} className="row">
                   <div>
@@ -860,7 +863,6 @@ useEffect(() => {
               </Button>
             </div>
 
-            <div className="final-balance-section">
               {balanceDifference > 0 ? (
                 <p className="balance-text-goldsmith">
                   Goldsmith should give balance:
@@ -883,7 +885,7 @@ useEffect(() => {
                   </span>
                 </p>
               )}
-            </div>
+         
           </div>
         </DialogContent>
       </Dialog>

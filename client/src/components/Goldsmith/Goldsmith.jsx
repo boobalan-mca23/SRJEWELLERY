@@ -325,6 +325,7 @@ const Goldsmith = () => {
              setCurrentJob(data.jobcard[0].jobCardTotal[0].isFinished)
             console.log('wastage',data.jobcard[0].jobCardTotal[0].goldSmithWastage)
             setLastJobCard(data.lastJobCard||{})
+            console.log('balance',data.jobCardBalance)
             setOpeningBalance(data.jobCardBalance);
             setOpen(true);
             setEdit(true);

@@ -291,7 +291,7 @@ const SrJobCard = () => {
       const res = await axios.get(
         `${BACKEND_SERVER_URL}/api/job-cards/${id}/lastBalance` // this id is GoldSmithId
       );
-      //  setOpeningBal(res.data)
+       
       res.data.status === "nobalance"
         ? setOpeningBal(res.data.balance)
         : setOpeningBal(res.data.balance);
